@@ -1,22 +1,29 @@
 import '../constants/difficulty_config.dart';
-import '../models/difficulty.dart'; // ggf. Pfad anpassen
+
+enum Difficulty { easy, medium, hard }
 
 extension DifficultyX on Difficulty {
-  int get maxTarget => switch (this) {
-        Difficulty.easy => DifficultyConfig.easyMax,
-        Difficulty.medium => DifficultyConfig.mediumMax,
-        Difficulty.hard => DifficultyConfig.hardMax,
-      };
+  int get maxTarget {
+    switch (this) {
+      case Difficulty.easy:
+        return DifficultyConfig.easyMax;
+      case Difficulty.medium:
+        return DifficultyConfig.mediumMax;
+      case Difficulty.hard:
+        return DifficultyConfig.hardMax; // 150
+    }
+  }
 
-  String get rangeLabel => switch (this) {
-        Difficulty.easy => '1–${DifficultyConfig.easyMax}',
-        Difficulty.medium => '1–${DifficultyConfig.mediumMax}',
-        Difficulty.hard => '1–${DifficultyConfig.hardMax}',
-      };
+  String get label {
+    switch (this) {
+      case Difficulty.easy:
+        return 'Easy';
+      case Difficulty.medium:
+        return 'Medium';
+      case Difficulty.hard:
+        return 'Hard';
+    }
+  }
 
-  String get englishLabel => switch (this) {
-        Difficulty.easy => 'Easy',
-        Difficulty.medium => 'Medium',
-        Difficulty.hard => 'Hard',
-      };
+  String get rangeText => '1–$maxTarget';
 }
