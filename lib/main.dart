@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/start_screen.dart';
+import 'package:dice/features/game/presentation/screens/start_screen.dart';
+
 
 void main() {
   runApp(const DiceTargetApp());

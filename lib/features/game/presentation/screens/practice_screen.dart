@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-import '../solver.dart';
+import 'package:dice/features/game/logic/solver.dart';
+
 
 enum Difficulty { easy, medium, hard }
 enum RoundPhase { idle, revealing, ready, playing, ended }

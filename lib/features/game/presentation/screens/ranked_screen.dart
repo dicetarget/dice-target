@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:dice/features/game/logic/solver.dart';
+
 
 class RankedScreen extends StatelessWidget {
   const RankedScreen({super.key});
