@@ -3,68 +3,104 @@ import 'package:flutter/material.dart';
 class RulesScreen extends StatelessWidget {
   const RulesScreen({super.key});
 
-  Widget _h(BuildContext context, String t) => Padding(
-        padding: const EdgeInsets.only(top: 14, bottom: 6),
-        child: Text(
-          t,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
-    final body = Theme.of(context).textTheme.bodyLarge;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Rules')),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: DefaultTextStyle(
-              style: body ?? const TextStyle(fontSize: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _h(context, 'Ziel'),
-                  const Text('Erreiche die Zielzahl exakt. Am Ende muss genau 1 Würfel übrig sein, der der Zielzahl entspricht.'),
-
-                  _h(context, 'Setup'),
-                  const Text('Du bekommst 5 Würfel (1–6) und eine Zielzahl:\nEasy: 1–50\nMedium: 1–100\nHard: 1–200'),
-
-                  _h(context, 'Zug'),
-                  const Text(
-                    'Tippe 2 oder mehr Würfel an und wähle eine Operation (+ − × ÷).\n'
-                    'Die ausgewählten Würfel verschmelzen zu einem neuen Würfel.\n'
-                    'Dieser neue Würfel bleibt sichtbar und kann weiter kombiniert werden.',
-                  ),
-
-                  _h(context, 'Deterministische Berechnung'),
-                  const Text(
-                    'Die ausgewählten Werte werden absteigend sortiert (größte Zahl zuerst) und dann links-nach-rechts reduziert:\n'
-                    '(((v1 op v2) op v3) op ...)',
-                  ),
-
-                  _h(context, 'Regeln für Operationen'),
-                  const Text(
-                    '+ und × sind immer erlaubt.\n'
-                    '−: pro Schritt wird automatisch die Richtung gewählt, die kein negatives Ergebnis erzeugt.\n'
-                    '÷: nur Ganzzahl-Division ohne Rest; pro Schritt wird automatisch die teilbare Richtung gewählt.\n'
-                    'Wenn kein gültiger Schritt möglich ist, ist der Zug ungültig.',
-                  ),
-
-                  _h(context, 'Impossible'),
-                  const Text(
-                    'Impossible prüft den aktuellen Würfelzustand.\n'
-                    'Wenn das Ziel nicht erreichbar ist: Gewinn.\n'
-                    'Wenn es erreichbar ist: Niederlage und die Lösung wird angezeigt.',
-                  ),
-                ],
+      appBar: AppBar(
+        title: const Text('Rules'),
+      ),
+      body: const Padding(
+        padding: EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SectionTitle('Goal'),
+              SizedBox(height: 6),
+              Text(
+                'Reach the target number using the values of the dice.',
+                style: _bodyStyle,
               ),
-            ),
+
+              SizedBox(height: 20),
+              _SectionTitle('How to Play'),
+              SizedBox(height: 6),
+              Text(
+                '• A target number is generated at the start of each round.\n'
+                '• Five dice are rolled, each showing a value from 1 to 6.\n'
+                '• Tap two dice to select them (the order matters).\n'
+                '• Choose an operation: +, −, ×, or ÷.\n'
+                '• The selected dice are replaced by the result of the operation.\n'
+                '• Continue until only one number remains.',
+                style: _bodyStyle,
+              ),
+
+              SizedBox(height: 20),
+              _SectionTitle('Operations'),
+              SizedBox(height: 6),
+              Text(
+                '• Addition (+): Adds the two selected dice.\n'
+                '• Subtraction (−): Subtracts the second die from the first.\n'
+                '• Multiplication (×): Multiplies the two dice.\n'
+                '• Division (÷): Only allowed if the result is a whole number.',
+                style: _bodyStyle,
+              ),
+
+              SizedBox(height: 20),
+              _SectionTitle('Winning the Game'),
+              SizedBox(height: 6),
+              Text(
+                '• You win if the final remaining number is exactly equal to the target.\n'
+                '• Try to reach the target in as few moves as possible.',
+                style: _bodyStyle,
+              ),
+
+              SizedBox(height: 20),
+              _SectionTitle('Buttons'),
+              SizedBox(height: 6),
+              Text(
+                '• Solve: Shows a possible solution (if available).\n'
+                '• Impossible: Mark the current round as unsolvable.\n'
+                '• Reset Dice: Resets the dice to their initial values.\n'
+                '• New Game: Starts a completely new round.',
+                style: _bodyStyle,
+              ),
+
+              SizedBox(height: 20),
+              _SectionTitle('Difficulty Levels'),
+              SizedBox(height: 6),
+              Text(
+                '• Easy: Target range from 1 to 50.\n'
+                '• Medium: Target range from 1 to 100.\n'
+                '• Hard: Target range from 1 to 150.',
+                style: _bodyStyle,
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+
+class _SectionTitle extends StatelessWidget {
+  final String text;
+
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
+const TextStyle _bodyStyle = TextStyle(
+  fontSize: 16,
+  height: 1.4,
+);
