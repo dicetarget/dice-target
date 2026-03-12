@@ -1,170 +1,154 @@
-enum Op { add, sub, mul, div }
+// lib/features/game/logic/solver.dart
+//
+// Solver für "Dice Target" gemäss deinen Regeln:
+// - Move: wähle 2..n Werte, sortiere DESC, reduziere links->rechts
+// - + und × immer
+// - −: pro Schritt Richtung automatisch (kein negatives Zwischenergebnis), bei beiden möglich: größeres Ergebnis
+// - ÷: pro Schritt Richtung automatisch, nur ohne Rest; wenn beide möglich: a/b bevorzugt
+//
+// Ergebnis liefert:
+// - solvable
+// - fullExpression: komplett geklammerter Ausdruck wie im Screenshot
 
-String opSymbol(Op op) => switch (op) {
-      Op.add => '+',
-      Op.sub => '-',
-      Op.mul => '×',
-      Op.div => '÷',
-    };
-
-class SolveStep {
-  final List<int> before;
-  final List<int> after;
-  final List<int> usedIndicesBefore;
-  final int resultIndexAfter;
-
-  final int a;
-  final int b;
-  final Op op;
-  final int r;
-
-  final String exprA;
-  final String exprB;
-  final String exprR;
-
-  const SolveStep({
-    required this.before,
-    required this.after,
-    required this.usedIndicesBefore,
-    required this.resultIndexAfter,
-    required this.a,
-    required this.b,
-    required this.op,
-    required this.r,
-    required this.exprA,
-    required this.exprB,
-    required this.exprR,
-  });
-}
-
-class SolveResult {
+class DiceSolveResult {
   final bool solvable;
-  final List<SolveStep> steps;
   final String? fullExpression;
 
-  const SolveResult({
-    required this.solvable,
-    required this.steps,
-    this.fullExpression,
-  });
+  const DiceSolveResult({required this.solvable, this.fullExpression});
 }
 
-/// Regeln:
-/// - +, -, ×, ÷
-/// - Division nur ohne Rest
-/// - keine negativen Zwischenergebnisse
-/// - Ziel erreicht: genau 1 Zahl übrig und == target
 class DiceSolver {
-  final int maxStates;
-  DiceSolver({this.maxStates = 140000});
+  DiceSolveResult solveMulti(List<int> diceValues, int target) {
+    final nodes = diceValues.map((v) => _Node(v, v.toString())).toList();
+    final seen = <String>{};
 
-  SolveResult solve(List<int> dice, int target) {
-    final startVals = List<int>.from(dice);
-    final startExpr = dice.map((v) => v.toString()).toList();
+    final expr = _dfs(nodes, target, seen);
+    if (expr == null) return const DiceSolveResult(solvable: false);
+    return DiceSolveResult(solvable: true, fullExpression: expr);
+  }
 
-    final queue = <_Node>[
-      _Node(values: startVals, exprs: startExpr, steps: const [])
-    ];
-    final seen = <String>{_keyOf(startVals)};
+  String? _dfs(List<_Node> nodes, int target, Set<String> seen) {
+    // memo by multiset of values (sorted)
+    final key = (nodes.map((n) => n.value).toList()..sort()).join(',');
+    if (seen.contains(key)) return null;
+    seen.add(key);
 
-    int visited = 0;
-    while (queue.isNotEmpty) {
-      final node = queue.removeAt(0);
-      visited++;
-      if (visited > maxStates) break;
+    if (nodes.length == 1) {
+      return nodes[0].value == target ? nodes[0].expr : null;
+    }
 
-      final values = node.values;
-      final exprs = node.exprs;
+    final n = nodes.length;
 
-      if (values.length == 1 && values[0] == target) {
-        return SolveResult(
-          solvable: true,
-          steps: node.steps,
-          fullExpression: exprs[0],
-        );
-      }
+    // choose subset size 2..n
+    for (int k = 2; k <= n; k++) {
+      final combos = _combinations(n, k);
+      for (final idxs in combos) {
+        // build chosen subset nodes
+        final chosen = [for (final i in idxs) nodes[i]];
 
-      for (int i = 0; i < values.length; i++) {
-        for (int j = i + 1; j < values.length; j++) {
-          final a = values[i];
-          final b = values[j];
-          final ea = exprs[i];
-          final eb = exprs[j];
+        // try each op
+        for (final op in _Op.values) {
+          final merged = _reduceSubset(chosen, op);
+          if (merged == null) continue;
 
-          final candidates = <_Cand>[];
-
-          // +, ×
-          candidates.add(_Cand(op: Op.add, a: a, b: b, r: a + b, exprR: '($ea + $eb)'));
-          candidates.add(_Cand(op: Op.mul, a: a, b: b, r: a * b, exprR: '($ea × $eb)'));
-
-          // - (beide Richtungen), keine negativen Ergebnisse
-          if (a - b >= 0) candidates.add(_Cand(op: Op.sub, a: a, b: b, r: a - b, exprR: '($ea - $eb)'));
-          if (b - a >= 0) candidates.add(_Cand(op: Op.sub, a: b, b: a, r: b - a, exprR: '($eb - $ea)'));
-
-          // ÷ (beide Richtungen), nur wenn teilbar
-          if (b != 0 && a % b == 0) candidates.add(_Cand(op: Op.div, a: a, b: b, r: a ~/ b, exprR: '($ea ÷ $eb)'));
-          if (a != 0 && b % a == 0) candidates.add(_Cand(op: Op.div, a: b, b: a, r: b ~/ a, exprR: '($eb ÷ $ea)'));
-
-          for (final c in candidates) {
-            final nextVals = <int>[];
-            final nextExpr = <String>[];
-
-            for (int k = 0; k < values.length; k++) {
-              if (k == i || k == j) continue;
-              nextVals.add(values[k]);
-              nextExpr.add(exprs[k]);
-            }
-            nextVals.add(c.r);
-            nextExpr.add(c.exprR);
-
-            final key = _keyOf(nextVals);
-            if (seen.contains(key)) continue;
-            seen.add(key);
-
-            final before = List<int>.from(values);
-            final after = List<int>.from(nextVals);
-
-            final step = SolveStep(
-              before: before,
-              after: after,
-              usedIndicesBefore: [i, j],
-              resultIndexAfter: after.length - 1,
-              a: c.a,
-              b: c.b,
-              op: c.op,
-              r: c.r,
-              exprA: ea,
-              exprB: eb,
-              exprR: c.exprR,
-            );
-
-            queue.add(_Node(values: nextVals, exprs: nextExpr, steps: [...node.steps, step]));
+          // new state: remove chosen indices, add merged
+          final next = <_Node>[];
+          for (int i = 0; i < n; i++) {
+            if (!idxs.contains(i)) next.add(nodes[i]);
           }
+          next.add(merged);
+
+          final res = _dfs(next, target, seen);
+          if (res != null) return res;
         }
       }
     }
 
-    return const SolveResult(solvable: false, steps: []);
+    return null;
   }
 
-  String _keyOf(List<int> vals) {
-    final s = List<int>.from(vals)..sort();
-    return s.join(',');
+  _Node? _reduceSubset(List<_Node> subset, _Op op) {
+    // sort DESC by value as rule
+    subset = List<_Node>.from(subset)
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    var acc = subset.first;
+    for (int i = 1; i < subset.length; i++) {
+      final next = subset[i];
+      final combined = _combineStep(acc, next, op);
+      if (combined == null) return null;
+      acc = combined;
+    }
+    return acc;
+  }
+
+  _Node? _combineStep(_Node a, _Node b, _Op op) {
+    switch (op) {
+      case _Op.add:
+        return _Node(a.value + b.value, '(${a.expr} + ${b.expr})');
+
+      case _Op.mul:
+        return _Node(a.value * b.value, '(${a.expr} × ${b.expr})');
+
+      case _Op.sub:
+        // same logic as your _applyStepAuto:
+        final r1 = a.value - b.value;
+        final r2 = b.value - a.value;
+        final ok1 = r1 >= 0;
+        final ok2 = r2 >= 0;
+
+        if (ok1 && !ok2) {
+          return _Node(r1, '(${a.expr} − ${b.expr})');
+        }
+        if (!ok1 && ok2) {
+          return _Node(r2, '(${b.expr} − ${a.expr})');
+        }
+        if (ok1 && ok2) {
+          // pick bigger (tie -> r1)
+          if (r1 >= r2) {
+            return _Node(r1, '(${a.expr} − ${b.expr})');
+          } else {
+            return _Node(r2, '(${b.expr} − ${a.expr})');
+          }
+        }
+        return null;
+
+      case _Op.div:
+        // same logic as your _applyStepAuto:
+        // prefer a/b if divisible, else b/a
+        if (b.value != 0 && a.value % b.value == 0) {
+          return _Node(a.value ~/ b.value, '(${a.expr} ÷ ${b.expr})');
+        }
+        if (a.value != 0 && b.value % a.value == 0) {
+          return _Node(b.value ~/ a.value, '(${b.expr} ÷ ${a.expr})');
+        }
+        return null;
+    }
+  }
+
+  List<List<int>> _combinations(int n, int k) {
+    final result = <List<int>>[];
+    void rec(int start, List<int> cur) {
+      if (cur.length == k) {
+        result.add(List<int>.from(cur));
+        return;
+      }
+      for (int i = start; i < n; i++) {
+        cur.add(i);
+        rec(i + 1, cur);
+        cur.removeLast();
+      }
+    }
+
+    rec(0, []);
+    return result;
   }
 }
+
+enum _Op { add, sub, mul, div }
 
 class _Node {
-  final List<int> values;
-  final List<String> exprs;
-  final List<SolveStep> steps;
-  _Node({required this.values, required this.exprs, required this.steps});
-}
-
-class _Cand {
-  final Op op;
-  final int a;
-  final int b;
-  final int r;
-  final String exprR;
-  _Cand({required this.op, required this.a, required this.b, required this.r, required this.exprR});
+  final int value;
+  final String expr;
+  const _Node(this.value, this.expr);
 }

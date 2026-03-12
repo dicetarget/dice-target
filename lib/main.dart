@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:dice/features/game/presentation/screens/start_screen.dart';
+import 'core/audio/sfx_singleton.dart';
+import 'features/game/presentation/screens/start_screen.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(const DiceTargetApp());
+  // Audio darf NIE den App-Start blockieren/killen
+  try {
+    await sfx.init();
+  } catch (_) {}
+
+  runApp(const DiceApp());
 }
 
-class DiceTargetApp extends StatelessWidget {
-  const DiceTargetApp({super.key});
+class DiceApp extends StatelessWidget {
+  const DiceApp({super.key});
 
   @override
   Widget build(BuildContext context) {

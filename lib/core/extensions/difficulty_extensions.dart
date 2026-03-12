@@ -1,3 +1,4 @@
+// lib/core/extensions/difficulty_extensions.dart
 import '../constants/difficulty_config.dart';
 
 enum Difficulty { easy, medium, hard }
@@ -10,7 +11,7 @@ extension DifficultyX on Difficulty {
       case Difficulty.medium:
         return DifficultyConfig.mediumMax;
       case Difficulty.hard:
-        return DifficultyConfig.hardMax; // 150
+        return DifficultyConfig.hardMax;
     }
   }
 
