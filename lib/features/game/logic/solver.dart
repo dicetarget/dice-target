@@ -3,8 +3,9 @@
 // Solver für "Dice Target" gemäss deinen Regeln:
 // - Move: wähle 2..n Werte, sortiere DESC, reduziere links->rechts
 // - + und × immer
-// - −: pro Schritt Richtung automatisch (kein negatives Zwischenergebnis), bei beiden möglich: größeres Ergebnis
-// - ÷: pro Schritt Richtung automatisch, nur ohne Rest; wenn beide möglich: a/b bevorzugt
+// - −: pro Schritt Richtung automatisch, aber nur mit POSITIVEM Ergebnis (> 0)
+// - ÷: pro Schritt Richtung automatisch, nur ohne Rest und nur mit POSITIVEM Ergebnis (> 0)
+// - 0 und negative Zwischenergebnisse sind verboten
 //
 // Ergebnis liefert:
 // - solvable
@@ -51,6 +52,9 @@ class DiceSolver {
           final merged = _reduceSubset(chosen, op);
           if (merged == null) continue;
 
+          // safety: no zero / negative merged results allowed
+          if (merged.value <= 0) continue;
+
           // new state: remove chosen indices, add merged
           final next = <_Node>[];
           for (int i = 0; i < n; i++) {
@@ -77,6 +81,10 @@ class DiceSolver {
       final next = subset[i];
       final combined = _combineStep(acc, next, op);
       if (combined == null) return null;
+
+      // every intermediate result must stay strictly positive
+      if (combined.value <= 0) return null;
+
       acc = combined;
     }
     return acc;
@@ -85,17 +93,19 @@ class DiceSolver {
   _Node? _combineStep(_Node a, _Node b, _Op op) {
     switch (op) {
       case _Op.add:
-        return _Node(a.value + b.value, '(${a.expr} + ${b.expr})');
+        final result = a.value + b.value;
+        return result > 0 ? _Node(result, '(${a.expr} + ${b.expr})') : null;
 
       case _Op.mul:
-        return _Node(a.value * b.value, '(${a.expr} × ${b.expr})');
+        final result = a.value * b.value;
+        return result > 0 ? _Node(result, '(${a.expr} × ${b.expr})') : null;
 
       case _Op.sub:
-        // same logic as your _applyStepAuto:
+        // only strictly positive results allowed
         final r1 = a.value - b.value;
         final r2 = b.value - a.value;
-        final ok1 = r1 >= 0;
-        final ok2 = r2 >= 0;
+        final ok1 = r1 > 0;
+        final ok2 = r2 > 0;
 
         if (ok1 && !ok2) {
           return _Node(r1, '(${a.expr} − ${b.expr})');
@@ -114,13 +124,18 @@ class DiceSolver {
         return null;
 
       case _Op.div:
-        // same logic as your _applyStepAuto:
         // prefer a/b if divisible, else b/a
         if (b.value != 0 && a.value % b.value == 0) {
-          return _Node(a.value ~/ b.value, '(${a.expr} ÷ ${b.expr})');
+          final result = a.value ~/ b.value;
+          if (result > 0) {
+            return _Node(result, '(${a.expr} ÷ ${b.expr})');
+          }
         }
         if (a.value != 0 && b.value % a.value == 0) {
-          return _Node(b.value ~/ a.value, '(${b.expr} ÷ ${a.expr})');
+          final result = b.value ~/ a.value;
+          if (result > 0) {
+            return _Node(result, '(${b.expr} ÷ ${a.expr})');
+          }
         }
         return null;
     }

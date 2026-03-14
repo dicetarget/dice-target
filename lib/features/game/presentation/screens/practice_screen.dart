@@ -1,14 +1,16 @@
-// lib/features/game/presentation/screens/practice_screen.dart
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/difficulty_config.dart';
 import 'package:dice/core/extensions/difficulty_extensions.dart';
 import 'package:dice/core/game_rules.dart';
+import 'package:dice/core/puzzle/game_mode.dart';
+import 'package:dice/core/puzzle/puzzle.dart';
+import 'package:dice/core/puzzle/puzzle_coordinator.dart';
+import 'package:dice/core/puzzle/puzzle_generator.dart';
+import 'package:dice/core/puzzle/puzzle_seed.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/theme/app_durations.dart';
 import 'package:dice/core/theme/app_radius.dart';
@@ -16,19 +18,21 @@ import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/theme/app_text_styles.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_application_service.dart';
-import 'package:dice/features/game/logic/round_engine.dart';
 import 'package:dice/features/game/logic/round_evaluator.dart';
 import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:dice/features/game/models/dice_state.dart';
 import 'package:dice/features/game/models/game_state.dart';
+import 'package:dice/features/game/models/practice_round_summary.dart';
+import 'package:dice/features/game/presentation/animations/dice_roll_controller.dart';
+import 'package:dice/features/game/presentation/animations/target_roll_controller.dart';
+import 'package:dice/features/game/presentation/coordinators/practice_round_flow_coordinator.dart';
 import 'package:dice/features/game/presentation/widgets/practice_bottom_buttons.dart';
 import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
-import 'package:dice/features/game/presentation/widgets/practice_ops_row.dart';
 import 'package:dice/features/game/presentation/widgets/practice_result_overlay.dart';
-import 'package:dice/features/game/presentation/widgets/practice_small_actions_row.dart';
-import 'package:dice/features/game/presentation/widgets/practice_target_bar.dart';
 import 'package:dice/features/game/presentation/widgets/practice_top_controls_bar.dart';
 import 'package:dice/features/game/presentation/widgets/solution_impossible_dialog.dart';
+import 'package:dice/features/game/presentation/widgets/target_display_widget.dart';
+import 'package:dice/features/game/presentation/widgets/practice_game_area.dart';
 
 enum RoundPhase { preStart, rolling, playing, ended }
 
@@ -99,19 +103,11 @@ class RunClock extends ModeClock {
   }
 }
 
-class _Puzzle {
-  final int target;
-  final List<int> dice;
-  final int seed;
-  const _Puzzle({required this.target, required this.dice, required this.seed});
-}
-
 class _PracticeScreenState extends State<PracticeScreen>
     with TickerProviderStateMixin {
-  Random? _rng;
   final SolverService _solverService = SolverService();
+  final PuzzleGenerator _puzzleGenerator = PuzzleGenerator();
   final GameRules _gameRules = GameRules();
-  final RoundEngine _roundEngine = const RoundEngine();
   final RoundEvaluator _roundEvaluator = const RoundEvaluator();
   final MoveApplicationService _moveApplicationService =
       const MoveApplicationService();
@@ -125,6 +121,11 @@ class _PracticeScreenState extends State<PracticeScreen>
   static const Color _ink = AppColors.ink;
 
   late PracticeGameState _gameState;
+
+  late final TargetRollController _targetRollController;
+  late final DiceRollController _diceRollController;
+  late final PracticeRoundFlowCoordinator _roundFlowCoordinator;
+  late PuzzleCoordinator _puzzleCoordinator;
 
   Difficulty _difficulty = Difficulty.easy;
   bool _showMergedResults = true;
@@ -143,11 +144,6 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   ModeClock _clock = const NoClock();
 
-  int _roundSeed = 0;
-  int _puzzleIndex = 0;
-
-  _Puzzle? _pendingPuzzle;
-
   List<int> _initialDice = [];
   int _initialTarget = 0;
 
@@ -157,19 +153,6 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool _resultDialogOpen = false;
 
   int _mergePopKey = 0;
-
-  final ValueNotifier<int> _rollingTargetN = ValueNotifier<int>(0);
-  final ValueNotifier<List<int>> _rollingDiceN = ValueNotifier<List<int>>(
-    List<int>.filled(5, 1),
-  );
-  bool _rollingTargetLocked = false;
-  Timer? _rollTimer;
-  Timer? _endTimer;
-
-  Ticker? _rollTicker;
-  Duration _lastRollFrameTime = Duration.zero;
-
-  int _rollIntervalMs = 80;
 
   Timer? _timeoutTimer;
 
@@ -190,6 +173,22 @@ class _PracticeScreenState extends State<PracticeScreen>
     super.initState();
 
     _gameState = PracticeGameState.initial();
+
+    _targetRollController = TargetRollController()..startIdle(initialValue: 0);
+    _diceRollController = DiceRollController()
+      ..startIdle(initialDice: List<int>.filled(5, 1));
+
+    _roundFlowCoordinator = PracticeRoundFlowCoordinator(
+      targetRollController: _targetRollController,
+      diceRollController: _diceRollController,
+    );
+
+    _puzzleCoordinator = PuzzleCoordinator(
+      generator: _puzzleGenerator,
+      mode: GameMode.practice,
+      config: _config,
+      baseSeed: PuzzleSeed.practiceSeed(),
+    );
 
     _shakeCtrl = AnimationController(vsync: this, duration: AppDurations.shake);
 
@@ -228,18 +227,14 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   void dispose() {
-    _stopRollTicker();
+    _targetRollController.dispose();
+    _diceRollController.dispose();
 
-    _rollTimer?.cancel();
-    _endTimer?.cancel();
     _timeoutTimer?.cancel();
     _invalidTimer?.cancel();
 
     _shakeCtrl.dispose();
     _celebrateCtrl.dispose();
-
-    _rollingTargetN.dispose();
-    _rollingDiceN.dispose();
 
     super.dispose();
   }
@@ -275,43 +270,9 @@ class _PracticeScreenState extends State<PracticeScreen>
     _timeoutTimer = null;
   }
 
-  void _stopRollTicker() {
-    _rollTicker?.stop();
-    _rollTicker?.dispose();
-    _rollTicker = null;
-    _lastRollFrameTime = Duration.zero;
-  }
-
-  void _startRollTicker({
-    required bool rollTarget,
-    required bool rollDice,
-    required DifficultyConfig effConfig,
-  }) {
-    _stopRollTicker();
-
-    _rollTicker = createTicker((elapsed) {
-      if (!mounted) return;
-
-      final last = _lastRollFrameTime;
-      if (last != Duration.zero &&
-          (elapsed - last).inMilliseconds < _rollIntervalMs) {
-        return;
-      }
-      _lastRollFrameTime = elapsed;
-
-      if (rollTarget && !_rollingTargetLocked) {
-        _rollingTargetN.value = _rng!.nextInt(effConfig.maxTarget) + 1;
-      }
-
-      if (rollDice) {
-        _rollingDiceN.value = List<int>.generate(
-          5,
-          (_) => _rng!.nextInt(6) + 1,
-        );
-      }
-    });
-
-    _rollTicker!.start();
+  void _cancelRollingControllers() {
+    _targetRollController.cancel();
+    _diceRollController.cancel();
   }
 
   void _startTimeoutTickerIfNeeded() {
@@ -329,12 +290,31 @@ class _PracticeScreenState extends State<PracticeScreen>
     _celebrateCtrl.forward(from: 0);
   }
 
+  void _handleRoundEndFeedback(bool solved) {
+    if (solved) {
+      _playTargetCelebrate();
+
+      if (_soundEnabled) {
+        sfx.win();
+      }
+    } else {
+      if (_soundEnabled) {
+        sfx.lose();
+      }
+    }
+  }
+
   void _goToPreStart() {
-    _rollTimer?.cancel();
-    _stopRollTicker();
-    _endTimer?.cancel();
+    _cancelRollingControllers();
     _cancelTimeoutTicker();
     _invalidTimer?.cancel();
+
+    _roundFlowCoordinator.resetToIdle(
+      initialTarget: 0,
+      initialDice: List<int>.filled(5, 1),
+    );
+
+    final currentSoundEnabled = _gameState.soundEnabled;
 
     setState(() {
       _resultDialogOpen = false;
@@ -355,57 +335,131 @@ class _PracticeScreenState extends State<PracticeScreen>
 
       _selected.clear();
 
-      _rollingTargetN.value = 0;
-      _rollingDiceN.value = List<int>.filled(5, 1);
-      _rollingTargetLocked = false;
-
       _clearPendingOp();
 
       _undoStack.clear();
 
-      _pendingPuzzle = null;
-
       _rollAfterNoSolutionArmed = false;
 
-      _gameState = PracticeGameState.initial();
+      _gameState = PracticeGameState.initial().copyWith(
+        soundEnabled: currentSoundEnabled,
+      );
     });
   }
 
-  void _newGame() {
+  Future<void> _newGame() async {
     if (_busy) return;
 
     if (_soundEnabled) {
       sfx.click();
     }
 
-    startRound();
+    await startRound();
   }
 
-  void startRound({
+  Future<void> _startNextPuzzleKeepingTarget() async {
+    await startRound(clock: _clock, resetRun: false, keepTarget: true);
+  }
+
+  Puzzle _createRoundPuzzle({
+    required DifficultyConfig config,
+    required bool keepTarget,
+    int? seed,
+    int? puzzleIndex,
+    Difficulty? difficulty,
+  }) {
+    final wasReconfigured =
+        difficulty != null || seed != null || puzzleIndex != null;
+
+    _puzzleCoordinator.reconfigureIfNeeded(
+      config: config,
+      seed: seed,
+      puzzleIndex: puzzleIndex,
+    );
+
+    return _puzzleCoordinator.createRoundPuzzle(
+      keepTarget: keepTarget,
+      fixedTarget: keepTarget ? _gameState.target : null,
+      wasReconfigured: wasReconfigured,
+    );
+  }
+
+  void _handleRollingUiState({
+    required bool isRollingTarget,
+    required bool isRollingDice,
+    int? target,
+  }) {
+    if (!mounted) return;
+
+    setState(() {
+      _gameState = _gameState.copyWith(
+        target: target ?? _gameState.target,
+        isRollingTarget: isRollingTarget,
+        isRollingDice: isRollingDice,
+      );
+    });
+  }
+
+  Future<void> _rollAndApplyPuzzle({
+    required Puzzle puzzle,
+    required Difficulty difficulty,
+    required DifficultyConfig config,
+    required bool keepTarget,
+  }) async {
+    final rolledPuzzle = await _roundFlowCoordinator.rollPuzzle(
+      puzzle: puzzle,
+      difficulty: difficulty,
+      config: config,
+      random: _puzzleCoordinator.createAnimationRandom(),
+      keepTarget: keepTarget,
+      isActive: () => mounted,
+      onUiState: _handleRollingUiState,
+    );
+
+    if (!mounted || rolledPuzzle == null) {
+      return;
+    }
+
+    _applyRolledPuzzle(rolledPuzzle);
+  }
+
+  Future<void> startRound({
     int? seed,
     int? puzzleIndex,
     Difficulty? difficulty,
     ModeClock? clock,
     bool resetRun = true,
     bool keepTarget = false,
-  }) {
+  }) async {
     if (_busy) return;
 
     _rollAfterNoSolutionArmed = false;
 
     final effDifficulty = difficulty ?? _difficulty;
     final effConfig = _difficultyToConfig(effDifficulty);
-
     final effClock = clock ?? _clockFromConfig(effConfig);
-    final effPuzzleIndex = puzzleIndex ?? 0;
 
-    final effSeed = seed ?? DateTime.now().microsecondsSinceEpoch;
+    final puzzle = _createRoundPuzzle(
+      config: effConfig,
+      keepTarget: keepTarget,
+      seed: seed,
+      puzzleIndex: puzzleIndex,
+      difficulty: difficulty,
+    );
 
-    _roundSeed = effSeed;
-    _puzzleIndex = effPuzzleIndex;
-    _clock = effClock;
+    _prepareRoundStart(clock: effClock, resetRun: resetRun);
+    _prepareRollingPhase(keepTarget: keepTarget);
 
-    _rng = Random(_mixSeed(_roundSeed, _puzzleIndex));
+    await _rollAndApplyPuzzle(
+      puzzle: puzzle,
+      difficulty: effDifficulty,
+      config: effConfig,
+      keepTarget: keepTarget,
+    );
+  }
+
+  void _prepareRoundStart({required ModeClock clock, required bool resetRun}) {
+    _clock = clock;
 
     if (resetRun) {
       _runWatch
@@ -427,38 +481,16 @@ class _PracticeScreenState extends State<PracticeScreen>
     _clearPendingOp();
     _undoStack.clear();
     _cancelTimeoutTicker();
+    _cancelRollingControllers();
+  }
 
-    final puzzle = keepTarget
-        ? _generatePuzzle(
-            config: effConfig,
-            seed: _roundSeed,
-            puzzleIndex: _puzzleIndex,
-            keepTarget: true,
-            fixedTarget: _gameState.target,
-          )
-        : (() {
-            final puzzleRandom = Random(_mixSeed(_roundSeed, _puzzleIndex));
-            final round = _roundEngine.startRound(
-              config: effConfig,
-              random: puzzleRandom,
-            );
-
-            return _Puzzle(
-              target: round.target,
-              dice: List<int>.from(round.dice),
-              seed: _roundSeed,
-            );
-          })();
-
-    _pendingPuzzle = puzzle;
-
+  void _prepareRollingPhase({required bool keepTarget}) {
     setState(() {
       _phase = RoundPhase.rolling;
-      _rollingTargetLocked = false;
       _gameState = _gameState.copyWith(
         moves: 0,
         isRollingTarget: !keepTarget,
-        isRollingDice: keepTarget,
+        isRollingDice: true,
         isRoundEnded: false,
         clearSelectedOp: true,
         clearSelectedDieIndex: true,
@@ -466,114 +498,36 @@ class _PracticeScreenState extends State<PracticeScreen>
         clearRoundResult: true,
       );
     });
-
-    _rollingTargetN.value = keepTarget
-        ? puzzle.target
-        : _rng!.nextInt(effConfig.maxTarget) + 1;
-    _rollingDiceN.value = List<int>.filled(5, 1);
-
-    _stopRollTicker();
-    _rollTimer?.cancel();
-    _endTimer?.cancel();
-
-    if (!keepTarget) {
-      _rollIntervalMs = switch (effDifficulty) {
-        Difficulty.easy => 40,
-        Difficulty.medium => 40,
-        Difficulty.hard => 40,
-      };
-
-      _startRollTicker(rollTarget: true, rollDice: false, effConfig: effConfig);
-
-      _endTimer = Timer(AppDurations.rollStart, () {
-        if (!mounted) return;
-
-        final finalTarget = _pendingPuzzle!.target;
-
-        setState(() {
-          _rollingTargetLocked = true;
-          _gameState = _gameState.copyWith(
-            target: finalTarget,
-            isRollingTarget: false,
-            isRollingDice: true,
-          );
-        });
-
-        _rollingTargetN.value = finalTarget;
-
-        _startRollTicker(
-          rollTarget: false,
-          rollDice: true,
-          effConfig: effConfig,
-        );
-
-        _endTimer = Timer(AppDurations.rollTarget, () {
-          _finalizePendingPuzzle();
-        });
-      });
-    } else {
-      setState(() {
-        _rollingTargetN.value = puzzle.target;
-        _rollingTargetLocked = true;
-        _rollingDiceN.value = List<int>.generate(
-          5,
-          (_) => _rng!.nextInt(6) + 1,
-        );
-        _gameState = _gameState.copyWith(
-          target: puzzle.target,
-          isRollingTarget: false,
-          isRollingDice: true,
-        );
-      });
-
-      _rollIntervalMs = switch (effDifficulty) {
-        Difficulty.easy => 55,
-        Difficulty.medium => 55,
-        Difficulty.hard => 55,
-      };
-
-      _startRollTicker(rollTarget: false, rollDice: true, effConfig: effConfig);
-
-      _endTimer = Timer(AppDurations.rollDice, () {
-        _finalizePendingPuzzle();
-      });
-    }
   }
 
-  void _finalizePendingPuzzle() {
-    _stopRollTicker();
-    _rollTimer?.cancel();
-    if (!mounted) return;
+  List<DiceState> _toDiceStateList(List<int> values) {
+    return values.map((v) => DiceState(value: v, maskLabel: null)).toList();
+  }
 
-    final puzzle = _pendingPuzzle;
-    if (puzzle == null) {
-      setState(() {
-        _phase = RoundPhase.preStart;
-        _busy = false;
-        _gameState = _gameState.copyWith(
-          isRollingTarget: false,
-          isRollingDice: false,
-        );
-      });
-      return;
-    }
+  void _enterPlayableRoundState({
+    required int target,
+    required List<int> diceValues,
+  }) {
+    final diceState = _toDiceStateList(diceValues);
 
-    final finalizedDiceState = puzzle.dice
-        .map((v) => DiceState(value: v, maskLabel: null))
-        .toList();
+    _roundFlowCoordinator.resetToIdle(
+      initialTarget: target,
+      initialDice: List<int>.from(diceValues),
+    );
 
     setState(() {
-      _initialTarget = puzzle.target;
-      _initialDice = List<int>.from(puzzle.dice);
+      _initialTarget = target;
+      _initialDice = List<int>.from(diceValues);
 
       _phase = RoundPhase.playing;
       _busy = false;
 
+      _selected.clear();
       _undoStack.clear();
 
       _gameState = _gameState.copyWith(
-        target: puzzle.target,
-        dice: finalizedDiceState,
+        target: target,
+        dice: diceState,
         moves: 0,
         isRollingTarget: false,
         isRollingDice: false,
@@ -585,12 +539,22 @@ class _PracticeScreenState extends State<PracticeScreen>
       );
     });
 
+    _gameRules.start(target);
+
     _solveWatch
       ..reset()
       ..start();
 
-    _gameRules.start(_gameState.target);
+    _lastSolveTime = Duration.zero;
+
     _startTimeoutTickerIfNeeded();
+  }
+
+  void _applyRolledPuzzle(Puzzle puzzle) {
+    _cancelRollingControllers();
+    if (!mounted) return;
+
+    _enterPlayableRoundState(target: puzzle.target, diceValues: puzzle.dice);
   }
 
   void _resetDice() {
@@ -607,40 +571,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     _resultDialogOpen = false;
 
-    final resetDiceState = _initialDice
-        .map((v) => DiceState(value: v, maskLabel: null))
-        .toList();
-
-    setState(() {
-      _selected.clear();
-      _phase = RoundPhase.playing;
-      _clearPendingOp();
-
-      _undoStack.clear();
-
-      _gameState = _gameState.copyWith(
-        target: _initialTarget,
-        dice: resetDiceState,
-        moves: 0,
-        isRollingTarget: false,
-        isRollingDice: false,
-        isRoundEnded: false,
-        clearSelectedOp: true,
-        clearSelectedDieIndex: true,
-        clearRevealedSolution: true,
-        clearRoundResult: true,
-      );
-    });
-
-    _gameRules.start(_gameState.target);
-
-    _solveWatch
-      ..reset()
-      ..start();
-
-    _lastSolveTime = Duration.zero;
-
-    _startTimeoutTickerIfNeeded();
+    _enterPlayableRoundState(target: _initialTarget, diceValues: _initialDice);
   }
 
   Future<void> _impossible() async {
@@ -714,9 +645,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   Future<void> _rerollDiceAfterImpossibleWithAnimation() async {
-    _rollTimer?.cancel();
-    _endTimer?.cancel();
     _cancelTimeoutTicker();
+    _cancelRollingControllers();
 
     if (_rollAfterNoSolutionArmed && _soundEnabled) {
       sfx.roll();
@@ -725,14 +655,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       _rollAfterNoSolutionArmed = false;
     }
 
-    startRound(
-      seed: _roundSeed,
-      puzzleIndex: _puzzleIndex + 1,
-      difficulty: _difficulty,
-      clock: _clock,
-      resetRun: false,
-      keepTarget: true,
-    );
+    await _startNextPuzzleKeepingTarget();
   }
 
   void _toggleSelect(int index) {
@@ -946,6 +869,45 @@ class _PracticeScreenState extends State<PracticeScreen>
         '${cs.toString().padLeft(2, '0')}';
   }
 
+  PracticeRoundSummary _buildRoundSummary({
+    required String title,
+    required bool solved,
+  }) {
+    int finalValue = 0;
+    if (_gameState.dice.isNotEmpty) {
+      finalValue = _gameState.dice.first.value;
+    }
+
+    final delta = (finalValue - _gameState.target).abs();
+
+    return PracticeRoundSummary(
+      title: title,
+      target: _gameState.target,
+      finalValue: finalValue,
+      delta: delta,
+      moves: _gameState.moves,
+      timeText: _fmt(_lastSolveTime),
+      isSolved: solved,
+    );
+  }
+
+  Future<void> _showRoundResultOverlay(PracticeRoundSummary summary) async {
+    await showPracticeResultOverlay(
+      context: context,
+      title: summary.title,
+      target: summary.target,
+      finalValue: summary.finalValue,
+      delta: summary.delta,
+      moves: summary.moves,
+      timeText: summary.timeText,
+      isSolved: summary.isSolved,
+      onRetry: () {
+        Navigator.of(context).pop();
+        _resetDice();
+      },
+    );
+  }
+
   Future<void> _endRound({
     required EndReason reason,
     required bool solved,
@@ -968,37 +930,11 @@ class _PracticeScreenState extends State<PracticeScreen>
         });
       }
 
-      int finalValue = 0;
-      if (_gameState.dice.isNotEmpty) {
-        finalValue = _gameState.dice.first.value;
-      }
-      final int delta = (finalValue - _gameState.target).abs();
+      final summary = _buildRoundSummary(title: title, solved: solved);
 
-      if (solved) {
-        _playTargetCelebrate();
-        if (_soundEnabled) {
-          sfx.win();
-        }
-      } else {
-        if (_soundEnabled) {
-          sfx.lose();
-        }
-      }
+      _handleRoundEndFeedback(solved);
 
-      await showPracticeResultOverlay(
-        context: context,
-        title: title,
-        target: _gameState.target,
-        finalValue: finalValue,
-        delta: delta,
-        moves: _gameState.moves,
-        timeText: _fmt(_lastSolveTime),
-        isSolved: solved,
-        onRetry: () {
-          Navigator.of(context).pop();
-          _resetDice();
-        },
-      );
+      await _showRoundResultOverlay(summary);
 
       if (mounted && _phase == RoundPhase.ended) {
         setState(() {
@@ -1068,6 +1004,8 @@ class _PracticeScreenState extends State<PracticeScreen>
             Widget radioRow(Difficulty d) {
               return InkWell(
                 onTap: () => setLocal(() => tempDifficulty = d),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
+                enableFeedback: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.lg,
@@ -1075,9 +1013,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                   ),
                   child: Row(
                     children: [
-                      Radio<Difficulty>(
-                        value: d, // ← KOMMA MUSS HIER STEHEN
-                      ),
+                      Radio<Difficulty>(value: d),
                       const SizedBox(width: AppSpacing.sm),
                       Text(d.label, style: AppTextStyles.labelLarge),
                     ],
@@ -1134,6 +1070,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                                       AppRadius.button,
                                     ),
                                   ),
+                                  enableFeedback: false,
                                 ),
                                 child: const Text(
                                   'Cancel',
@@ -1153,6 +1090,11 @@ class _PracticeScreenState extends State<PracticeScreen>
                                     _showMergedResults = tempShowMerged;
                                   });
                                   if (difficultyChanged) {
+                                    _puzzleCoordinator.reconfigure(
+                                      config: _difficultyToConfig(_difficulty),
+                                      baseSeed: PuzzleSeed.practiceSeed(),
+                                      startIndex: 0,
+                                    );
                                     _goToPreStart();
                                   }
                                 },
@@ -1168,6 +1110,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                                       AppRadius.button,
                                     ),
                                   ),
+                                  enableFeedback: false,
                                 ),
                                 child: const Text(
                                   'Apply',
@@ -1228,12 +1171,14 @@ class _PracticeScreenState extends State<PracticeScreen>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).maybePop(),
+            enableFeedback: false,
           ),
           actions: [
             IconButton(
               tooltip: 'Settings',
               onPressed: _busy ? null : _openSettingsSheet,
               icon: const Icon(Icons.tune_rounded),
+              enableFeedback: false,
             ),
           ],
         ),
@@ -1264,81 +1209,46 @@ class _PracticeScreenState extends State<PracticeScreen>
                       onToggleSound: _toggleSound,
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    ValueListenableBuilder<int>(
-                      valueListenable: _rollingTargetN,
-                      builder: (context, rt, child) {
-                        final targetDisplay = _isPreStart
-                            ? '—'
-                            : (_isRolling ? '$rt' : '${_gameState.target}');
-
-                        return PracticeTargetBar(
-                          cardColor: _card,
-                          accentColor: _accent,
-                          inkColor: _ink,
-                          targetText: targetDisplay,
-                          celebrateAnimation: _celebrateT,
-                        );
-                      },
+                    TargetDisplayWidget(
+                      isPreStart: _isPreStart,
+                      isRolling: _isRolling,
+                      target: _gameState.target,
+                      cardColor: _card,
+                      accentColor: _accent,
+                      inkColor: _ink,
+                      rollingTargetListenable: _targetRollController.value,
+                      celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: AppSpacing.xxl),
                     Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (showDice) ...[
-                            AnimatedBuilder(
-                              animation: _shakeAnim,
-                              builder: (context, child) {
-                                return Transform.translate(
-                                  offset: Offset(_shakeAnim.value, 0),
-                                  child: child,
-                                );
-                              },
-                              child: ValueListenableBuilder<List<int>>(
-                                valueListenable: _rollingDiceN,
-                                builder: (context, rollingDice, child) {
-                                  return PracticeDiceRow(
-                                    isRolling: _isRolling,
-                                    isPlaying: _isPlaying,
-                                    busy: _busy,
-                                    showMergedResults: _showMergedResults,
-                                    rollingTargetLocked: _rollingTargetLocked,
-                                    mergePopKey: _mergePopKey,
-                                    rollingDice: rollingDice,
-                                    dice: _gameState.dice
-                                        .map(
-                                          (d) => PracticeDieData(
-                                            value: d.value,
-                                            maskLabel: d.maskLabel,
-                                          ),
-                                        )
-                                        .toList(),
-                                    selectedIndices: _selected,
-                                    accentColor: _accent,
-                                    onToggleSelect: _toggleSelect,
-                                  );
-                                },
+                      child: PracticeGameArea(
+                        showDice: showDice,
+                        isRolling: _isRolling,
+                        isPlaying: _isPlaying,
+                        busy: _busy,
+                        showMergedResults: _showMergedResults,
+                        mergePopKey: _mergePopKey,
+                        selectedIndices: _selected,
+                        accentColor: _accent,
+                        inkColor: _ink,
+                        shakeAnimation: _shakeAnim,
+                        rollingDiceListenable: _diceRollController.dice,
+                        rollingTargetLocked: _targetRollController.locked.value,
+                        dice: _gameState.dice
+                            .map(
+                              (d) => PracticeDieData(
+                                value: d.value,
+                                maskLabel: d.maskLabel,
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.xl),
-                          ],
-                          PracticeOpsRow(
-                            canInteractGameplay: _canInteractGameplay,
-                            allowedOps: _config.allowedOps,
-                            pendingOp: _selectedOp,
-                            accentColor: _accent,
-                            inkColor: _ink,
-                            onApplyOp: _applyOp,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          PracticeSmallActionsRow(
-                            enabled:
-                                _canInteractGameplay && _undoStack.isNotEmpty,
-                            accentColor: _accent,
-                            inkColor: _ink,
-                            onUndo: _undo,
-                          ),
-                        ],
+                            )
+                            .toList(),
+                        canInteractGameplay: _canInteractGameplay,
+                        allowedOps: _config.allowedOps,
+                        pendingOp: _selectedOp,
+                        undoEnabled:
+                            _canInteractGameplay && _undoStack.isNotEmpty,
+                        onToggleSelect: _toggleSelect,
+                        onApplyOp: _applyOp,
+                        onUndo: _undo,
                       ),
                     ),
                     PracticeBottomButtons(
@@ -1380,49 +1290,6 @@ class _PracticeScreenState extends State<PracticeScreen>
     final limit = c.timeLimit;
     if (limit == null) return const NoClock();
     return PerPuzzleClock(limit);
-  }
-
-  _Puzzle _generatePuzzle({
-    required DifficultyConfig config,
-    required int seed,
-    required int puzzleIndex,
-    required bool keepTarget,
-    required int? fixedTarget,
-  }) {
-    final gen = Random(_mixSeed(seed, puzzleIndex));
-
-    final target = keepTarget
-        ? (fixedTarget ?? 1)
-        : (gen.nextInt(config.maxTarget) + 1);
-    final dice = List<int>.generate(5, (_) => gen.nextInt(6) + 1);
-
-    return _Puzzle(target: target, dice: dice, seed: seed);
-  }
-
-  int _mixSeed(int seed, int puzzleIndex) {
-    var x = seed ^ (puzzleIndex * 0x9E3779B9);
-    x = (x ^ (x >> 16)) * 0x85EBCA6B;
-    x = (x ^ (x >> 13)) * 0xC2B2AE35;
-    x = x ^ (x >> 16);
-    return x & 0x7fffffff;
-  }
-
-  // ignore: unused_element
-  static int dailySeedFromDate(DateTime dateUtc) {
-    final y = dateUtc.year;
-    final m = dateUtc.month;
-    final d = dateUtc.day;
-    return (y * 10000) + (m * 100) + d;
-  }
-
-  // ignore: unused_element
-  static int matchSeedFromMatchId(String matchId) {
-    var hash = 0x811C9DC5;
-    for (final code in matchId.codeUnits) {
-      hash ^= code;
-      hash = (hash * 0x01000193) & 0xffffffff;
-    }
-    return hash & 0x7fffffff;
   }
 }
 

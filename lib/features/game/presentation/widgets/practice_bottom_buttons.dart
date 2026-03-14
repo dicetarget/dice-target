@@ -51,6 +51,7 @@ class PracticeBottomButtons extends StatelessWidget {
               ),
               foregroundColor: accentColor,
               backgroundColor: AppColors.white.withValues(alpha: 0.45),
+              enableFeedback: false,
             )
           : ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
@@ -58,6 +59,7 @@ class PracticeBottomButtons extends StatelessWidget {
               elevation: 0,
               backgroundColor: AppColors.white.withValues(alpha: 0.55),
               foregroundColor: accentColor,
+              enableFeedback: false,
             );
 
       return SizedBox(
@@ -87,7 +89,7 @@ class PracticeBottomButtons extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         bigButton(
-          text: 'Reset Dice',
+          text: 'Reset Round',
           onPressed: canReset ? onResetDice : null,
           outlined: true,
         ),

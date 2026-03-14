@@ -134,7 +134,7 @@ class _StartScreenState extends State<StartScreen>
                       ),
                       const SizedBox(height: 52),
                       _primaryButton(
-                        text: 'Start',
+                        text: 'Free Play',
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(

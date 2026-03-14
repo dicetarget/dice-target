@@ -76,6 +76,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                     InkWell(
                       borderRadius: BorderRadius.circular(AppRadius.medium),
                       onTap: onToggleSound,
+                      enableFeedback: false,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.md,

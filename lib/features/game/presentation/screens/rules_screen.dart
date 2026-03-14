@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class RulesScreen extends StatelessWidget {
   const RulesScreen({super.key});
 
-  // Match your app look (Start/Practice)
   static const Color _ink = Color(0xFF1D1B20);
 
   @override
@@ -101,6 +100,7 @@ class _RulesContent extends StatelessWidget {
               'Reach the target number using the dice values.\n'
               'At the end of the game:\n'
               '• Exactly one die must remain\n'
+              '• All dice must be used except the final one\n'
               '• Its value must be exactly equal to the target number',
         ),
         SizedBox(height: 14),
@@ -109,8 +109,8 @@ class _RulesContent extends StatelessWidget {
           heading: 'Game Start',
           body:
               'At the start of each round:\n'
-              '• Five dice are rolled, each showing a value from 1 to 6\n'
-              '• A target number is generated based on the selected difficulty\n\n'
+              '• A target number is generated first, based on the selected difficulty\n'
+              '• Then five dice are rolled, each showing a value from 1 to 6\n\n'
               'Target ranges:\n'
               '• Easy: 1–50\n'
               '• Medium: 1–100\n'

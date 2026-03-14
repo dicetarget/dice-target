@@ -8,16 +8,20 @@ class MoveValidator {
   int? applyStepStrict(int a, int b, UiOp op) {
     switch (op) {
       case UiOp.add:
-        return a + b;
+        final result = a + b;
+        return result > 0 ? result : null;
 
       case UiOp.mul:
-        return a * b;
+        final result = a * b;
+        return result > 0 ? result : null;
 
       case UiOp.sub:
         final r1 = a - b;
         final r2 = b - a;
-        final ok1 = r1 >= 0;
-        final ok2 = r2 >= 0;
+
+        // nur strikt positive Ergebnisse erlaubt
+        final ok1 = r1 > 0;
+        final ok2 = r2 > 0;
 
         if (ok1 && !ok2) return r1;
         if (!ok1 && ok2) return r2;
@@ -27,8 +31,16 @@ class MoveValidator {
         return null;
 
       case UiOp.div:
-        if (b != 0 && a % b == 0) return a ~/ b;
-        if (a != 0 && b % a == 0) return b ~/ a;
+        if (b != 0 && a % b == 0) {
+          final result = a ~/ b;
+          if (result > 0) return result;
+        }
+
+        if (a != 0 && b % a == 0) {
+          final result = b ~/ a;
+          if (result > 0) return result;
+        }
+
         return null;
     }
   }

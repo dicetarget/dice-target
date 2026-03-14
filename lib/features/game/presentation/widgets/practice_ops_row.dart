@@ -61,6 +61,7 @@ class PracticeOpsRow extends StatelessWidget {
                   ),
                   disabledForegroundColor: inkColor.withValues(alpha: 0.35),
                   elevation: isSelected ? 2 : 0,
+                  enableFeedback: false,
                 ),
                 child: Text(
                   uiOpSymbol(op),
