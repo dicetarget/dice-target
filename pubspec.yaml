@@ -17,17 +17,22 @@ dependencies:
   # Persistent settings
   shared_preferences: ^2.2.3
 
+  # Confetti animation
+  confetti: ^0.8.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.1
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/sfx/
+    - assets/branding/
 
 flutter_icons:
   android: true
@@ -35,3 +40,14 @@ flutter_icons:
   image_path: "assets/DiceTarget_AppIcon_1024_universal.png"
   adaptive_icon_background: "#0F1118"
   adaptive_icon_foreground: "assets/DiceTarget_AppIcon_1024_universal.png"
+
+flutter_native_splash:
+  color: "#07133A"
+  image: assets/branding/target_labs_splash.png
+
+  android: true
+  ios: true
+
+  android_12:
+    color: "#07133A"
+    image: assets/branding/target_labs_splash.png

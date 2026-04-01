@@ -1,0 +1,15 @@
+861,882c\
+        if (!mounted) return;\
+        if (_gameState.dice.isEmpty) return;\
+        final updatedDice = List<DiceState>.from(_gameState.dice);\
+        final lastIndex = updatedDice.length - 1;\
+        final lastDie = updatedDice[lastIndex];\
+        if (lastDie.maskLabel == null) {\
+          updatedDice[lastIndex] = DiceState(\
+            value: lastDie.value,\
+            maskLabel: _nextQuestionMarkLabel(),\
+          );\
+          setState(() {\
+            _gameState = _gameState.copyWith(dice: updatedDice);\
+          });\
+        }

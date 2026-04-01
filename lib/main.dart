@@ -6,20 +6,13 @@ import 'features/game/presentation/screens/start_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Edge-to-Edge für Android 15+ (empfohlen)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-  // Optional: transparente Statusbar
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
-
-  // Audio darf NIE den App-Start blockieren/killen
   try {
     await sfx.init();
   } catch (_) {}
-
   runApp(const DiceApp());
 }
 
@@ -31,7 +24,39 @@ class DiceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dice Target',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF7B5FE0),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF0D0F1F),
+          onSurface: const Color(0xFFEEEAF6),
+        ),
+        scaffoldBackgroundColor: const Color(0xFF0D0F1F),
+        splashFactory: NoSplash.splashFactory,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        filledButtonTheme: FilledButtonThemeData(style: ButtonStyle(enableFeedback: false)),
+        elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(enableFeedback: false)),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: ButtonStyle(enableFeedback: false)),
+        textButtonTheme: TextButtonThemeData(style: ButtonStyle(enableFeedback: false)),
+        // ── Dark Neon SnackBar ──────────────────────────────────────────────
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: const Color(0xFF0D1F35),
+          contentTextStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFFEEEAF6),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: Color(0x403FE8FF), width: 0.5),
+          ),
+          behavior: SnackBarBehavior.floating,
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+      ),
       home: const StartScreen(),
     );
   }

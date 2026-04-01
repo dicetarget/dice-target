@@ -1,10 +1,6 @@
-// lib/features/game/presentation/widgets/practice_small_actions_row.dart
-import 'package:flutter/material.dart';
-
-import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/theme/app_radius.dart';
-import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/theme/app_text_styles.dart';
+import 'package:flutter/material.dart';
 
 class PracticeSmallActionsRow extends StatelessWidget {
   final bool enabled;
@@ -20,48 +16,72 @@ class PracticeSmallActionsRow extends StatelessWidget {
     required this.onUndo,
   });
 
+  static const _undoActive = Color(0xFFFFFFFF);
+  static const _undoInactive = Color(0xFF555555);
+
   @override
   Widget build(BuildContext context) {
+    final color = enabled ? _undoActive : _undoInactive;
+
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
-            onPressed: enabled ? onUndo : null,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              shape: RoundedRectangleBorder(
+          child: GestureDetector(
+            onTap: enabled ? onUndo : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              height: 50,
+              decoration: BoxDecoration(
+                color: enabled
+                    ? _undoActive.withValues(alpha: 0.14)
+                    : Colors.white.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-              ),
-              side: BorderSide(
-                color: inkColor.withValues(alpha: 0.28),
-                width: 1,
-              ),
-              foregroundColor: accentColor,
-              backgroundColor: AppColors.white.withValues(alpha: 0.35),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.undo,
-                  size: AppSpacing.xxl,
+                border: Border.all(
                   color: enabled
-                      ? accentColor
-                      : inkColor.withValues(alpha: 0.35),
+                      ? _undoActive.withValues(alpha: 0.70)
+                      : Colors.white.withValues(alpha: 0.12),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Undo',
-                  style: AppTextStyles.body.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: enabled
-                        ? accentColor
-                        : inkColor.withValues(alpha: 0.35),
-                    height: 1,
+                boxShadow: enabled
+                    ? [
+                        BoxShadow(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          blurRadius: 14,
+                          spreadRadius: 1,
+                          offset: Offset.zero,
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.22),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.10),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.undo_rounded, size: 20, color: color),
+                  const SizedBox(width: 7),
+                  Text(
+                    'Undo',
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: color,
+                      height: 1,
+                      shadows: enabled
+                          ? [Shadow(color: _undoActive.withValues(alpha: 0.50), blurRadius: 8)]
+                          : null,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/presentation/widgets/dice_row_widget.dart';
 import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
 import 'package:dice/features/game/presentation/widgets/round_controls_widget.dart';
+import 'package:flutter/material.dart';
 
 class PracticeGameArea extends StatelessWidget {
   final bool showDice;
@@ -71,6 +70,7 @@ class PracticeGameArea extends StatelessWidget {
             rollingDiceListenable: rollingDiceListenable,
             rollingTargetLocked: rollingTargetLocked,
             dice: dice,
+            pendingOp: pendingOp,
             onToggleSelect: onToggleSelect,
           ),
           const SizedBox(height: AppSpacing.xl),

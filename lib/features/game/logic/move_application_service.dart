@@ -1,3 +1,4 @@
+import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_engine.dart';
 
@@ -29,8 +30,13 @@ class MoveApplicationService {
     required List<int> diceValues,
     required List<int> selectedIndices,
     required UiOp op,
+    GameMode? gameMode,
   }) {
     if (selectedIndices.length < 2) return null;
+
+    if (gameMode == GameMode.daily && selectedIndices.length > 4) {
+      return null;
+    }
 
     final sortedIndices = List<int>.from(selectedIndices)..sort();
 
@@ -39,11 +45,9 @@ class MoveApplicationService {
     final merged = _moveEngine.combineValues(selectedValues, op);
     if (merged == null) return null;
 
-    final willEndAfterMove =
-        (diceValues.length - sortedIndices.length + 1) == 1;
+    final willEndAfterMove = (diceValues.length - sortedIndices.length + 1) == 1;
 
-    final removeIndicesDesc = List<int>.from(sortedIndices)
-      ..sort((a, b) => b.compareTo(a));
+    final removeIndicesDesc = List<int>.from(sortedIndices)..sort((a, b) => b.compareTo(a));
 
     return MoveApplicationResult(
       removeIndicesDesc: removeIndicesDesc,
@@ -72,10 +76,7 @@ class MoveApplicationService {
     return MoveProgressResult(moves: currentMoves + 1);
   }
 
-  List<String?> buildMaskLabels({
-    required int diceCount,
-    required String? mergedMaskLabel,
-  }) {
+  List<String?> buildMaskLabels({required int diceCount, required String? mergedMaskLabel}) {
     if (diceCount <= 0) return const [];
 
     return [for (var i = 0; i < diceCount - 1; i++) null, mergedMaskLabel];

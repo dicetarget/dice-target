@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-
+import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
+import 'package:flutter/material.dart';
 
 class DiceRowWidget extends StatelessWidget {
   final bool showDice;
@@ -15,6 +15,7 @@ class DiceRowWidget extends StatelessWidget {
   final ValueNotifier<List<int>> rollingDiceListenable;
   final bool rollingTargetLocked;
   final List<PracticeDieData> dice;
+  final UiOp? pendingOp;
   final void Function(int index) onToggleSelect;
 
   const DiceRowWidget({
@@ -31,6 +32,7 @@ class DiceRowWidget extends StatelessWidget {
     required this.rollingDiceListenable,
     required this.rollingTargetLocked,
     required this.dice,
+    this.pendingOp,
     required this.onToggleSelect,
   });
 
@@ -43,10 +45,7 @@ class DiceRowWidget extends StatelessWidget {
     return AnimatedBuilder(
       animation: shakeAnimation,
       builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(shakeAnimation.value, 0),
-          child: child,
-        );
+        return Transform.translate(offset: Offset(shakeAnimation.value, 0), child: child);
       },
       child: ValueListenableBuilder<List<int>>(
         valueListenable: rollingDiceListenable,
@@ -62,6 +61,7 @@ class DiceRowWidget extends StatelessWidget {
             dice: dice,
             selectedIndices: selectedIndices,
             accentColor: accentColor,
+            pendingOp: pendingOp,
             onToggleSelect: onToggleSelect,
           );
         },

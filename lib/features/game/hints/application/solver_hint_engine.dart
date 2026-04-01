@@ -8,26 +8,17 @@ class SolverHintEngine extends HintEngine {
   const SolverHintEngine();
 
   @override
-  HintResult generate({
-    required HintRequest request,
-    required HintLevel level,
-  }) {
+  HintResult generate({required HintRequest request, required HintLevel level}) {
     switch (level) {
       case HintLevel.direction:
         return const HintResult(
-          hint: Hint(
-            level: HintLevel.direction,
-            text: 'Try combining the larger dice first.',
-          ),
+          hint: Hint(level: HintLevel.direction, text: 'Try combining the larger dice first.'),
           hasSolution: true,
         );
 
       case HintLevel.nextStep:
         return const HintResult(
-          hint: Hint(
-            level: HintLevel.nextStep,
-            text: 'Try building an intermediate value.',
-          ),
+          hint: Hint(level: HintLevel.nextStep, text: 'Try building an intermediate value.'),
           hasSolution: true,
         );
 

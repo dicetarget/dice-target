@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/theme/app_radius.dart';
 import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/theme/app_text_styles.dart';
+import 'package:flutter/material.dart';
 
 Future<void> showPracticeResultOverlay({
   required BuildContext context,
@@ -14,11 +14,18 @@ Future<void> showPracticeResultOverlay({
   required String timeText,
   required bool isSolved,
   VoidCallback? onRetry,
+  VoidCallback? onNewGame,
 }) {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
+    barrierColor: Colors.black.withValues(alpha: 0.70),
     builder: (context) {
+      final statusColor = isSolved ? const Color(0xFF4CAF82) : const Color(0xFFE57373);
+      final statusBg = isSolved
+          ? const Color(0xFF4CAF82).withValues(alpha: 0.12)
+          : const Color(0xFFE57373).withValues(alpha: 0.12);
+
       return Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(
@@ -27,62 +34,86 @@ Future<void> showPracticeResultOverlay({
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.card,
+            color: const Color(0xFF131628),
             borderRadius: BorderRadius.circular(AppRadius.card),
-            boxShadow: const [
+            border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
+            boxShadow: [
               BoxShadow(
-                blurRadius: 28,
-                offset: Offset(0, 14),
-                color: Color(0x22000000),
+                blurRadius: 32,
+                offset: const Offset(0, 14),
+                color: Colors.black.withValues(alpha: 0.50),
               ),
+              BoxShadow(blurRadius: 20, color: const Color(0xFF7B5FE0).withValues(alpha: 0.12)),
             ],
           ),
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.sheetTitle.copyWith(
-                  fontWeight: FontWeight.w800,
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.30), width: 0.5),
+                  ),
+                  child: Text(
+                    isSolved ? 'Solved' : 'Not Solved',
+                    style: AppTextStyles.bodyStrong.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 'Target: $target',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyStrong.copyWith(
-                  color: AppColors.ink.withValues(alpha: 0.78),
+                  color: AppColors.ink.withValues(alpha: 0.50),
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-
-              _MetricBlock(label: 'Time', value: timeText),
-
-              const SizedBox(height: AppSpacing.lg),
-
-              _MetricBlock(label: 'Moves', value: '$moves'),
-
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _MetricBlock(label: 'Time', value: timeText),
+                    ),
+                    Container(width: 0.5, height: 52, color: Colors.white.withValues(alpha: 0.10)),
+                    Expanded(
+                      child: _MetricBlock(label: 'Moves', value: '$moves'),
+                    ),
+                  ],
+                ),
+              ),
               if (!isSolved) ...[
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.md,
-                    horizontal: AppSpacing.md,
-                  ),
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.ink.withValues(alpha: 0.03),
+                    color: Colors.white.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(AppRadius.card),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
                   ),
                   child: Row(
                     children: [
                       Expanded(
-                        child: _SmallMetric(
-                          label: 'Final',
-                          value: '$finalValue',
-                        ),
+                        child: _SmallMetric(label: 'Final', value: '$finalValue'),
+                      ),
+                      Container(
+                        width: 0.5,
+                        height: 44,
+                        color: Colors.white.withValues(alpha: 0.10),
                       ),
                       Expanded(
                         child: _SmallMetric(label: 'Off by', value: '$delta'),
@@ -91,52 +122,70 @@ Future<void> showPracticeResultOverlay({
                   ),
                 ),
               ],
-
-              const SizedBox(height: 22),
-
+              const SizedBox(height: AppSpacing.xl),
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        side: BorderSide(
-                          color: AppColors.ink.withValues(alpha: 0.12),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.button),
-                        ),
-                      ),
-                      child: const Text(
-                        'Close',
-                        style: AppTextStyles.buttonMedium,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: onRetry == null
+                    child: GestureDetector(
+                      onTap: onRetry == null
                           ? null
                           : () {
+                              Navigator.of(context).pop();
                               onRetry();
                             },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        backgroundColor: AppColors.accent,
-                        foregroundColor: AppColors.onAccent,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(AppRadius.button),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            width: 0.5,
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Retry',
-                        style: AppTextStyles.buttonOnAccent,
+                        child: Center(
+                          child: Text(
+                            'Retry',
+                            style: AppTextStyles.buttonMedium.copyWith(
+                              color: onRetry != null
+                                  ? AppColors.ink.withValues(alpha: 0.80)
+                                  : AppColors.muted,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                  if (onNewGame != null) ...[
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          onNewGame();
+                        },
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.20),
+                            borderRadius: BorderRadius.circular(AppRadius.button),
+                            border: Border.all(
+                              color: AppColors.accent.withValues(alpha: 0.50),
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'New Game',
+                              style: AppTextStyles.buttonOnAccent.copyWith(
+                                color: AppColors.accentLt,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -150,7 +199,6 @@ Future<void> showPracticeResultOverlay({
 class _MetricBlock extends StatelessWidget {
   final String label;
   final String value;
-
   const _MetricBlock({required this.label, required this.value});
 
   @override
@@ -161,7 +209,8 @@ class _MetricBlock extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyStrong.copyWith(
-            color: AppColors.ink.withValues(alpha: 0.72),
+            color: AppColors.ink.withValues(alpha: 0.45),
+            fontSize: 13,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -170,7 +219,8 @@ class _MetricBlock extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTextStyles.sheetTitle.copyWith(
             fontWeight: FontWeight.w900,
-            fontSize: 28,
+            fontSize: 26,
+            color: AppColors.ink,
           ),
         ),
       ],
@@ -181,7 +231,6 @@ class _MetricBlock extends StatelessWidget {
 class _SmallMetric extends StatelessWidget {
   final String label;
   final String value;
-
   const _SmallMetric({required this.label, required this.value});
 
   @override
@@ -192,7 +241,8 @@ class _SmallMetric extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyStrong.copyWith(
-            color: AppColors.ink.withValues(alpha: 0.65),
+            color: AppColors.ink.withValues(alpha: 0.45),
+            fontSize: 13,
           ),
         ),
         const SizedBox(height: 4),
@@ -202,6 +252,7 @@ class _SmallMetric extends StatelessWidget {
           style: AppTextStyles.bodyStrong.copyWith(
             fontWeight: FontWeight.w900,
             fontSize: 20,
+            color: AppColors.ink,
           ),
         ),
       ],

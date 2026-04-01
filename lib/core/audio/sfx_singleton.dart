@@ -12,6 +12,9 @@ class Sfx {
   final AudioPlayer _win = AudioPlayer();
   final AudioPlayer _lose = AudioPlayer();
   final AudioPlayer _click = AudioPlayer();
+  final AudioPlayer _dailyComplete = AudioPlayer();
+  final AudioPlayer _undo = AudioPlayer();
+  final AudioPlayer _solution = AudioPlayer();
 
   bool enabled = true;
 
@@ -35,6 +38,9 @@ class Sfx {
       await _win.setPlayerMode(PlayerMode.lowLatency);
       await _lose.setPlayerMode(PlayerMode.lowLatency);
       await _click.setPlayerMode(PlayerMode.lowLatency);
+      await _dailyComplete.setPlayerMode(PlayerMode.lowLatency);
+      await _undo.setPlayerMode(PlayerMode.lowLatency);
+      await _solution.setPlayerMode(PlayerMode.lowLatency);
 
       await _roll.setReleaseMode(ReleaseMode.stop);
       await _valid.setReleaseMode(ReleaseMode.stop);
@@ -42,6 +48,9 @@ class Sfx {
       await _win.setReleaseMode(ReleaseMode.stop);
       await _lose.setReleaseMode(ReleaseMode.stop);
       await _click.setReleaseMode(ReleaseMode.stop);
+      await _dailyComplete.setReleaseMode(ReleaseMode.stop);
+      await _undo.setReleaseMode(ReleaseMode.stop);
+      await _solution.setReleaseMode(ReleaseMode.stop);
 
       await _roll.setVolume(1.0);
       await _valid.setVolume(1.0);
@@ -49,6 +58,9 @@ class Sfx {
       await _win.setVolume(1.0);
       await _lose.setVolume(1.0);
       await _click.setVolume(1.0);
+      await _dailyComplete.setVolume(1.0);
+      await _undo.setVolume(1.0);
+      await _solution.setVolume(1.0);
 
       // iOS-safe asset preloading
       await _roll.setSource(AssetSource('sfx/roll.wav'));
@@ -57,6 +69,9 @@ class Sfx {
       await _win.setSource(AssetSource('sfx/win.wav'));
       await _lose.setSource(AssetSource('sfx/lose.wav'));
       await _click.setSource(AssetSource('sfx/click.wav'));
+      await _dailyComplete.setSource(AssetSource('sfx/daily_complete.wav'));
+      await _undo.setSource(AssetSource('sfx/undo.wav'));
+      await _solution.setSource(AssetSource('sfx/solution.wav'));
 
       _ready = true;
     } catch (_) {
@@ -79,6 +94,9 @@ class Sfx {
   Future<void> win() async => _play(_win, 'sfx/win.wav');
   Future<void> lose() async => _play(_lose, 'sfx/lose.wav');
   Future<void> click() async => _play(_click, 'sfx/click.wav');
+  Future<void> dailyComplete() async => _play(_dailyComplete, 'sfx/daily_complete.wav');
+  Future<void> undo() async => _play(_undo, 'sfx/undo.wav');
+  Future<void> solution() async => _play(_solution, 'sfx/solution.wav');
 
   Future<void> _play(AudioPlayer p, String assetPath) async {
     if (!enabled) return;

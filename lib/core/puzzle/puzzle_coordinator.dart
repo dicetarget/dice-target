@@ -32,22 +32,14 @@ class PuzzleCoordinator {
   DifficultyConfig get config => _config;
   Puzzle? get current => _currentPuzzle;
 
-  void reconfigure({
-    required DifficultyConfig config,
-    required int baseSeed,
-    int startIndex = 0,
-  }) {
+  void reconfigure({required DifficultyConfig config, required int baseSeed, int startIndex = 0}) {
     _config = config;
     _baseSeed = baseSeed;
     _puzzleIndex = startIndex;
     _currentPuzzle = null;
   }
 
-  void reconfigureIfNeeded({
-    required DifficultyConfig config,
-    int? seed,
-    int? puzzleIndex,
-  }) {
+  void reconfigureIfNeeded({required DifficultyConfig config, int? seed, int? puzzleIndex}) {
     if (seed == null && puzzleIndex == null && config == _config) {
       return;
     }
@@ -59,7 +51,12 @@ class PuzzleCoordinator {
     );
   }
 
-  Puzzle _generateCurrent({bool keepTarget = false, int? fixedTarget}) {
+  Puzzle _generateCurrent({
+    bool keepTarget = false,
+    int? fixedTarget,
+    int? targetMin,
+    int? targetMax,
+  }) {
     final puzzle = _generator.generate(
       mode: mode,
       config: _config,
@@ -67,57 +64,138 @@ class PuzzleCoordinator {
       puzzleIndex: _puzzleIndex,
       keepTarget: keepTarget,
       fixedTarget: fixedTarget,
+      targetMin: targetMin,
+      targetMax: targetMax,
     );
 
     _currentPuzzle = puzzle;
     return puzzle;
   }
 
-  Puzzle currentPuzzle({bool keepTarget = false, int? fixedTarget}) {
-    if (_currentPuzzle != null && !keepTarget && fixedTarget == null) {
+  Puzzle currentPuzzle({
+    bool keepTarget = false,
+    int? fixedTarget,
+    int? targetMin,
+    int? targetMax,
+  }) {
+    if (_currentPuzzle != null &&
+        !keepTarget &&
+        fixedTarget == null &&
+        targetMin == null &&
+        targetMax == null) {
       return _currentPuzzle!;
     }
 
-    return _generateCurrent(keepTarget: keepTarget, fixedTarget: fixedTarget);
+    return _generateCurrent(
+      keepTarget: keepTarget,
+      fixedTarget: fixedTarget,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
   }
 
-  Puzzle nextPuzzle({bool keepTarget = false, int? fixedTarget}) {
+  Puzzle nextPuzzle({bool keepTarget = false, int? fixedTarget, int? targetMin, int? targetMax}) {
     _puzzleIndex++;
-    return _generateCurrent(keepTarget: keepTarget, fixedTarget: fixedTarget);
+
+    return _generateCurrent(
+      keepTarget: keepTarget,
+      fixedTarget: fixedTarget,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
   }
 
-  Puzzle resetAndGetFirstPuzzle({bool keepTarget = false, int? fixedTarget}) {
+  Puzzle resetAndGetFirstPuzzle({
+    bool keepTarget = false,
+    int? fixedTarget,
+    int? targetMin,
+    int? targetMax,
+  }) {
     _puzzleIndex = 0;
     _currentPuzzle = null;
-    return _generateCurrent(keepTarget: keepTarget, fixedTarget: fixedTarget);
+
+    return _generateCurrent(
+      keepTarget: keepTarget,
+      fixedTarget: fixedTarget,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
   }
 
-  Puzzle startNewRun({int? seed}) {
+  Puzzle startNewRun({int? seed, int? targetMin, int? targetMax}) {
     reconfigure(config: _config, baseSeed: seed ?? _baseSeed, startIndex: 0);
 
-    return currentPuzzle();
+    return currentPuzzle(targetMin: targetMin, targetMax: targetMax);
   }
 
-  Puzzle startNewPracticeRun() {
-    return startNewRun(seed: PuzzleSeed.practiceSeed());
+  Puzzle startNewPracticeRun({int? targetMin, int? targetMax}) {
+    return startNewRun(seed: PuzzleSeed.practiceSeed(), targetMin: targetMin, targetMax: targetMax);
   }
 
-  Puzzle rerollKeepingTarget(int target) {
-    return nextPuzzle(keepTarget: true, fixedTarget: target);
+  Puzzle rerollKeepingTarget(int target, {int? targetMin, int? targetMax}) {
+    return nextPuzzle(
+      keepTarget: true,
+      fixedTarget: target,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
   }
 
   Puzzle createRoundPuzzle({
     required bool keepTarget,
     int? fixedTarget,
     required bool wasReconfigured,
+    int? targetMin,
+    int? targetMax,
   }) {
     if (keepTarget) {
       return wasReconfigured
-          ? currentPuzzle(keepTarget: true, fixedTarget: fixedTarget)
-          : rerollKeepingTarget(fixedTarget!);
+          ? currentPuzzle(
+              keepTarget: true,
+              fixedTarget: fixedTarget,
+              targetMin: targetMin,
+              targetMax: targetMax,
+            )
+          : rerollKeepingTarget(fixedTarget!, targetMin: targetMin, targetMax: targetMax);
     }
 
-    return wasReconfigured ? currentPuzzle() : startNewPracticeRun();
+    return wasReconfigured
+        ? currentPuzzle(targetMin: targetMin, targetMax: targetMax)
+        : startNewPracticeRun(targetMin: targetMin, targetMax: targetMax);
+  }
+
+  Puzzle generateDailyPuzzle({
+    required DifficultyConfig config,
+    required int baseSeed,
+    required int puzzleIndex,
+    required int targetMin,
+    required int targetMax,
+    bool keepTarget = false,
+    int? fixedTarget,
+  }) {
+    final previousConfig = _config;
+    final previousBaseSeed = _baseSeed;
+    final previousPuzzleIndex = _puzzleIndex;
+    final previousCurrentPuzzle = _currentPuzzle;
+
+    _config = config;
+    _baseSeed = baseSeed;
+    _puzzleIndex = puzzleIndex;
+    _currentPuzzle = null;
+
+    final puzzle = _generateCurrent(
+      keepTarget: keepTarget,
+      fixedTarget: fixedTarget,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
+
+    _config = previousConfig;
+    _baseSeed = previousBaseSeed;
+    _puzzleIndex = previousPuzzleIndex;
+    _currentPuzzle = previousCurrentPuzzle;
+
+    return puzzle;
   }
 
   Random createAnimationRandom() {
