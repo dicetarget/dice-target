@@ -257,6 +257,61 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildDailyHeroCard(int dailyNumber) {
+    final now = DateTime.now();
+    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    final dateText =
+        '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]} ${now.year}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
+        color: DailyScreen._card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: DailyScreen._accent.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Daily #$dailyNumber',
+            style: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.w900,
+              color: DailyScreen._accent,
+              letterSpacing: -1.0,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            dateText,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: DailyScreen._muted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProgressCard(DailyProgress progress, int totalPuzzles) {
     return Container(
       width: double.infinity,
@@ -373,8 +428,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final totalTime = progress.totalTimeSeconds;
     final formattedTime = controller.formatTime(totalTime);
 
-    final efficiencyLabel = totalDiff == 0 ? 'Optimal' : '+$totalDiff';
-    final efficiencyColor = totalDiff == 0 ? DailyScreen._solved : DailyScreen._ink;
+    final efficiencyLabel = progress.gaveUp ? '—' : (totalDiff == 0 ? 'Optimal' : '+$totalDiff');
+    final efficiencyColor = progress.gaveUp
+        ? DailyScreen._muted
+        : (totalDiff == 0 ? DailyScreen._solved : DailyScreen._ink);
 
     return Container(
       width: double.infinity,
@@ -867,8 +924,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         children: [
                           _buildStreakCard(controller.dailyStreak),
                           const SizedBox(height: 12),
-                          _buildCountdownCard(),
-                          const SizedBox(height: 16),
                           _buildResultHero(progress),
                           const SizedBox(height: 12),
                           _buildRunSummaryCard(progress),
@@ -883,6 +938,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         _buildStreakCard(controller.dailyStreak),
                         const SizedBox(height: 12),
                         _buildCountdownCard(),
+                        const SizedBox(height: 12),
+                        _buildDailyHeroCard(dailyNumber),
                         const SizedBox(height: 16),
                         if (topStatus.isNotEmpty) ...[
                           Text(
