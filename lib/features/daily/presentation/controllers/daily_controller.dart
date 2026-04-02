@@ -16,9 +16,6 @@ class DailyController extends ChangeNotifier {
 
   int dailyStreak = 0;
 
-  /// In-memory start time for the current active timer segment.
-  /// Nicht persistiert – geht verloren bei App-Neustart (korrekt so,
-  /// da dann runInterrupted = true gesetzt wird).
   DateTime? _runStartTime;
 
   DailyController({required this.repository});
@@ -90,48 +87,6 @@ class DailyController extends ChangeNotifier {
       puzzleResults: validResults,
     );
   }
-
-  // =========================
-  // ⏱ TIMER
-  // =========================
-
-  /// Startet den Timer zu Beginn eines Daily-Runs (oder nach Resume).
-  void startRunTimer() {
-    if (progress == null || progress!.isRunEnded) return;
-    _runStartTime = DateTime.now();
-  }
-
-  /// Pausiert den Timer: akkumuliert vergangene Sekunden in totalTimeSeconds.
-  Future<void> pauseRunTimer() async {
-    final start = _runStartTime;
-    if (start == null || progress == null) return;
-
-    final elapsed = DateTime.now().difference(start).inSeconds;
-    _runStartTime = null;
-
-    final updated = progress!.copyWith(totalTimeSeconds: progress!.totalTimeSeconds + elapsed);
-    progress = updated;
-    await repository.saveProgress(updated);
-    notifyListeners();
-  }
-
-  /// Markiert den Run als interrupted und pausiert den Timer.
-  Future<void> markRunInterrupted() async {
-    if (progress == null || progress!.isRunEnded) return;
-
-    await pauseRunTimer();
-
-    if (progress!.runInterrupted) return; // bereits gesetzt
-
-    final updated = progress!.copyWith(runInterrupted: true);
-    progress = updated;
-    await repository.saveProgress(updated);
-    notifyListeners();
-  }
-
-  // =========================
-  // PUZZLE RESULTS
-  // =========================
 
   Future<void> syncPuzzleResults(List<DailyPuzzleResult> results) async {
     if (progress == null) return;
@@ -234,7 +189,6 @@ class DailyController extends ChangeNotifier {
   Future<void> markRunCompleted() async {
     if (progress == null || daily == null) return;
 
-    // Timer stoppen bevor Run abgeschlossen wird
     await pauseRunTimer();
 
     final total = daily!.puzzles.length;
@@ -263,7 +217,6 @@ class DailyController extends ChangeNotifier {
     if (progress == null || daily == null) return;
     if (progress!.isRunEnded) return;
 
-    // Timer stoppen bei Give Up
     await pauseRunTimer();
 
     final totalPuzzles = daily!.puzzles.length;
@@ -388,41 +341,40 @@ class DailyController extends ChangeNotifier {
   }
 
   // =========================
-  // ⭐ RUN RATING
+  // ⏱ TIMER
   // =========================
 
-  /// Berechnet die Run-Sterne nach den definierten Regeln.
-  ///
-  /// 0★ → gaveUp oder nicht abgeschlossen
-  /// 1★ → completed + hintUsed (Hint ist harter Deckel, unabhängig von Moves)
-  /// 2★ → completed + kein Hint + (Diff > 0 oder runInterrupted)
-  /// 3★ → completed + kein Hint + kein Interrupt + totalDiff == 0
-  int runStars() {
-    final currentProgress = progress;
-    if (currentProgress == null) return 0;
-
-    if (currentProgress.gaveUp || !currentProgress.isCompleted) return 0;
-
-    if (currentProgress.hintUsed) return 1;
-
-    final totalDiff = runTotalDiff();
-    final interrupted = currentProgress.runInterrupted;
-
-    if (totalDiff == 0 && !interrupted) return 3;
-
-    return 2;
+  void startRunTimer() {
+    if (progress == null || progress!.isRunEnded) return;
+    _runStartTime = DateTime.now();
   }
 
-  // =========================
-  // 🏎 SPEED RANK
-  // =========================
+  Future<void> pauseRunTimer() async {
+    final start = _runStartTime;
+    if (start == null || progress == null) return;
 
-  /// Gibt den Speed-Rank basierend auf der Gesamtzeit zurück.
-  ///
-  /// S  ≤ 150s (2:30)
-  /// A  ≤ 240s (4:00)
-  /// B  ≤ 360s (6:00)
-  /// C  > 360s
+    final elapsed = DateTime.now().difference(start).inSeconds;
+    _runStartTime = null;
+
+    final updated = progress!.copyWith(totalTimeSeconds: progress!.totalTimeSeconds + elapsed);
+    progress = updated;
+    await repository.saveProgress(updated);
+    notifyListeners();
+  }
+
+  Future<void> markRunInterrupted() async {
+    if (progress == null || progress!.isRunEnded) return;
+
+    await pauseRunTimer();
+
+    if (progress!.runInterrupted) return;
+
+    final updated = progress!.copyWith(runInterrupted: true);
+    progress = updated;
+    await repository.saveProgress(updated);
+    notifyListeners();
+  }
+
   String getSpeedRank(int totalTimeSeconds) {
     if (totalTimeSeconds <= 150) return 'S';
     if (totalTimeSeconds <= 240) return 'A';
@@ -430,10 +382,25 @@ class DailyController extends ChangeNotifier {
     return 'C';
   }
 
-  /// Formatiert Sekunden als mm:ss (z.B. 221 → "03:41").
   String formatTime(int seconds) {
-    final m = (seconds ~/ 60).toString().padLeft(2, '0');
-    final s = (seconds % 60).toString().padLeft(2, '0');
-    return '$m:$s';
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$secs';
+  }
+
+  int runStars() {
+    final currentProgress = progress;
+    if (currentProgress == null) return 0;
+
+    if (currentProgress.gaveUp || !currentProgress.isCompleted) {
+      return 0;
+    }
+
+    final totalDiff = runTotalDiff();
+    final hintUsed = currentProgress.hintUsed;
+
+    if (totalDiff == 0 && !hintUsed) return 3;
+    if (totalDiff <= 3) return 2;
+    return 1;
   }
 }

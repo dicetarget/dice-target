@@ -15,6 +15,7 @@ class Sfx {
   final AudioPlayer _dailyComplete = AudioPlayer();
   final AudioPlayer _undo = AudioPlayer();
   final AudioPlayer _solution = AudioPlayer();
+  final AudioPlayer _startDaily = AudioPlayer();
 
   bool enabled = true;
 
@@ -41,6 +42,7 @@ class Sfx {
       await _dailyComplete.setPlayerMode(PlayerMode.lowLatency);
       await _undo.setPlayerMode(PlayerMode.lowLatency);
       await _solution.setPlayerMode(PlayerMode.lowLatency);
+      await _startDaily.setPlayerMode(PlayerMode.lowLatency);
 
       await _roll.setReleaseMode(ReleaseMode.stop);
       await _valid.setReleaseMode(ReleaseMode.stop);
@@ -51,6 +53,7 @@ class Sfx {
       await _dailyComplete.setReleaseMode(ReleaseMode.stop);
       await _undo.setReleaseMode(ReleaseMode.stop);
       await _solution.setReleaseMode(ReleaseMode.stop);
+      await _startDaily.setReleaseMode(ReleaseMode.stop);
 
       await _roll.setVolume(1.0);
       await _valid.setVolume(1.0);
@@ -61,6 +64,7 @@ class Sfx {
       await _dailyComplete.setVolume(1.0);
       await _undo.setVolume(1.0);
       await _solution.setVolume(1.0);
+      await _startDaily.setVolume(1.0);
 
       // iOS-safe asset preloading
       await _roll.setSource(AssetSource('sfx/roll.wav'));
@@ -72,6 +76,7 @@ class Sfx {
       await _dailyComplete.setSource(AssetSource('sfx/daily_complete.wav'));
       await _undo.setSource(AssetSource('sfx/undo.wav'));
       await _solution.setSource(AssetSource('sfx/solution.wav'));
+      await _startDaily.setSource(AssetSource('sfx/start_daily.wav'));
 
       _ready = true;
     } catch (_) {
@@ -97,6 +102,7 @@ class Sfx {
   Future<void> dailyComplete() async => _play(_dailyComplete, 'sfx/daily_complete.wav');
   Future<void> undo() async => _play(_undo, 'sfx/undo.wav');
   Future<void> solution() async => _play(_solution, 'sfx/solution.wav');
+  Future<void> startDaily() async => _play(_startDaily, 'sfx/start_daily.wav');
 
   Future<void> _play(AudioPlayer p, String assetPath) async {
     if (!enabled) return;

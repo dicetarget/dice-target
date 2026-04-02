@@ -1101,6 +1101,8 @@ class _PracticeScreenState extends State<PracticeScreen>
       _clearHintSuggestion();
     }
 
+    _memoryFadeTimer?.cancel();
+
     if (_soundEnabled) sfx.undo();
 
     setState(() {

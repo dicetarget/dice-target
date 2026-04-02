@@ -15,47 +15,100 @@ class DailyService {
 
   DailyPuzzleSet buildDaily(DateTime date) {
     final seed = DailySeed.fromDate(date);
-    final puzzles = _generateDeduplicated(seed);
-    return DailyPuzzleSet(date: date, seed: seed, puzzles: puzzles);
-  }
-
-  List<Puzzle> _generateDeduplicated(int seed) {
-    // Target-Ranges pro Puzzle-Index
-    final configs = [
-      (config: DifficultyConfig.easy, min: 20, max: 35),
-      (config: DifficultyConfig.easy, min: 25, max: 40),
-      (config: DifficultyConfig.medium, min: 30, max: 50),
-      (config: DifficultyConfig.medium, min: 40, max: 65),
-      (config: DifficultyConfig.hard, min: 50, max: 90),
-    ];
 
     final usedTargets = <int>{};
-    final puzzles = <Puzzle>[];
 
-    for (var i = 0; i < configs.length; i++) {
-      final cfg = configs[i];
-      Puzzle puzzle;
-      var attempt = 0;
-
-      // Versuche bis zu 8 Mal einen eindeutigen Target zu finden
-      do {
-        // Leicht abweichender Seed bei jedem Retry
-        final retrySeed = attempt == 0 ? seed : seed ^ (attempt * 0x9E3779B9 + i * 0x6C62272E);
-        puzzle = coordinator.generateDailyPuzzle(
-          config: cfg.config,
-          baseSeed: retrySeed,
-          puzzleIndex: i,
-          targetMin: cfg.min,
-          targetMax: cfg.max,
-        );
-        attempt++;
-      } while (usedTargets.contains(puzzle.target) && attempt < 8);
-
-      usedTargets.add(puzzle.target);
-      puzzles.add(puzzle);
+    Puzzle deduped(Puzzle p) {
+      final idx = p.puzzleIndex ?? 0;
+      if (usedTargets.contains(p.target)) {
+        for (var offset = 1; offset <= 8; offset++) {
+          final retrySeed = seed ^ (offset * 0x1F2E3D4C);
+          final retryPuzzle = coordinator.generateDailyPuzzle(
+            config: idx < 2
+                ? DifficultyConfig.easy
+                : idx < 4
+                ? DifficultyConfig.medium
+                : DifficultyConfig.hard,
+            baseSeed: retrySeed,
+            puzzleIndex: idx,
+            targetMin: idx == 0
+                ? 10
+                : idx == 1
+                ? 25
+                : idx == 2
+                ? 35
+                : idx == 3
+                ? 40
+                : 55,
+            targetMax: idx == 0
+                ? 40
+                : idx == 1
+                ? 55
+                : idx == 2
+                ? 70
+                : idx == 3
+                ? 70
+                : 90,
+          );
+          if (!usedTargets.contains(retryPuzzle.target)) {
+            usedTargets.add(retryPuzzle.target);
+            return retryPuzzle;
+          }
+        }
+      }
+      usedTargets.add(p.target);
+      return p;
     }
 
-    return puzzles;
+    final puzzles = <Puzzle>[
+      deduped(
+        coordinator.generateDailyPuzzle(
+          config: DifficultyConfig.easy,
+          baseSeed: seed,
+          puzzleIndex: 0,
+          targetMin: 10,
+          targetMax: 40,
+        ),
+      ),
+      deduped(
+        coordinator.generateDailyPuzzle(
+          config: DifficultyConfig.easy,
+          baseSeed: seed,
+          puzzleIndex: 1,
+          targetMin: 25,
+          targetMax: 55,
+        ),
+      ),
+      deduped(
+        coordinator.generateDailyPuzzle(
+          config: DifficultyConfig.medium,
+          baseSeed: seed,
+          puzzleIndex: 2,
+          targetMin: 35,
+          targetMax: 70,
+        ),
+      ),
+      deduped(
+        coordinator.generateDailyPuzzle(
+          config: DifficultyConfig.medium,
+          baseSeed: seed,
+          puzzleIndex: 3,
+          targetMin: 40,
+          targetMax: 70,
+        ),
+      ),
+      deduped(
+        coordinator.generateDailyPuzzle(
+          config: DifficultyConfig.hard,
+          baseSeed: seed,
+          puzzleIndex: 4,
+          targetMin: 55,
+          targetMax: 90,
+        ),
+      ),
+    ];
+
+    return DailyPuzzleSet(date: date, seed: seed, puzzles: puzzles);
   }
 
   Future<DailyPuzzleSet> buildDailyAsync(DateTime date) async {
@@ -76,37 +129,97 @@ Map<String, dynamic> _buildDailyJson(String isoDate) {
     baseSeed: 0,
   );
 
-  final configs = [
-    (config: DifficultyConfig.easy, min: 20, max: 35),
-    (config: DifficultyConfig.easy, min: 25, max: 40),
-    (config: DifficultyConfig.medium, min: 30, max: 50),
-    (config: DifficultyConfig.medium, min: 40, max: 65),
-    (config: DifficultyConfig.hard, min: 50, max: 90),
-  ];
-
   final usedTargets = <int>{};
-  final puzzles = <Puzzle>[];
 
-  for (var i = 0; i < configs.length; i++) {
-    final cfg = configs[i];
-    Puzzle puzzle;
-    var attempt = 0;
-
-    do {
-      final retrySeed = attempt == 0 ? seed : seed ^ (attempt * 0x9E3779B9 + i * 0x6C62272E);
-      puzzle = coordinator.generateDailyPuzzle(
-        config: cfg.config,
-        baseSeed: retrySeed,
-        puzzleIndex: i,
-        targetMin: cfg.min,
-        targetMax: cfg.max,
-      );
-      attempt++;
-    } while (usedTargets.contains(puzzle.target) && attempt < 8);
-
-    usedTargets.add(puzzle.target);
-    puzzles.add(puzzle);
+  Puzzle deduped(Puzzle p) {
+    final idx = p.puzzleIndex ?? 0;
+    if (usedTargets.contains(p.target)) {
+      for (var offset = 1; offset <= 8; offset++) {
+        final retrySeed = seed ^ (offset * 0x1F2E3D4C);
+        final retryPuzzle = coordinator.generateDailyPuzzle(
+          config: idx < 2
+              ? DifficultyConfig.easy
+              : idx < 4
+              ? DifficultyConfig.medium
+              : DifficultyConfig.hard,
+          baseSeed: retrySeed,
+          puzzleIndex: idx,
+          targetMin: idx == 0
+              ? 10
+              : idx == 1
+              ? 25
+              : idx == 2
+              ? 35
+              : idx == 3
+              ? 40
+              : 55,
+          targetMax: idx == 0
+              ? 40
+              : idx == 1
+              ? 55
+              : idx == 2
+              ? 70
+              : idx == 3
+              ? 70
+              : 90,
+        );
+        if (!usedTargets.contains(retryPuzzle.target)) {
+          usedTargets.add(retryPuzzle.target);
+          return retryPuzzle;
+        }
+      }
+    }
+    usedTargets.add(p.target);
+    return p;
   }
+
+  final puzzles = <Puzzle>[
+    deduped(
+      coordinator.generateDailyPuzzle(
+        config: DifficultyConfig.easy,
+        baseSeed: seed,
+        puzzleIndex: 0,
+        targetMin: 10,
+        targetMax: 40,
+      ),
+    ),
+    deduped(
+      coordinator.generateDailyPuzzle(
+        config: DifficultyConfig.easy,
+        baseSeed: seed,
+        puzzleIndex: 1,
+        targetMin: 25,
+        targetMax: 55,
+      ),
+    ),
+    deduped(
+      coordinator.generateDailyPuzzle(
+        config: DifficultyConfig.medium,
+        baseSeed: seed,
+        puzzleIndex: 2,
+        targetMin: 35,
+        targetMax: 70,
+      ),
+    ),
+    deduped(
+      coordinator.generateDailyPuzzle(
+        config: DifficultyConfig.medium,
+        baseSeed: seed,
+        puzzleIndex: 3,
+        targetMin: 40,
+        targetMax: 70,
+      ),
+    ),
+    deduped(
+      coordinator.generateDailyPuzzle(
+        config: DifficultyConfig.hard,
+        baseSeed: seed,
+        puzzleIndex: 4,
+        targetMin: 55,
+        targetMax: 90,
+      ),
+    ),
+  ];
 
   final daily = DailyPuzzleSet(date: date, seed: seed, puzzles: puzzles);
   return daily.toJson();

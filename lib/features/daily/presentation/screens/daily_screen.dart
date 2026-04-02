@@ -714,15 +714,18 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_dailyStateKey);
 
+    if (!allowReplay) sfx.startDaily();
     controller.startRunTimer();
 
     try {
       while (mounted && currentPuzzleIndex < daily.puzzles.length) {
         final puzzleIndex = currentPuzzleIndex;
 
-        await controller.syncRunProgress(
-          solvedCount: solvedCount,
-          currentPuzzleIndex: currentPuzzleIndex,
+        unawaited(
+          controller.syncRunProgress(
+            solvedCount: solvedCount,
+            currentPuzzleIndex: currentPuzzleIndex,
+          ),
         );
 
         final puzzle = daily.puzzles[puzzleIndex];
@@ -779,14 +782,18 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             fullExpression: fullExpression,
           );
 
-          sfx.win();
+          if (currentPuzzleIndex < daily.puzzles.length - 1) {
+            sfx.win();
+          }
           solvedCount += 1;
           currentPuzzleIndex += 1;
 
-          await controller.syncPuzzleResults(puzzleResults);
-          await controller.syncRunProgress(
-            solvedCount: solvedCount,
-            currentPuzzleIndex: currentPuzzleIndex,
+          unawaited(controller.syncPuzzleResults(puzzleResults));
+          unawaited(
+            controller.syncRunProgress(
+              solvedCount: solvedCount,
+              currentPuzzleIndex: currentPuzzleIndex,
+            ),
           );
 
           if (currentPuzzleIndex >= daily.puzzles.length) {
@@ -795,7 +802,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               solvedCount: solvedCount,
               currentPuzzleIndex: currentPuzzleIndex,
             );
-            sfx.dailyComplete();
             await controller.markRunCompleted();
             await controller.loadToday();
             return;
@@ -830,8 +836,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       body: AnimatedBuilder(
         animation: controller,
         builder: (context, _) {
-          if (controller.isLoading) {
-            return Center(child: CircularProgressIndicator(color: DailyScreen._accent));
+          if (controller.isLoading || _isStartingDaily) {
+            return Container(color: AppColors.bgBottom);
           }
 
           final daily = controller.daily;

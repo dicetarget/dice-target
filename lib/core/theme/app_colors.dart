@@ -19,7 +19,7 @@ class AppColors {
   // ── Dice ───────────────────────────────────────────────────────────────────
   static const Color diceFace = Color(0xFF1A1D35);
   static const Color diceFaceShine = Color(0xFF252849);
-  static const Color dicePip = Color(0xFFCECBFF);
+  static const Color dicePip = Color(0xFFE8E8F0);
   static const Color diceSelected = Color(0xFF9B6DFF);
 
   // ── Operator buttons ───────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ class AppColors {
   // ── Status ─────────────────────────────────────────────────────────────────
   static const Color solved = Color(0xFF4CAF82);
   static const Color failed = Color(0xFFE57373);
-  static const Color muted = Color(0xFF5E5878);
+  static const Color muted = Color(0xFF4A5568);
 
   // ── Legacy ─────────────────────────────────────────────────────────────────
   static const Color white = Colors.white;

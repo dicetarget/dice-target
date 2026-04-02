@@ -10,23 +10,30 @@ import 'package:dice/features/game/logic/target_generator.dart';
 
 class PuzzleGenerator {
   static const int _maxGuaranteedAttempts = 40;
+  static const List<int> _movePool = [2, 3, 4];
 
-  // Pool A: Puzzles 0-2 (tiefe Targets 20-50) — 2, 3 oder 4 Moves möglich
-  static List<int> _generateDailyMoveTargets(int baseSeed) {
-    for (var attempt = 0; attempt < 1000; attempt++) {
-      final rng = Random(baseSeed ^ (attempt * 0x9E3779B9));
-      final moves = List.generate(5, (_) => 2 + rng.nextInt(3));
-      final counts = <int, int>{};
-      for (final m in moves) {
-        counts[m] = (counts[m] ?? 0) + 1;
+  /// Generiert eine tägliche Move-Target Verteilung per Seed.
+  /// Kein Wert darf mehr als 2x vorkommen.
+  static List<int> _dailyMoveTargets(int seed) {
+    final rng = Random(seed ^ 0xABCDE123);
+    final pool = List<int>.from(_movePool);
+    final counts = <int, int>{};
+    final result = <int>[];
+
+    for (var i = 0; i < 5; i++) {
+      pool.shuffle(rng);
+      int? chosen;
+      for (final candidate in pool) {
+        if ((counts[candidate] ?? 0) < 2) {
+          chosen = candidate;
+          break;
+        }
       }
-      if (counts.values.every((c) => c < 3)) return moves;
+      chosen ??= pool.first;
+      counts[chosen] = (counts[chosen] ?? 0) + 1;
+      result.add(chosen);
     }
-    return [2, 3, 4, 3, 2]; // garantiert valider Fallback
-  }
-
-  static int dailyMoveTarget(int baseSeed, int puzzleIndex) {
-    return _generateDailyMoveTargets(baseSeed)[puzzleIndex];
+    return result;
   }
 
   final DiceGenerator _diceGenerator;
@@ -119,8 +126,9 @@ class PuzzleGenerator {
   }) {
     final modeSalt = _modeSalt(mode);
     final indexedBaseSeed = PuzzleSeed.mix(baseSeed ^ modeSalt, puzzleIndex);
-    final int? dailyTargetMoves = mode == GameMode.daily && puzzleIndex < 5
-        ? dailyMoveTarget(baseSeed, puzzleIndex)
+    final moveTargets = _dailyMoveTargets(baseSeed);
+    final int? dailyTargetMoves = mode == GameMode.daily && puzzleIndex < moveTargets.length
+        ? moveTargets[puzzleIndex]
         : null;
 
     Puzzle? bestPuzzle;
