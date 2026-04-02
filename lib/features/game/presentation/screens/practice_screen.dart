@@ -349,7 +349,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     if (widget.initialPuzzle != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         _prepareRollingPhase(keepTarget: false);
-        if (_soundEnabled && !_isDailyMode) sfx.roll();
+        if (_soundEnabled && (!_isDailyMode || widget.isReplayMode)) sfx.roll();
         await _rollAndApplyPuzzle(
           puzzle: widget.initialPuzzle!,
           difficulty: Difficulty.easy,
@@ -432,6 +432,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       _hintSuggestedOp = suggestion.operator;
     });
 
+    if (_soundEnabled) sfx.hint();
     await widget.dailyController?.markHintUsed();
   }
 
@@ -578,6 +579,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     if (shouldGiveUp != true || !mounted) return;
 
+    if (_soundEnabled) sfx.giveUp();
     await _endRound(reason: EndReason.giveUp, solved: false, title: 'Daily Ended');
   }
 
@@ -1337,9 +1339,9 @@ class _PracticeScreenState extends State<PracticeScreen>
       }
 
       if (_isDailyMode) {
-        if (reason == EndReason.giveUp && _soundEnabled) sfx.lose();
         if (solved) {
           _playTargetCelebrate();
+          if (widget.isReplayMode && _soundEnabled) sfx.win();
           if (_dailyPuzzleNumber == _dailyPuzzleCount) {
             await widget.dailyController?.syncRunProgress(
               solvedCount: _dailyPuzzleCount,
@@ -1577,7 +1579,6 @@ class _PracticeScreenState extends State<PracticeScreen>
         child: GestureDetector(
           onTap: _canUseHint
               ? () {
-                  if (_soundEnabled) sfx.click();
                   _useHint();
                 }
               : null,

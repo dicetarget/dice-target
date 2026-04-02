@@ -34,7 +34,7 @@ class DailyScreen extends StatefulWidget {
   static const Color _solved = AppColors.solved;
   static const Color _ended = AppColors.failed;
   static const Color _muted = AppColors.muted;
-  static const Color _gold = AppColors.targetNumber;
+  static const Color _gold = AppColors.gold;
 
   @override
   State<DailyScreen> createState() => _DailyScreenState();
@@ -340,16 +340,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           SizedBox(height: 10),
           _FormatRow(icon: Icons.flag_rounded, text: 'One scored run only'),
           SizedBox(height: 10),
-          _FormatRow(icon: Icons.lock_open_rounded, text: 'Practice unlocks after give up'),
-          SizedBox(height: 10),
-          _FormatRow(
-            icon: Icons.lightbulb_outline_rounded,
-            text: '1 Hint per run (before first move)',
-          ),
-          SizedBox(height: 10),
-          _FormatRow(icon: Icons.block_rounded, text: 'Hint blocks 3★ run'),
-          SizedBox(height: 10),
-          _FormatRow(icon: Icons.star_rounded, text: 'Perfect run requires optimal moves'),
+          _FormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint – but costs you 1 star'),
         ],
       ),
     );
@@ -883,8 +874,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: DailyScreen._bg,
       appBar: AppBar(
-        title: Text('Daily #$dailyNumber'),
-        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -935,11 +924,11 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildDailyHeroCard(dailyNumber),
+                        const SizedBox(height: 12),
                         _buildStreakCard(controller.dailyStreak),
                         const SizedBox(height: 12),
                         _buildCountdownCard(),
-                        const SizedBox(height: 12),
-                        _buildDailyHeroCard(dailyNumber),
                         const SizedBox(height: 16),
                         if (topStatus.isNotEmpty) ...[
                           Text(

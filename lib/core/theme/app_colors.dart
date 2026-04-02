@@ -4,9 +4,9 @@ class AppColors {
   AppColors._();
 
   // ── Primary UI ─────────────────────────────────────────────────────────────
-  static const Color accent = Color(0xFF3FE8FF); // Cyan — primärer Akzent
-  static const Color accentLt = Color(0xFF90D5F0); // Helles Cyan für Text/Icons
-  static const Color ink = Color(0xFFEEEAF6); // Helles Weiss für Text
+  static const Color accent = Color(0xFF3FE8FF);
+  static const Color accentLt = Color(0xFF90D5F0);
+  static const Color ink = Color(0xFFEEEAF6);
 
   // ── Background gradient ────────────────────────────────────────────────────
   static const Color bgTop = Color(0xFF090B18);
@@ -23,14 +23,17 @@ class AppColors {
   static const Color diceSelected = Color(0xFF9B6DFF);
 
   // ── Operator buttons ───────────────────────────────────────────────────────
-  static const Color opAdd = Color(0xFF27AE60); // Grün
-  static const Color opSubtract = Color(0xFFC0392B); // Dunkelrot
-  static const Color opMultiply = Color(0xFFD4AC0D); // Gold
-  static const Color opDivide = Color(0xFF2980B9); // Blau
+  static const Color opAdd = Color(0xFF27AE60);
+  static const Color opSubtract = Color(0xFFC0392B);
+  static const Color opMultiply = Color(0xFFD4AC0D);
+  static const Color opDivide = Color(0xFF2980B9);
 
   // ── Target display ─────────────────────────────────────────────────────────
   static const Color targetNumber = Color(0xFFFFD700);
   static const Color targetGlow = Color(0xFF3FE8FF);
+
+  // ── Ratings ────────────────────────────────────────────────────────────────
+  static const Color gold = Color(0xFFFFD700);
 
   // ── Status ─────────────────────────────────────────────────────────────────
   static const Color solved = Color(0xFF4CAF82);
