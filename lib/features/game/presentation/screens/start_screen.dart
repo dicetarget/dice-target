@@ -159,8 +159,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticeScreen())),
-      label: 'Free Play',
-      sublabel: 'Unlimited puzzles',
+      label: 'START FREE PLAY',
+      sublabel: 'Unlimited Puzzles · Infinite Practice',
       icon: Icons.play_arrow_rounded,
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.85),
@@ -178,8 +178,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildDailyButton() {
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
-      label: _isOpeningDaily ? 'Preparing...' : 'Daily',
-      sublabel: _isOpeningDaily ? '' : "Today's Challenge",
+      label: _isOpeningDaily ? 'Preparing...' : 'TODAY\'S CHALLENGE',
+      sublabel: _isOpeningDaily ? '' : 'New Puzzles Every Day',
       icon: Icons.calendar_today_rounded,
       glowColor: _amber,
       borderColor: _amber.withValues(alpha: 0.70),
@@ -208,11 +208,19 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
           ),
-          child: Center(
-            child: Text(
-              'Rules',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _muted),
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'GAME RULES',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _muted),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'How To Play',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: _muted),
+              ),
+            ],
           ),
         ),
       ),
