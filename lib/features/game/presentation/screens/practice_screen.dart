@@ -826,6 +826,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     _lastSolveTime = Duration.zero;
     _clearPendingOp();
     _undoStack.clear();
+    _mergePopKey = 0;
     _cancelTimeoutTicker();
     _cancelRollingControllers();
   }
@@ -835,7 +836,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       _phase = RoundPhase.rolling;
       _gameState = _gameState.copyWith(
         moves: 0,
-        isRollingTarget: !keepTarget,
+        isRollingTarget: false,
         isRollingDice: true,
         isRoundEnded: false,
         clearSelectedOp: true,

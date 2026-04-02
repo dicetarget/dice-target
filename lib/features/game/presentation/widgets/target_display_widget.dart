@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:dice/features/game/presentation/widgets/practice_target_bar.dart';
+import 'package:flutter/material.dart';
 
 class TargetDisplayWidget extends StatelessWidget {
   final bool isPreStart;
@@ -29,9 +28,7 @@ class TargetDisplayWidget extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: rollingTargetListenable,
       builder: (context, rollingTarget, child) {
-        final targetDisplay = isPreStart
-            ? '—'
-            : (isRolling ? '$rollingTarget' : '$target');
+        final targetDisplay = isPreStart ? '—' : (isRolling ? '$rollingTarget' : '$target');
 
         return PracticeTargetBar(
           cardColor: cardColor,

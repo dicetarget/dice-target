@@ -115,7 +115,7 @@ class PracticeDiceRow extends StatelessWidget {
           opacity: dieOpacity,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
-          child: isLast && showMergedResults
+          child: isLast && showMergedResults && mergePopKey > 0
               ? TweenAnimationBuilder<double>(
                   key: ValueKey(mergePopKey),
                   tween: Tween(begin: 1.0, end: 0.0),

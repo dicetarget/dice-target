@@ -100,57 +100,60 @@ class PracticeTargetBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Stack(
-                    alignment: Alignment.centerLeft,
-                    children: [
-                      Text(
-                        targetText,
-                        style: TextStyle(
-                          color: goldBottom.withValues(alpha: 0.35),
-                          fontSize: 50,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.5,
-                          height: 1.0,
-                          shadows: [
-                            Shadow(
-                              color: goldBottom.withValues(alpha: 0.55 + (0.20 * t)),
-                              blurRadius: 24,
-                            ),
-                          ],
-                        ),
-                      ),
-                      ShaderMask(
-                        shaderCallback: (bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [goldTop, goldMid, goldBottom],
-                            stops: const [0.0, 0.45, 1.0],
-                          ).createShader(bounds);
-                        },
-                        child: Text(
+                  SizedBox(
+                    width: 110,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        Text(
                           targetText,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: goldBottom.withValues(alpha: 0.35),
                             fontSize: 50,
                             fontWeight: FontWeight.w900,
                             letterSpacing: -1.5,
                             height: 1.0,
                             shadows: [
                               Shadow(
-                                color: goldMid.withValues(alpha: 0.60 + (0.20 * t)),
-                                blurRadius: 16,
-                              ),
-                              Shadow(
-                                color: Colors.white.withValues(alpha: 0.20 + (0.10 * t)),
-                                blurRadius: 8,
+                                color: goldBottom.withValues(alpha: 0.55 + (0.20 * t)),
+                                blurRadius: 24,
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        ShaderMask(
+                          shaderCallback: (bounds) {
+                            return LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [goldTop, goldMid, goldBottom],
+                              stops: const [0.0, 0.45, 1.0],
+                            ).createShader(bounds);
+                          },
+                          child: Text(
+                            targetText,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 50,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1.5,
+                              height: 1.0,
+                              shadows: [
+                                Shadow(
+                                  color: goldMid.withValues(alpha: 0.60 + (0.20 * t)),
+                                  blurRadius: 16,
+                                ),
+                                Shadow(
+                                  color: Colors.white.withValues(alpha: 0.20 + (0.10 * t)),
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ), // schliesst Stack
+                  ), // schliesst SizedBox
                 ],
               ),
             ),
