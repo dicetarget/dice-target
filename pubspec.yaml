@@ -42,12 +42,12 @@ flutter_icons:
   adaptive_icon_foreground: "assets/DiceTarget_AppIcon_1024_universal.png"
 
 flutter_native_splash:
-  color: "#07133A"
-  image: assets/branding/target_labs_splash.png
+  color: "#090B18"
+  image: assets/DiceTarget_AppIcon_1024_universal.png
 
   android: true
   ios: true
 
   android_12:
-    color: "#07133A"
-    image: assets/branding/target_labs_splash.png
+    color: "#090B18"
+    image: assets/DiceTarget_AppIcon_1024_universal.png
