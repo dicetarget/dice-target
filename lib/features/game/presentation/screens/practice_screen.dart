@@ -1735,9 +1735,9 @@ class _PracticeScreenState extends State<PracticeScreen>
             surfaceTintColor: Colors.transparent,
             title: _isDailyMode
                 ? Text(
-                    'Daily #${_dailyNumberForToday()}',
+                    'Daily ${_dailyNumberForToday()}',
                     style: AppTextStyles.appBarTitle.copyWith(
-                      color: AppColors.ink,
+                      color: const Color(0xFFD4AC0D),
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1786,6 +1786,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                           isDailyMode: _isDailyMode,
                           dailyPuzzleNumber: _isDailyMode ? _dailyPuzzleNumber : null,
                           dailyPuzzleCount: _isDailyMode ? _dailyPuzzleCount : null,
+                          dailyMoves: (_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                           freePlayMoves: (!_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                         ),
                         if (!_isDailyMode) ...[
@@ -1963,12 +1964,12 @@ class _DailyCompleteOverlayState extends State<_DailyCompleteOverlay>
                       color: const Color(0xFF0A1828).withValues(alpha: 0.98),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: const Color(0xFF3FE8FF).withValues(alpha: 0.45),
+                        color: const Color(0xFFD4AC0D).withValues(alpha: 0.55),
                         width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF3FE8FF).withValues(alpha: 0.20),
+                          color: const Color(0xFFD4AC0D).withValues(alpha: 0.20),
                           blurRadius: 30,
                           spreadRadius: 2,
                         ),
@@ -1984,7 +1985,7 @@ class _DailyCompleteOverlayState extends State<_DailyCompleteOverlay>
                       children: [
                         ShaderMask(
                           shaderCallback: (bounds) => const LinearGradient(
-                            colors: [Color(0xFF90D5F0), Color(0xFF3FE8FF)],
+                            colors: [Color(0xFFFFF0A0), Color(0xFFD4AC0D)],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                           ).createShader(bounds),
@@ -2001,7 +2002,7 @@ class _DailyCompleteOverlayState extends State<_DailyCompleteOverlay>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Daily #${widget.dailyNumber} solved!',
+                          'Daily ${widget.dailyNumber} solved!',
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,

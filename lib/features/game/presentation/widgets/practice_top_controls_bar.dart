@@ -151,45 +151,43 @@ class PracticeTopControlsBar extends StatelessWidget {
             child: Icon(Icons.calendar_today_rounded, size: 15, color: _neonAccentLt),
           ),
           const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Daily Puzzle',
-                  style: AppTextStyles.body.copyWith(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: _textSecondary,
-                    height: 1.1,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Daily Puzzle',
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: _textSecondary,
+                  height: 1.1,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '$number / $total',
-                  style: AppTextStyles.body.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: _textPrimary,
-                    height: 1,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$number / $total',
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: _textPrimary,
+                  height: 1,
                 ),
-                if (dailyMoves != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    '$dailyMoves moves',
-                    style: AppTextStyles.body.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: _neonAccent.withValues(alpha: 0.75),
-                      height: 1,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
+          const Spacer(),
+          if (dailyMoves != null)
+            Text(
+              '$dailyMoves ${dailyMoves == 1 ? 'Move' : 'Moves'}',
+              style: AppTextStyles.body.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: _neonAccentLt.withValues(alpha: 0.85),
+                height: 1,
+              ),
+            ),
+          const Spacer(),
           GestureDetector(
             onTap: onToggleSound,
             child: Padding(

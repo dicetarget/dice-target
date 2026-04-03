@@ -112,10 +112,10 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                       children: [
                         _buildTitle(),
                         const SizedBox(height: 56),
-                        _buildFreePlayButton(),
-                        const SizedBox(height: 16),
                         _buildDailyButton(),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
+                        _buildFreePlayButton(),
+                        const SizedBox(height: 32),
                         _buildRulesButton(),
                       ],
                     ),
@@ -135,7 +135,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       shaderCallback: (bounds) => const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFFFFFAD0), Color(0xFFFFD54A), Color(0xFFFF9F00)],
+        colors: [Color(0xFFE0FEFF), Color(0xFF3FE8FF), Color(0xFF00AACC)],
         stops: [0.0, 0.45, 1.0],
       ).createShader(bounds),
       child: Text(
@@ -159,8 +159,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticeScreen())),
-      label: 'START FREE PLAY',
-      sublabel: 'Unlimited Puzzles · Infinite Practice',
+      label: 'Free Play',
+      sublabel: 'Unlimited puzzles',
       icon: Icons.play_arrow_rounded,
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.85),
@@ -171,15 +171,15 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ),
       labelColor: _cyanLt,
       sublabelColor: _cyan.withValues(alpha: 0.60),
-      isPrimary: true,
+      isPrimary: false,
     );
   }
 
   Widget _buildDailyButton() {
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
-      label: _isOpeningDaily ? 'Preparing...' : 'TODAY\'S CHALLENGE',
-      sublabel: _isOpeningDaily ? '' : 'New Puzzles Every Day',
+      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
+      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
       icon: Icons.calendar_today_rounded,
       glowColor: _amber,
       borderColor: _amber.withValues(alpha: 0.70),
@@ -190,7 +190,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ),
       labelColor: _amberLt,
       sublabelColor: _amber.withValues(alpha: 0.65),
-      isPrimary: false,
+      isPrimary: true,
       isLoading: _isOpeningDaily,
     );
   }
@@ -212,13 +212,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'GAME RULES',
+                'How to Play',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _muted),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'How To Play',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: _muted),
               ),
             ],
           ),

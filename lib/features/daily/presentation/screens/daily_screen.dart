@@ -283,17 +283,17 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         color: DailyScreen._card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: DailyScreen._accent.withValues(alpha: 0.25)),
+        border: Border.all(color: DailyScreen._gold.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Daily #$dailyNumber',
+            'Daily $dailyNumber',
             style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
-              color: DailyScreen._accent,
+              color: DailyScreen._gold,
               letterSpacing: -1.0,
               height: 1.0,
             ),
@@ -487,7 +487,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         final diff = r.moves - r.optimalMoves!;
         if (diff <= 0) {
           statusText = 'Optimal';
-          statusColor = DailyScreen._solved;
+          statusColor = DailyScreen._gold;
         } else if (diff == 1) {
           statusText = '+1';
           statusColor = DailyScreen._ink.withValues(alpha: 0.8);
@@ -913,6 +913,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         children: [
                           _buildStreakCard(controller.dailyStreak),
                           const SizedBox(height: 12),
+                          _buildCountdownCard(),
+                          const SizedBox(height: 12),
                           _buildResultHero(progress),
                           const SizedBox(height: 12),
                           _buildRunSummaryCard(progress),
@@ -1104,13 +1106,13 @@ class _ProgressSteps extends StatelessWidget {
             margin: EdgeInsets.only(right: index == totalPuzzles - 1 ? 0 : 8),
             decoration: BoxDecoration(
               color: isDone
-                  ? DailyScreen._accent
+                  ? DailyScreen._gold
                   : isCurrent
-                  ? DailyScreen._accent.withValues(alpha: 0.28)
+                  ? DailyScreen._gold.withValues(alpha: 0.28)
                   : AppColors.bgBottom,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: isDone ? DailyScreen._accent.withValues(alpha: 0.5) : DailyScreen._border,
+                color: isDone ? DailyScreen._gold.withValues(alpha: 0.5) : DailyScreen._border,
                 width: 0.5,
               ),
             ),
