@@ -159,6 +159,11 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     return '';
   }
 
+  String _starsLabel(int stars) {
+    if (stars == 0) return '—';
+    return '${'★' * stars}${'☆' * (3 - stars)}';
+  }
+
   DailyPuzzleResult? _resultForPuzzle(DailyProgress progress, int puzzleIndex) {
     for (final result in progress.puzzleResults) {
       if (result.puzzleIndex == puzzleIndex) return result;
@@ -257,6 +262,33 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildLifetimeStatsCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: _cardDecoration(),
+      child: Row(
+        children: [
+          Expanded(
+            child: _InfoItem(label: 'Total Runs', value: '${controller.lifetimeTotalRuns}'),
+          ),
+          Expanded(
+            child: _InfoItem(
+              label: 'Best Rating',
+              value: _starsLabel(controller.lifetimeBestRating),
+            ),
+          ),
+          Expanded(
+            child: _InfoItem(
+              label: 'Puzzles Solved',
+              value: '${controller.lifetimeTotalPuzzlesSolved}',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDailyHeroCard(int dailyNumber) {
     final now = DateTime.now();
     final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -289,7 +321,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Daily $dailyNumber',
+            'Daily',
             style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
@@ -361,7 +393,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       _ => 'Keep at it — the next run is yours.',
     };
 
-    // Gold filled stars, muted empty stars
     final starRow = Row(
       children: List.generate(3, (i) {
         final filled = i < runStars;
@@ -914,6 +945,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           _buildStreakCard(controller.dailyStreak),
                           const SizedBox(height: 12),
                           _buildCountdownCard(),
+                          const SizedBox(height: 12),
+                          _buildLifetimeStatsCard(),
                           const SizedBox(height: 12),
                           _buildResultHero(progress),
                           const SizedBox(height: 12),

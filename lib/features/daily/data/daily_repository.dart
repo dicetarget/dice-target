@@ -42,4 +42,16 @@ class DailyRepository {
   Future<void> clearInProgressState() {
     return storage.clearInProgressState();
   }
+
+  // =========================
+  // 📊 LIFETIME STATS
+  // =========================
+
+  Future<({int totalRuns, int bestRating, int totalPuzzlesSolved})> loadLifetimeStats() {
+    return storage.loadLifetimeStats();
+  }
+
+  Future<void> updateLifetimeStats({required int stars, required int puzzlesSolved}) {
+    return storage.updateLifetimeStats(stars: stars, puzzlesSolved: puzzlesSolved);
+  }
 }

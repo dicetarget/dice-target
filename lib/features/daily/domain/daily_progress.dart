@@ -146,7 +146,8 @@ class DailyProgress {
 
   bool get isRunEnded => isCompleted || gaveUp;
 
-  bool get hasStarted => solvedCount > 0 || currentPuzzleIndex > 0 || puzzleResults.isNotEmpty;
+  bool get hasStarted =>
+      solvedCount > 0 || currentPuzzleIndex > 0 || puzzleResults.isNotEmpty || runInterrupted;
 
   bool get canContinue => hasStarted && !isRunEnded;
 

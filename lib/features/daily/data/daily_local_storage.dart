@@ -16,6 +16,35 @@ class DailyLocalStorage {
   static const _lastSeenUtcMillisKey = 'daily_last_seen_utc_millis';
   static const _lastSeenDayKey = 'daily_last_seen_day_key';
 
+  // =========================
+  // 📊 LIFETIME STATS
+  // =========================
+
+  static const _statsTotalRunsKey = 'daily_stats_total_runs';
+  static const _statsBestRatingKey = 'daily_stats_best_rating';
+  static const _statsTotalPuzzlesSolvedKey = 'daily_stats_total_puzzles_solved';
+
+  Future<({int totalRuns, int bestRating, int totalPuzzlesSolved})> loadLifetimeStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (
+      totalRuns: prefs.getInt(_statsTotalRunsKey) ?? 0,
+      bestRating: prefs.getInt(_statsBestRatingKey) ?? 0,
+      totalPuzzlesSolved: prefs.getInt(_statsTotalPuzzlesSolvedKey) ?? 0,
+    );
+  }
+
+  Future<void> updateLifetimeStats({required int stars, required int puzzlesSolved}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final currentRuns = prefs.getInt(_statsTotalRunsKey) ?? 0;
+    final currentBest = prefs.getInt(_statsBestRatingKey) ?? 0;
+    final currentPuzzles = prefs.getInt(_statsTotalPuzzlesSolvedKey) ?? 0;
+
+    await prefs.setInt(_statsTotalRunsKey, currentRuns + 1);
+    await prefs.setInt(_statsBestRatingKey, stars > currentBest ? stars : currentBest);
+    await prefs.setInt(_statsTotalPuzzlesSolvedKey, currentPuzzles + puzzlesSolved);
+  }
+
   Future<DailyProgress?> loadProgress(String dailyKey) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('$_progressPrefix$dailyKey');

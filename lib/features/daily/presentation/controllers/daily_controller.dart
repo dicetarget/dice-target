@@ -16,6 +16,14 @@ class DailyController extends ChangeNotifier {
 
   int dailyStreak = 0;
 
+  // =========================
+  // 📊 LIFETIME STATS
+  // =========================
+
+  int lifetimeTotalRuns = 0;
+  int lifetimeBestRating = 0;
+  int lifetimeTotalPuzzlesSolved = 0;
+
   DateTime? _runStartTime;
 
   DailyController({required this.repository});
@@ -32,6 +40,11 @@ class DailyController extends ChangeNotifier {
     progress = stored ?? DailyProgress.initial(key);
 
     dailyStreak = await repository.loadDailyStreak();
+
+    final stats = await repository.loadLifetimeStats();
+    lifetimeTotalRuns = stats.totalRuns;
+    lifetimeBestRating = stats.bestRating;
+    lifetimeTotalPuzzlesSolved = stats.totalPuzzlesSolved;
 
     notifyListeners(); // UI kann schon anzeigen
 
@@ -203,6 +216,13 @@ class DailyController extends ChangeNotifier {
 
     await repository.saveProgress(progress!);
 
+    // Lifetime stats — runStars() liest jetzt das soeben gesetzte progress
+    final stars = runStars();
+    await repository.updateLifetimeStats(stars: stars, puzzlesSolved: total);
+    lifetimeTotalRuns += 1;
+    if (stars > lifetimeBestRating) lifetimeBestRating = stars;
+    lifetimeTotalPuzzlesSolved += total;
+
     await registerDailyCompleted();
 
     notifyListeners();
@@ -231,6 +251,12 @@ class DailyController extends ChangeNotifier {
     );
 
     await repository.saveProgress(progress!);
+
+    // Lifetime stats — gaveUp zählt als Run, 0 Sterne
+    await repository.updateLifetimeStats(stars: 0, puzzlesSolved: safeSolvedCount);
+    lifetimeTotalRuns += 1;
+    lifetimeTotalPuzzlesSolved += safeSolvedCount;
+
     notifyListeners();
   }
 

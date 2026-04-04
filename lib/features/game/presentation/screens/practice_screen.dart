@@ -1735,7 +1735,7 @@ class _PracticeScreenState extends State<PracticeScreen>
             surfaceTintColor: Colors.transparent,
             title: _isDailyMode
                 ? Text(
-                    'Daily ${_dailyNumberForToday()}',
+                    'Daily',
                     style: AppTextStyles.appBarTitle.copyWith(
                       color: const Color(0xFFD4AC0D),
                       fontSize: 17,
@@ -2002,7 +2002,7 @@ class _DailyCompleteOverlayState extends State<_DailyCompleteOverlay>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Daily ${widget.dailyNumber} solved!',
+                          'Daily solved!',
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
