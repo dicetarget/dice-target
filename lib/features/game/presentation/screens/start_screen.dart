@@ -98,25 +98,26 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Center(
-              child: FadeTransition(
-                opacity: _fade,
-                child: AnimatedBuilder(
-                  animation: _slide,
-                  builder: (context, child) =>
-                      Transform.translate(offset: Offset(0, _slide.value), child: child),
+            child: FadeTransition(
+              opacity: _fade,
+              child: AnimatedBuilder(
+                animation: _slide,
+                builder: (context, child) =>
+                    Transform.translate(offset: Offset(0, _slide.value), child: child),
+                child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        const Spacer(),
                         _buildTitle(),
-                        const SizedBox(height: 56),
+                        const SizedBox(height: 52),
                         _buildDailyButton(),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 14),
                         _buildFreePlayButton(),
-                        const SizedBox(height: 32),
+                        const Spacer(),
                         _buildRulesButton(),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -129,13 +130,12 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  // Nur Text — kein Icon
   Widget _buildTitle() {
     return ShaderMask(
       shaderCallback: (bounds) => const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFFE0FEFF), Color(0xFF3FE8FF), Color(0xFF00AACC)],
+        colors: [Color(0xFFFFF8DC), Color(0xFFFFD700), Color(0xFFB8860B)],
         stops: [0.0, 0.45, 1.0],
       ).createShader(bounds),
       child: Text(
@@ -147,11 +147,31 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           letterSpacing: -0.5,
           color: Colors.white,
           shadows: [
-            Shadow(color: _gold.withValues(alpha: 0.40), blurRadius: 16),
-            Shadow(color: _cyan.withValues(alpha: 0.10), blurRadius: 32),
+            Shadow(color: _gold.withValues(alpha: 0.55), blurRadius: 20),
+            Shadow(color: _amber.withValues(alpha: 0.20), blurRadius: 36),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDailyButton() {
+    return _NeonButton(
+      onPressed: _isOpeningDaily ? null : _openDaily,
+      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
+      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
+      icon: Icons.calendar_today_rounded,
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.70),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_cyan.withValues(alpha: 0.18), _cyan.withValues(alpha: 0.08)],
+      ),
+      labelColor: _cyanLt,
+      sublabelColor: _cyan.withValues(alpha: 0.65),
+      isPrimary: true,
+      isLoading: _isOpeningDaily,
     );
   }
 
@@ -162,36 +182,16 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
       icon: Icons.play_arrow_rounded,
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.85),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.22), const Color(0xFF00AACC).withValues(alpha: 0.12)],
-      ),
-      labelColor: _cyanLt,
-      sublabelColor: _cyan.withValues(alpha: 0.60),
-      isPrimary: false,
-    );
-  }
-
-  Widget _buildDailyButton() {
-    return _NeonButton(
-      onPressed: _isOpeningDaily ? null : _openDaily,
-      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
-      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
-      icon: Icons.calendar_today_rounded,
       glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.70),
+      borderColor: _amber.withValues(alpha: 0.85),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.18), _amber.withValues(alpha: 0.08)],
+        colors: [_amber.withValues(alpha: 0.22), const Color(0xFF8B6914).withValues(alpha: 0.12)],
       ),
       labelColor: _amberLt,
-      sublabelColor: _amber.withValues(alpha: 0.65),
-      isPrimary: true,
-      isLoading: _isOpeningDaily,
+      sublabelColor: _amber.withValues(alpha: 0.60),
+      isPrimary: false,
     );
   }
 

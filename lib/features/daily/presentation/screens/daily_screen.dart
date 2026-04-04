@@ -28,7 +28,7 @@ class DailyScreen extends StatefulWidget {
   // ── Dark-Neon palette via AppColors ───────────────────────────────────────
   static const Color _bg = AppColors.bgTop;
   static const Color _ink = AppColors.ink;
-  static const Color _accent = AppColors.accent;
+  static const Color _cyan = Color(0xFF3FE8FF);
   static const Color _card = AppColors.card;
   static const Color _border = AppColors.cardBr;
   static const Color _solved = AppColors.solved;
@@ -245,7 +245,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       decoration: _cardDecoration(),
       child: Row(
         children: [
-          Icon(Icons.schedule_rounded, size: 22, color: DailyScreen._accent),
+          Icon(Icons.schedule_rounded, size: 22, color: DailyScreen._cyan),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -605,9 +605,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               child: OutlinedButton.icon(
                 onPressed: () => _showBestSolutionDialog(result),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: DailyScreen._accent,
-                  side: BorderSide(color: DailyScreen._accent.withValues(alpha: 0.55)),
-                  backgroundColor: DailyScreen._accent.withValues(alpha: 0.08),
+                  foregroundColor: DailyScreen._cyan,
+                  side: BorderSide(color: DailyScreen._cyan.withValues(alpha: 0.55)),
+                  backgroundColor: DailyScreen._cyan.withValues(alpha: 0.08),
                 ),
                 icon: const Icon(Icons.lightbulb_outline_rounded, size: 18),
                 label: const Text('Show Best Solution'),
@@ -756,7 +756,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: DailyScreen._accent,
+                    color: DailyScreen._cyan,
                   ),
                 ),
               ),
@@ -989,7 +989,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                                 : () async => _handleMainAction(progress),
                             style: ButtonStyle(
                               backgroundColor: WidgetStatePropertyAll(
-                                disableButton ? DailyScreen._muted : DailyScreen._accent,
+                                disableButton ? DailyScreen._muted : DailyScreen._cyan,
                               ),
                               foregroundColor: WidgetStatePropertyAll(
                                 disableButton ? DailyScreen._ink : AppColors.bgTop,
@@ -1166,7 +1166,7 @@ class _FormatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: DailyScreen._accent),
+        Icon(icon, size: 18, color: DailyScreen._cyan),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
