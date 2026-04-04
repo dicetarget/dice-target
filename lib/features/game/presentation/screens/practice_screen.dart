@@ -1572,67 +1572,64 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   Widget _buildDailyHintButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.sm),
-      child: SizedBox(
-        width: double.infinity,
-        child: GestureDetector(
-          onTap: _canUseHint
-              ? () {
-                  _useHint();
-                }
-              : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            height: 50,
-            decoration: BoxDecoration(
+    return SizedBox(
+      width: double.infinity,
+      child: GestureDetector(
+        onTap: _canUseHint
+            ? () {
+                _useHint();
+              }
+            : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          height: 50,
+          decoration: BoxDecoration(
+            color: _canUseHint
+                ? const Color(0xFFD4AC0D).withValues(alpha: 0.14)
+                : Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(AppRadius.button),
+            border: Border.all(
               color: _canUseHint
-                  ? const Color(0xFFD4AC0D).withValues(alpha: 0.14)
-                  : Colors.white.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(AppRadius.button),
-              border: Border.all(
-                color: _canUseHint
-                    ? const Color(0xFFD4AC0D).withValues(alpha: 0.60)
-                    : Colors.white.withValues(alpha: 0.08),
-                width: _canUseHint ? 1.0 : 0.5,
+                  ? const Color(0xFFD4AC0D).withValues(alpha: 0.75)
+                  : Colors.white.withValues(alpha: 0.08),
+              width: _canUseHint ? 1.0 : 0.5,
+            ),
+            boxShadow: _canUseHint
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFFFD93D).withValues(alpha: 0.28),
+                      blurRadius: 14,
+                    ),
+                  ]
+                : [],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lightbulb_outline_rounded,
+                size: 18,
+                color: _canUseHint ? const Color(0xFFFFF0A0) : AppColors.muted,
               ),
-              boxShadow: _canUseHint
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFFFD93D).withValues(alpha: 0.18),
-                        blurRadius: 14,
-                      ),
-                    ]
-                  : [],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lightbulb_outline_rounded,
-                  size: 18,
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Hint',
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
                   color: _canUseHint ? const Color(0xFFFFF0A0) : AppColors.muted,
+                  height: 1,
+                  shadows: _canUseHint
+                      ? [
+                          Shadow(
+                            color: const Color(0xFFFFD93D).withValues(alpha: 0.40),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : null,
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  'Hint',
-                  style: AppTextStyles.body.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: _canUseHint ? const Color(0xFFFFF0A0) : AppColors.muted,
-                    height: 1,
-                    shadows: _canUseHint
-                        ? [
-                            Shadow(
-                              color: const Color(0xFFFFD93D).withValues(alpha: 0.40),
-                              blurRadius: 8,
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1832,6 +1829,9 @@ class _PracticeScreenState extends State<PracticeScreen>
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
                             onUndo: _undo,
+                            mainAxisAlignment: _isDailyMode
+                                ? MainAxisAlignment.center
+                                : MainAxisAlignment.center,
                           ),
                         ),
                         SizedBox(height: _bottomSectionGap),

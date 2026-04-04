@@ -26,6 +26,7 @@ class PracticeGameArea extends StatelessWidget {
   final void Function(int index) onToggleSelect;
   final void Function(UiOp op) onApplyOp;
   final VoidCallback onUndo;
+  final MainAxisAlignment mainAxisAlignment;
 
   const PracticeGameArea({
     super.key,
@@ -49,12 +50,13 @@ class PracticeGameArea extends StatelessWidget {
     required this.onToggleSelect,
     required this.onApplyOp,
     required this.onUndo,
+    this.mainAxisAlignment = MainAxisAlignment.center,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
       children: [
         if (showDice) ...[
           DiceRowWidget(
