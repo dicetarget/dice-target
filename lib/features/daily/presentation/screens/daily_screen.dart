@@ -29,6 +29,7 @@ class DailyScreen extends StatefulWidget {
   static const Color _bg = AppColors.bgTop;
   static const Color _ink = AppColors.ink;
   static const Color _cyan = Color(0xFF3FE8FF);
+  static const Color _cyanLt = Color(0xFFE0FEFF);
   static const Color _card = AppColors.card;
   static const Color _border = AppColors.cardBr;
   static const Color _solved = AppColors.solved;
@@ -229,7 +230,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: DailyScreen._ink,
+                color: Colors.white,
               ),
             ),
           ),
@@ -253,7 +254,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: DailyScreen._ink,
+                color: Colors.white,
               ),
             ),
           ),
@@ -320,9 +321,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Daily',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
               color: DailyScreen._gold,
@@ -423,21 +424,17 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: DailyScreen._ink,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
           ),
           const SizedBox(height: 10),
           starRow,
           const SizedBox(height: 10),
           Text(
             quality,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: DailyScreen._ink.withValues(alpha: 0.65),
+              color: DailyScreen._muted,
             ),
           ),
         ],
@@ -453,7 +450,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final efficiencyLabel = progress.gaveUp ? '—' : (totalDiff == 0 ? 'Optimal' : '+$totalDiff');
     final efficiencyColor = progress.gaveUp
         ? DailyScreen._muted
-        : (totalDiff == 0 ? DailyScreen._solved : DailyScreen._ink);
+        : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
 
     return Container(
       width: double.infinity,
@@ -486,7 +483,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         children: [
           const Text(
             'Results',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: DailyScreen._ink),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
           ),
           const SizedBox(height: 12),
           for (int i = 0; i < totalPuzzles; i++) ...[
@@ -521,10 +518,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           statusColor = DailyScreen._gold;
         } else if (diff == 1) {
           statusText = '+1';
-          statusColor = DailyScreen._ink.withValues(alpha: 0.8);
+          statusColor = Colors.white.withValues(alpha: 0.8);
         } else if (diff == 2) {
           statusText = '+2';
-          statusColor = DailyScreen._ink.withValues(alpha: 0.65);
+          statusColor = Colors.white.withValues(alpha: 0.65);
         } else {
           statusText = '+3+';
           statusColor = DailyScreen._muted;
@@ -563,7 +560,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: DailyScreen._ink,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -620,7 +617,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 onPressed: () =>
                     _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: DailyScreen._ink,
+                  foregroundColor: Colors.white,
                   side: BorderSide(color: DailyScreen._border),
                   backgroundColor: DailyScreen._card,
                 ),
@@ -668,7 +665,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 22),
           title: const Text(
             'Best Solution',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: DailyScreen._ink),
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
           ),
           content: SizedBox(
             width: dialogWidth,
@@ -700,7 +697,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                             if (targetText != null) ...[
                               Text(
                                 'Target: $targetText',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
                                   color: DailyScreen._gold,
@@ -713,7 +710,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                               style: const TextStyle(
                                 fontSize: 18,
                                 height: 1.5,
-                                color: DailyScreen._ink,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -721,20 +718,18 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      const Text(
+                        'Optimal:',
+                        style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
+                      ),
                       Text(
-                        'Optimal: $optimalText',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          color: DailyScreen._ink,
-                        ),
+                        optimalText,
+                        style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'You: ${result.moves} Moves',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          color: DailyScreen._ink,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                     ],
                   ),
@@ -908,7 +903,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         backgroundColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        foregroundColor: DailyScreen._ink,
+        foregroundColor: Colors.white,
       ),
       body: AnimatedBuilder(
         animation: controller,
@@ -924,7 +919,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             return const Center(
               child: Text(
                 'Daily challenge could not be loaded.',
-                style: TextStyle(fontSize: 16, color: DailyScreen._ink),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             );
           }
@@ -968,10 +963,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         if (topStatus.isNotEmpty) ...[
                           Text(
                             topStatus,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               height: 1.35,
-                              color: DailyScreen._ink.withValues(alpha: 0.75),
+                              color: DailyScreen._muted,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -980,31 +975,68 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         const SizedBox(height: 16),
                         _buildFormatCard(progress),
                         const Spacer(),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: disableButton
-                                ? null
-                                : () async => _handleMainAction(progress),
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                disableButton ? DailyScreen._muted : DailyScreen._cyan,
+                        // ── Neon Start Button ─────────────────────────────
+                        GestureDetector(
+                          onTap: disableButton ? null : () async => _handleMainAction(progress),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 140),
+                            width: double.infinity,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: disableButton
+                                  ? LinearGradient(
+                                      colors: [
+                                        Colors.white.withValues(alpha: 0.04),
+                                        Colors.white.withValues(alpha: 0.02),
+                                      ],
+                                    )
+                                  : LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        DailyScreen._cyan.withValues(alpha: 0.12),
+                                        DailyScreen._cyan.withValues(alpha: 0.05),
+                                      ],
+                                    ),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: disableButton
+                                    ? Colors.white.withValues(alpha: 0.10)
+                                    : DailyScreen._cyan.withValues(alpha: 0.70),
+                                width: 1.5,
                               ),
-                              foregroundColor: WidgetStatePropertyAll(
-                                disableButton ? DailyScreen._ink : AppColors.bgTop,
-                              ),
-                              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                              shadowColor: const WidgetStatePropertyAll(Colors.transparent),
-                              elevation: const WidgetStatePropertyAll(0),
-                              splashFactory: NoSplash.splashFactory,
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                              ),
+                              boxShadow: disableButton
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: DailyScreen._cyan.withValues(alpha: 0.30),
+                                        blurRadius: 20,
+                                        spreadRadius: 1,
+                                      ),
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.35),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
                             ),
-                            child: Text(
-                              _actionLabel(progress),
-                              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                            child: Center(
+                              child: Text(
+                                _actionLabel(progress),
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                  color: disableButton ? DailyScreen._muted : DailyScreen._cyanLt,
+                                  shadows: disableButton
+                                      ? null
+                                      : [
+                                          Shadow(
+                                            color: DailyScreen._cyan.withValues(alpha: 0.50),
+                                            blurRadius: 10,
+                                          ),
+                                        ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -1046,7 +1078,7 @@ class _SummaryCell extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: valueColor ?? DailyScreen._ink,
+            color: valueColor ?? Colors.white,
           ),
         ),
       ],
@@ -1076,11 +1108,7 @@ class _InfoItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: DailyScreen._ink,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
         ),
       ],
     );
@@ -1109,11 +1137,7 @@ class _MiniInfoItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: DailyScreen._ink,
-          ),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
         ),
       ],
     );
@@ -1171,11 +1195,7 @@ class _FormatRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: DailyScreen._ink,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
           ),
         ),
       ],
