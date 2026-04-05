@@ -424,7 +424,11 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: DailyScreen._gold,
+            ),
           ),
           const SizedBox(height: 10),
           starRow,
@@ -611,17 +615,30 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
+            // zu:
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () =>
+              child: GestureDetector(
+                onTap: () =>
                     _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: BorderSide(color: DailyScreen._border),
-                  backgroundColor: DailyScreen._card,
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.0),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Train Again',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-                child: const Text('Train Again'),
               ),
             ),
           ],
