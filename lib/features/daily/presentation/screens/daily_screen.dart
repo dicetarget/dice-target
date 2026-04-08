@@ -27,7 +27,6 @@ class DailyScreen extends StatefulWidget {
 
   // ── Dark-Neon palette via AppColors ───────────────────────────────────────
   static const Color _bg = AppColors.bgTop;
-  static const Color _ink = AppColors.ink;
   static const Color _cyan = Color(0xFF3FE8FF);
   static const Color _cyanLt = Color(0xFFE0FEFF);
   static const Color _card = AppColors.card;
@@ -153,13 +152,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     return 'Start Daily';
   }
 
-  String _statusText(DailyProgress progress) {
-    if (progress.isCompleted) return 'All daily puzzles solved.';
-    if (progress.gaveUp) return 'You ended today\'s run.';
-    if (progress.canContinue) return 'Run interrupted. Continue with the next puzzle.';
-    return '';
-  }
-
   String _starsLabel(int stars) {
     if (stars == 0) return '—';
     return '${'★' * stars}${'☆' * (3 - stars)}';
@@ -170,12 +162,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       if (result.puzzleIndex == puzzleIndex) return result;
     }
     return null;
-  }
-
-  int _nextPuzzleNumber(DailyProgress progress, int totalPuzzles) {
-    if (totalPuzzles <= 0) return 0;
-    final nextIndex = progress.currentPuzzleIndex.clamp(0, totalPuzzles - 1);
-    return nextIndex + 1;
   }
 
   void _savePuzzleResultToList({
@@ -504,11 +490,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     final bool isSolved = result?.solved ?? false;
     final bool isGaveUp = result?.gaveUp ?? false;
-    final bool isPlayed = result != null;
     final bool isUnlocked = progress.gaveUp
         ? true
         : puzzleIndex <= progress.currentPuzzleIndex.clamp(0, totalPuzzles - 1);
-    final bool canTap = progress.gaveUp || isPlayed || isUnlocked;
+    final bool canTap = progress.gaveUp || isUnlocked;
 
     String statusText = '';
     Color statusColor = DailyScreen._muted;
@@ -543,7 +528,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     }
 
     final bool showButtons = result != null && (isSolved || isGaveUp);
-    final bool showTrainingLabel = result != null && canTap;
 
     return Container(
       width: double.infinity,
@@ -588,17 +572,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             )
           else
             Text('No result saved.', style: TextStyle(fontSize: 13, color: DailyScreen._muted)),
-          if (showTrainingLabel) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Training only',
-              style: TextStyle(
-                fontSize: 12,
-                color: DailyScreen._muted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
           if (showButtons) ...[
             const SizedBox(height: 12),
             SizedBox(
@@ -615,7 +588,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
-            // zu:
             SizedBox(
               width: double.infinity,
               child: GestureDetector(
@@ -921,6 +893,16 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         foregroundColor: Colors.white,
+        title: const Text(
+          'Daily',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
+            letterSpacing: -0.3,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: AnimatedBuilder(
         animation: controller,
@@ -943,7 +925,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
           final showResults = progress.isCompleted || progress.gaveUp;
           final disableButton = progress.isCompleted || progress.gaveUp || _isStartingDaily;
-          final topStatus = _statusText(progress);
 
           return SafeArea(
             child: Padding(
@@ -954,17 +935,19 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildStreakCard(controller.dailyStreak),
-                          const SizedBox(height: 12),
-                          _buildCountdownCard(),
-                          const SizedBox(height: 12),
-                          _buildLifetimeStatsCard(),
-                          const SizedBox(height: 12),
+                          // ── Primäres Ergebnis zuerst ──────────────────────
                           _buildResultHero(progress),
                           const SizedBox(height: 12),
                           _buildRunSummaryCard(progress),
                           const SizedBox(height: 16),
                           _buildResultsCard(progress, daily.puzzles.length),
+                          const SizedBox(height: 12),
+                          // ── Kontext / Stats danach ────────────────────────
+                          _buildStreakCard(controller.dailyStreak),
+                          const SizedBox(height: 12),
+                          _buildCountdownCard(),
+                          const SizedBox(height: 12),
+                          _buildLifetimeStatsCard(),
                         ],
                       ),
                     )
@@ -974,20 +957,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                         _buildDailyHeroCard(dailyNumber),
                         const SizedBox(height: 12),
                         _buildStreakCard(controller.dailyStreak),
-                        const SizedBox(height: 12),
-                        _buildCountdownCard(),
                         const SizedBox(height: 16),
-                        if (topStatus.isNotEmpty) ...[
-                          Text(
-                            topStatus,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.35,
-                              color: DailyScreen._muted,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                        ],
                         _buildProgressCard(progress, daily.puzzles.length),
                         const SizedBox(height: 16),
                         _buildFormatCard(progress),
