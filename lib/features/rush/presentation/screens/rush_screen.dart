@@ -68,7 +68,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // Timer colors — subtle default (white), warning colors only at ≤20s/≤10s
   static const Color _timerAmber = Color(0xFFFF9F00);
-  static const Color _timerRed = Color(0xFFE57373);
+  static const Color _timerRed = AppColors.failed; // Color(0xFFE57373)
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -109,8 +109,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   // ── (D) Celebrate — fed into TargetDisplayWidget ──────────────────────────────
   late final AnimationController _celebrateCtrl;
   late final Animation<double> _celebrateT;
-
-  // ── (C) Dice transition key ────────────────────────────────────────────────────
 
   bool get _isPlaying => _phase == _RunPhase.running;
 
@@ -215,7 +213,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _moves = 0;
     _mergePopKey = 0;
 
-    // Update rolling notifiers so TargetDisplayWidget / PracticeGameArea get the new values
     _rollingTargetNotifier.value = _target;
     _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
 
@@ -238,7 +235,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       }
     });
 
-    // Auto-apply if pending op and ≥2 dice selected
     if (_pendingOp != null && _selected.length >= 2) {
       final op = _pendingOp!;
       setState(() => _pendingOp = null);
@@ -276,7 +272,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       return;
     }
 
-    // Save undo snapshot
     if (_undoStack.length >= _maxUndo) _undoStack.removeAt(0);
     _undoStack.add(_UndoSnapshot(dice: List.from(_dice), moves: _moves));
 
@@ -314,8 +309,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   void _onSolve() {
     setState(() => _score++);
     sfx.win();
-    _celebrateCtrl.forward(from: 0); // (D) target bar celebrate
-    _plusOneCtrl.forward(from: 0); // (B) +1 popup
+    _celebrateCtrl.forward(from: 0);
+    _plusOneCtrl.forward(from: 0);
 
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
@@ -618,11 +613,11 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 opacity: _plusOneOpacity.value.clamp(0.0, 1.0),
                 child: Text(
                   '+1',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF3FE8FF),
-                    shadows: [Shadow(color: Color(0xFF3FE8FF), blurRadius: 14)],
+                    color: AppColors.accent, // war: Color(0xFF3FE8FF)
+                    shadows: const [Shadow(color: AppColors.accent, blurRadius: 14)],
                   ),
                 ),
               ),

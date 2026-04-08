@@ -24,8 +24,8 @@ import 'package:dice/features/rush/presentation/screens/rush_daily_result_screen
 import 'package:flutter/material.dart';
 
 class RushDailyScreen extends StatefulWidget {
-  final int runNumber; // 1 or 2
-  final int run1Score; // passed through to result screen (run 2 only)
+  final int runNumber;
+  final int run1Score;
 
   const RushDailyScreen({super.key, required this.runNumber, this.run1Score = -1});
 
@@ -46,7 +46,7 @@ class _RushDailyScreenState extends State<RushDailyScreen>
   static const Color _card = AppColors.card;
   static const Color _accent = AppColors.accent;
   static const Color _timerAmber = Color(0xFFFF9F00);
-  static const Color _timerRed = Color(0xFFE57373);
+  static const Color _timerRed = AppColors.failed;
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -297,12 +297,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
     });
   }
 
-  void _skip() {
-    if (!_isPlaying) return;
-    sfx.click();
-    setState(_loadPuzzle);
-  }
-
   void _undo() {
     if (!_isPlaying || _undoStack.isEmpty) return;
     final snapshot = _undoStack.removeLast();
@@ -498,8 +492,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
                           onUndo: _undo,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _buildSkipButton(),
                       SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
                     ],
                   ),
@@ -584,36 +576,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
     );
   }
 
-  Widget _buildSkipButton() {
-    return GestureDetector(
-      onTap: _isPlaying ? _skip : null,
-      child: Container(
-        width: double.infinity,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.button),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.skip_next_rounded, color: Colors.white.withValues(alpha: 0.45), size: 18),
-            const SizedBox(width: 6),
-            Text(
-              'Skip',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: Colors.white.withValues(alpha: 0.45),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPlusOneOverlay() {
     return AnimatedBuilder(
       animation: _plusOneCtrl,
@@ -632,8 +594,8 @@ class _RushDailyScreenState extends State<RushDailyScreen>
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF3FE8FF),
-                    shadows: [Shadow(color: Color(0xFF3FE8FF), blurRadius: 14)],
+                    color: AppColors.accent,
+                    shadows: [Shadow(color: AppColors.accent, blurRadius: 14)],
                   ),
                 ),
               ),

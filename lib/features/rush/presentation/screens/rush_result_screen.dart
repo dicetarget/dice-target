@@ -1,5 +1,6 @@
 // lib/features/rush/presentation/screens/rush_result_screen.dart
 
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,9 @@ class RushResultScreen extends StatefulWidget {
 }
 
 class _RushResultScreenState extends State<RushResultScreen> {
+  // Speed Run green — nicht in AppColors, bleibt lokal
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _bg = Color(0xFF0A0F1F);
-  static const Color _card = Color(0xFF141A2E);
 
   bool _isNewPb = false;
   int _pb = 0;
@@ -52,7 +52,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: AppColors.bgTop,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -73,14 +73,14 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              // (F) Difficulty badge
+              // Difficulty badge
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.07),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                    border: Border.all(color: AppColors.cardBr),
                   ),
                   child: Text(
                     '${widget.difficulty.label.toUpperCase()} · 90s',
@@ -98,12 +98,10 @@ class _RushResultScreenState extends State<RushResultScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 36),
                 decoration: BoxDecoration(
-                  color: _card,
+                  color: AppColors.card,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: _isNewPb
-                        ? _green.withValues(alpha: 0.55)
-                        : Colors.white.withValues(alpha: 0.07),
+                    color: _isNewPb ? _green.withValues(alpha: 0.55) : AppColors.cardBr,
                     width: _isNewPb ? 2.0 : 1.0,
                   ),
                 ),
@@ -156,9 +154,9 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 Center(
                   child: Text(
                     'Best (${widget.difficulty.label}): $_pb',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.30),
+                      color: AppColors.muted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -210,7 +208,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 19),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(17),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                    border: Border.all(color: AppColors.cardBr),
                   ),
                   child: const Center(
                     child: Text(
@@ -218,7 +216,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white38,
+                        color: AppColors.muted,
                       ),
                     ),
                   ),
