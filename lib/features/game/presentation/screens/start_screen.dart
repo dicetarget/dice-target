@@ -168,7 +168,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
       sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
-      icon: Icons.calendar_today_rounded,
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.70),
       bgGradient: LinearGradient(
@@ -189,7 +188,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
       label: 'Speed Run',
       sublabel: '90 seconds · Endless puzzles',
-      icon: Icons.timer_rounded,
       glowColor: _green,
       borderColor: _green.withValues(alpha: 0.75),
       bgGradient: LinearGradient(
@@ -209,7 +207,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticeScreen())),
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
-      icon: Icons.play_arrow_rounded,
       glowColor: _amber,
       borderColor: _amber.withValues(alpha: 0.85),
       bgGradient: LinearGradient(
@@ -255,7 +252,6 @@ class _NeonButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final String label;
   final String sublabel;
-  final IconData icon;
   final Color glowColor;
   final Color borderColor;
   final LinearGradient bgGradient;
@@ -268,7 +264,6 @@ class _NeonButton extends StatefulWidget {
     required this.onPressed,
     required this.label,
     required this.sublabel,
-    required this.icon,
     required this.glowColor,
     required this.borderColor,
     required this.bgGradient,
@@ -358,12 +353,10 @@ class _NeonButtonState extends State<_NeonButton> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(widget.icon, size: 20, color: widget.labelColor),
-                          const SizedBox(width: 8),
                           Text(
                             widget.label,
                             style: TextStyle(
-                              fontSize: 21,
+                              fontSize: 26,
                               fontWeight: FontWeight.w900,
                               color: widget.labelColor,
                               letterSpacing: -0.2,

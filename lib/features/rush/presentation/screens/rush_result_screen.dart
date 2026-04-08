@@ -2,7 +2,6 @@
 
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
-import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
 
 class RushResultScreen extends StatefulWidget {
@@ -165,13 +164,9 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   ),
                 ),
               const Spacer(),
-              // Play Again
+              // Play Again — pops back to RushStartScreen
               GestureDetector(
-                onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (_) => RushScreen(difficulty: widget.difficulty, personalBest: _pb),
-                  ),
-                ),
+                onTap: () => Navigator.of(context).pop(),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 19),
                   decoration: BoxDecoration(
