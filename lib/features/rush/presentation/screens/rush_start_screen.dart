@@ -1,9 +1,9 @@
 // lib/features/rush/presentation/screens/rush_start_screen.dart
 
 import 'package:dice/features/rush/data/rush_daily_storage.dart';
+import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
-import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
 
