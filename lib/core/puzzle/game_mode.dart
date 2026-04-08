@@ -1,1 +1,1 @@
-enum GameMode { practice, daily, vs }
+enum GameMode { practice, daily, vs, rush }

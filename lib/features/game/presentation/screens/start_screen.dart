@@ -9,6 +9,7 @@ import 'package:dice/features/daily/presentation/controllers/daily_controller.da
 import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
+import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -115,6 +116,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         _buildDailyButton(),
                         const SizedBox(height: 14),
                         _buildFreePlayButton(),
+                        const SizedBox(height: 14),
+                        _buildSpeedRunButton(),
                         const Spacer(),
                         _buildRulesButton(),
                         const SizedBox(height: 24),
@@ -191,6 +194,29 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ),
       labelColor: _amberLt,
       sublabelColor: _amber.withValues(alpha: 0.60),
+      isPrimary: false,
+    );
+  }
+
+  Widget _buildSpeedRunButton() {
+    const Color green = Color(0xFF00E5A0);
+    const Color greenLt = Color(0xFFD0FFF0);
+
+    return _NeonButton(
+      onPressed: () =>
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
+      label: 'Speed Run',
+      sublabel: '90 Sekunden · Endlos-Puzzles',
+      icon: Icons.timer_rounded,
+      glowColor: green,
+      borderColor: green.withValues(alpha: 0.75),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [green.withValues(alpha: 0.18), green.withValues(alpha: 0.08)],
+      ),
+      labelColor: greenLt,
+      sublabelColor: green.withValues(alpha: 0.60),
       isPrimary: false,
     );
   }

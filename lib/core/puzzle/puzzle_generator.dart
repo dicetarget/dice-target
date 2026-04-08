@@ -83,6 +83,18 @@ class PuzzleGenerator {
           targetMin: targetMin,
           targetMax: targetMax,
         );
+
+      case GameMode.rush:
+        final rushSeed = PuzzleSeed.mix(seed, puzzleIndex);
+        return _generatePracticePuzzle(
+          config: config,
+          seed: rushSeed,
+          puzzleIndex: puzzleIndex,
+          keepTarget: keepTarget,
+          fixedTarget: fixedTarget,
+          targetMin: targetMin,
+          targetMax: targetMax,
+        );
     }
   }
 
@@ -285,6 +297,8 @@ class PuzzleGenerator {
         return 0x2468ACE1;
       case GameMode.vs:
         return 0x10293847;
+      case GameMode.rush:
+        return 0xC0FFEE01;
     }
   }
 }
