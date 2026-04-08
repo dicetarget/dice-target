@@ -26,6 +26,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   static const Color _muted = Color(0xFF6B8CAE);
   static const Color _amber = Color(0xFFD4AC0D);
   static const Color _amberLt = Color(0xFFFFF0A0);
+  static const Color _green = Color(0xFF00E5A0);
+  static const Color _greenLt = Color(0xFFD0FFF0);
 
   late final AnimationController _controller;
   late final Animation<double> _fade;
@@ -113,11 +115,14 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         const Spacer(),
                         _buildTitle(),
                         const SizedBox(height: 52),
+                        // Daily Challenge
                         _buildDailyButton(),
                         const SizedBox(height: 14),
-                        _buildFreePlayButton(),
-                        const SizedBox(height: 14),
+                        // Speed Run — between Daily and Free Play
                         _buildSpeedRunButton(),
+                        const SizedBox(height: 14),
+                        // Free Play
+                        _buildFreePlayButton(),
                         const Spacer(),
                         _buildRulesButton(),
                         const SizedBox(height: 24),
@@ -178,6 +183,26 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildSpeedRunButton() {
+    return _NeonButton(
+      onPressed: () =>
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
+      label: 'Speed Run',
+      sublabel: '90 seconds · Endless puzzles',
+      icon: Icons.timer_rounded,
+      glowColor: _green,
+      borderColor: _green.withValues(alpha: 0.75),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_green.withValues(alpha: 0.18), _green.withValues(alpha: 0.08)],
+      ),
+      labelColor: _greenLt,
+      sublabelColor: _green.withValues(alpha: 0.60),
+      isPrimary: false,
+    );
+  }
+
   Widget _buildFreePlayButton() {
     return _NeonButton(
       onPressed: () =>
@@ -194,29 +219,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ),
       labelColor: _amberLt,
       sublabelColor: _amber.withValues(alpha: 0.60),
-      isPrimary: false,
-    );
-  }
-
-  Widget _buildSpeedRunButton() {
-    const Color green = Color(0xFF00E5A0);
-    const Color greenLt = Color(0xFFD0FFF0);
-
-    return _NeonButton(
-      onPressed: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
-      label: 'Speed Run',
-      sublabel: '90 Sekunden · Endlos-Puzzles',
-      icon: Icons.timer_rounded,
-      glowColor: green,
-      borderColor: green.withValues(alpha: 0.75),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [green.withValues(alpha: 0.18), green.withValues(alpha: 0.08)],
-      ),
-      labelColor: greenLt,
-      sublabelColor: green.withValues(alpha: 0.60),
       isPrimary: false,
     );
   }

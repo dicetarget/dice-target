@@ -8,10 +8,16 @@ import 'package:dice/core/game_rules.dart';
 import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
+import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/theme/app_radius.dart';
+import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_application_service.dart';
 import 'package:dice/features/game/logic/round_evaluator.dart';
 import 'package:dice/features/game/models/dice_state.dart';
+import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
+import 'package:dice/features/game/presentation/widgets/practice_game_area.dart';
+import 'package:dice/features/game/presentation/widgets/target_display_widget.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:dice/features/rush/presentation/screens/rush_result_screen.dart';
 import 'package:flutter/material.dart';
@@ -56,9 +62,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   static const Duration _runDuration = Duration(seconds: 90);
   static const int _maxUndo = 4;
 
-  static const Color _green = Color(0xFF00E5A0);
-  static const Color _bg = Color(0xFF0A0F1F);
-  static const Color _card = Color(0xFF141A2E);
+  static const Color _ink = AppColors.ink;
+  static const Color _card = AppColors.card;
+  static const Color _accent = AppColors.accent;
+
+  // Timer colors — Cyan matches UI neon, Amber/Red for warnings
+  
+  static const Color _timerAmber = Color(0xFFFF9F00);
+  static const Color _timerRed = Color(0xFFE57373);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -75,57 +86,70 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   Duration _remaining = _runDuration;
   Timer? _timer;
 
-  // ── Interaction ───────────────────────────────────────────────────────────────
+  // ── Interaction — same flow as practice_screen ────────────────────────────────
   final Set<int> _selected = {};
-  UiOp? _selectedOp;
+  UiOp? _pendingOp; // stored when < 2 dice selected
   final List<_UndoSnapshot> _undoStack = [];
+  int _moves = 0;
+  int _mergePopKey = 0;
 
-  // ── (C) Dice transition key ────────────────────────────────────────────────────
-  int _puzzleKey = 0;
+  // ── Rolling notifiers (stub — rush has no rolling animations) ──────────────────
+  final ValueNotifier<List<int>> _rollingDiceNotifier = ValueNotifier([]);
+  final ValueNotifier<int> _rollingTargetNotifier = ValueNotifier(0);
 
   // ── (A) Timer pulse ────────────────────────────────────────────────────────────
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseScale;
   bool _pulseStarted = false;
 
-  // ── (B+D) Solve animations ────────────────────────────────────────────────────
-  late final AnimationController _solveCtrl;
-  late final Animation<double> _targetScale;
+  // ── (B) +1 popup ──────────────────────────────────────────────────────────────
+  late final AnimationController _plusOneCtrl;
   late final Animation<double> _plusOneOpacity;
   late final Animation<double> _plusOneOffset;
 
-  static const List<UiOp> _ops = [UiOp.add, UiOp.sub, UiOp.mul, UiOp.div];
+  // ── (D) Celebrate — fed into TargetDisplayWidget ──────────────────────────────
+  late final AnimationController _celebrateCtrl;
+  late final Animation<double> _celebrateT;
+
+  // ── (C) Dice transition key ────────────────────────────────────────────────────
+
+  bool get _isPlaying => _phase == _RunPhase.running;
 
   @override
   void initState() {
     super.initState();
     _pb = widget.personalBest;
 
-    // (A) Pulse — started later when ≤10s
+    // (A) Timer pulse — starts at ≤10s
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
     _pulseScale = Tween<double>(
       begin: 1.0,
       end: 1.07,
     ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
-    // (B+D) Solve animations
-    _solveCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
-    // (D) Target: 1.0 → 1.13 → 1.0, then holds at 1.0
-    _targetScale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.13), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: 1.13, end: 1.0), weight: 25),
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
-    ]).animate(CurvedAnimation(parent: _solveCtrl, curve: Curves.easeOut));
-    // (B) +1 opacity: holds, then fades
+    // (B) +1 popup
+    _plusOneCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
     _plusOneOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 45),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 55),
-    ]).animate(_solveCtrl);
-    // (B) +1 drift upward
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 60),
+    ]).animate(_plusOneCtrl);
     _plusOneOffset = Tween<double>(
       begin: 0.0,
-      end: -56.0,
-    ).animate(CurvedAnimation(parent: _solveCtrl, curve: Curves.easeOut));
+      end: -52.0,
+    ).animate(CurvedAnimation(parent: _plusOneCtrl, curve: Curves.easeOut));
+
+    // (D) Celebrate — same shape as practice_screen
+    _celebrateCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _celebrateT = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 55,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeInCubic)),
+        weight: 45,
+      ),
+    ]).animate(_celebrateCtrl);
 
     _coordinator = PuzzleCoordinator(
       generator: PuzzleGenerator(),
@@ -142,7 +166,10 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   void dispose() {
     _timer?.cancel();
     _pulseCtrl.dispose();
-    _solveCtrl.dispose();
+    _plusOneCtrl.dispose();
+    _celebrateCtrl.dispose();
+    _rollingDiceNotifier.dispose();
+    _rollingTargetNotifier.dispose();
     super.dispose();
   }
 
@@ -154,7 +181,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       setState(() {
         _remaining -= const Duration(seconds: 1);
 
-        // (A) + (E) simplified: start pulse at ≤10s, check ≤0 directly
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
@@ -186,40 +212,63 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();
     _undoStack.clear();
     _selected.clear();
-    _selectedOp = null;
-    _puzzleKey++; // (C) triggers AnimatedSwitcher
+    _pendingOp = null;
+    _moves = 0;
+    _mergePopKey = 0;
+
+    // Update rolling notifiers so TargetDisplayWidget / PracticeGameArea get the new values
+    _rollingTargetNotifier.value = _target;
+    _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
 
     _gameRules.reset();
     _gameRules.start(_target);
   }
 
-  // ── Moves ─────────────────────────────────────────────────────────────────────
+  // ── Move logic — mirrors practice_screen ──────────────────────────────────────
 
-  void _toggleSelect(int index) {
-    if (_phase != _RunPhase.running) return;
+  void _handleToggleSelect(int index) {
+    if (!_isPlaying) return;
+    if (index < 0 || index >= _dice.length) return;
+
     setState(() {
       if (_selected.contains(index)) {
+        if (_selected.length == 1) _pendingOp = null;
         _selected.remove(index);
       } else {
         _selected.add(index);
       }
     });
-    _tryApply();
+
+    // Auto-apply if pending op and ≥2 dice selected
+    if (_pendingOp != null && _selected.length >= 2) {
+      final op = _pendingOp!;
+      setState(() => _pendingOp = null);
+      _applyMove(op);
+    }
   }
 
-  void _setOp(UiOp op) {
-    if (_phase != _RunPhase.running) return;
-    setState(() => _selectedOp = (_selectedOp == op) ? null : op);
-    _tryApply();
+  void _handleApplyOp(UiOp op) {
+    if (!_isPlaying) return;
+
+    if (_pendingOp == op) {
+      setState(() => _pendingOp = null);
+      return;
+    }
+
+    if (_selected.length < 2) {
+      setState(() => _pendingOp = op);
+      return;
+    }
+
+    setState(() => _pendingOp = null);
+    _applyMove(op);
   }
 
-  void _tryApply() {
-    if (_selectedOp == null || _selected.length < 2) return;
-
+  void _applyMove(UiOp op) {
     final result = _moveService.buildMove(
       diceValues: _dice.map((d) => d.value).toList(),
       selectedIndices: _selected.toList(),
-      op: _selectedOp!,
+      op: op,
       gameMode: GameMode.rush,
     );
 
@@ -228,8 +277,9 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       return;
     }
 
+    // Save undo snapshot
     if (_undoStack.length >= _maxUndo) _undoStack.removeAt(0);
-    _undoStack.add(_UndoSnapshot(dice: List.from(_dice), moves: _gameRules.moves));
+    _undoStack.add(_UndoSnapshot(dice: List.from(_dice), moves: _moves));
 
     final newValues = _moveService.applyToDiceValues(
       diceValues: _dice.map((d) => d.value).toList(),
@@ -238,15 +288,17 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     );
 
     _gameRules.registerMove();
+    _moves++;
 
     setState(() {
       _dice = newValues.map((v) => DiceState(value: v)).toList();
+      _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
       _selected.clear();
-      _selectedOp = null;
+      _pendingOp = null;
+      _mergePopKey++;
     });
 
-    sfx.valid();
-
+    if (!result.willEndAfterMove) sfx.valid();
     if (result.willEndAfterMove) _checkSolve();
   }
 
@@ -263,28 +315,31 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   void _onSolve() {
     setState(() => _score++);
     sfx.win();
-    _solveCtrl.forward(from: 0); // (B+D)
+    _celebrateCtrl.forward(from: 0); // (D) target bar celebrate
+    _plusOneCtrl.forward(from: 0); // (B) +1 popup
 
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
-      setState(() => _loadPuzzle()); // (C) _puzzleKey++ inside
+      setState(() => _loadPuzzle());
     });
   }
 
   void _skip() {
-    if (_phase != _RunPhase.running) return;
+    if (!_isPlaying) return;
     sfx.click();
     setState(_loadPuzzle);
   }
 
   void _undo() {
-    if (_phase != _RunPhase.running || _undoStack.isEmpty) return;
+    if (!_isPlaying || _undoStack.isEmpty) return;
     final snapshot = _undoStack.removeLast();
     _gameRules.moves = snapshot.moves;
+    _moves = snapshot.moves;
     setState(() {
       _dice = List.from(snapshot.dice);
+      _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
       _selected.clear();
-      _selectedOp = null;
+      _pendingOp = null;
     });
     sfx.click();
   }
@@ -307,52 +362,53 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
-  String _opLabel(UiOp op) => switch (op) {
-    UiOp.add => '+',
-    UiOp.sub => '−',
-    UiOp.mul => '×',
-    UiOp.div => '÷',
-  };
-
   Color _timerColor() {
     final s = _remaining.inSeconds;
-    if (s <= 10) return Colors.redAccent;
-    if (s <= 20) return const Color(0xFFFFAA00);
-    return _green;
+    if (s <= 10) return _timerRed;
+    if (s <= 20) return _timerAmber;
+    return Colors.white;
   }
+
+  bool get _timerWarning => _remaining.inSeconds <= 20;
 
   // ── Build ─────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+    final canUndo = _undoStack.isNotEmpty && _isPlaying;
+
     return Scaffold(
-      backgroundColor: _bg,
+      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFF020408),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () {
             _timer?.cancel();
             Navigator.of(context).pop();
           },
+          enableFeedback: false,
+          color: _ink.withValues(alpha: 0.70),
         ),
         title: const Text(
           'Speed Run',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
-            fontSize: 20,
-            letterSpacing: -0.3,
+            fontSize: 17,
+            letterSpacing: -0.2,
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(
-              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-              color: Colors.white38,
-            ),
+            icon: Icon(sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded, size: 20),
+            color: _ink.withValues(alpha: 0.60),
+            enableFeedback: false,
             onPressed: () async {
               await sfx.toggle();
               if (mounted) setState(() {});
@@ -360,29 +416,84 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  _buildStatusRow(),
-                  const SizedBox(height: 20),
-                  _buildTargetCard(),
-                  const SizedBox(height: 28),
-                  _buildDiceRow(),
-                  const SizedBox(height: 24),
-                  _buildOpsRow(),
-                  const Spacer(),
-                  _buildBottomButtons(),
-                  const SizedBox(height: 20),
-                ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
+            stops: [0.0, 0.5, 1.0],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: AppSpacing.lg,
+                  right: AppSpacing.lg,
+                  top: AppSpacing.sm,
+                  bottom: bottomInset,
+                ),
+                child: Column(
+                  children: [
+                    // ── Rush-specific status row ─────────────────────────────
+                    _buildStatusRow(),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // ── Target display — identical to Free Play ──────────────
+                    TargetDisplayWidget(
+                      isPreStart: false,
+                      isRolling: false,
+                      target: _target,
+                      cardColor: _card,
+                      accentColor: _accent,
+                      inkColor: _ink,
+                      rollingTargetListenable: _rollingTargetNotifier,
+                      celebrateAnimation: _celebrateT,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // ── Dice + ops + undo — identical to Free Play ───────────
+                    Expanded(
+                      child: PracticeGameArea(
+                        showDice: true,
+                        isRolling: false,
+                        isPlaying: _isPlaying,
+                        busy: false,
+                        showMergedResults: true,
+                        mergePopKey: _mergePopKey,
+                        selectedIndices: _selected,
+                        accentColor: _accent,
+                        inkColor: _ink,
+                        shakeAnimation: const AlwaysStoppedAnimation(0.0),
+                        rollingDiceListenable: _rollingDiceNotifier,
+                        rollingTargetLocked: false,
+                        dice: _dice
+                            .map((d) => PracticeDieData(value: d.value, maskLabel: d.maskLabel))
+                            .toList(),
+                        canInteractGameplay: _isPlaying,
+                        allowedOps: DifficultyConfig.easy.allowedOps,
+                        pendingOp: _pendingOp,
+                        undoEnabled: canUndo,
+                        onToggleSelect: _handleToggleSelect,
+                        onApplyOp: _handleApplyOp,
+                        onUndo: _undo,
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // ── Skip button ──────────────────────────────────────────
+                    _buildSkipButton(),
+                    SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
+                  ],
+                ),
               ),
-            ),
-            _buildPlusOneOverlay(), // (B)
-          ],
+              // (B) +1 popup
+              _buildPlusOneOverlay(),
+            ],
+          ),
         ),
       ),
     );
@@ -392,7 +503,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   Widget _buildStatusRow() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,16 +511,16 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
             Text(
               'PB: $_pb',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 color: Colors.white.withValues(alpha: 0.38),
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               'Now: $_score',
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 color: Colors.white,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.5,
@@ -418,24 +529,42 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           ],
         ),
         const Spacer(),
-        // (A) pulse wraps the timer container
+        // (A) Timer with pulse — subtle default, warning colors only when needed
         ScaleTransition(
           scale: _pulseScale,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            duration: const Duration(milliseconds: 400),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: _timerColor().withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _timerColor().withValues(alpha: 0.45), width: 1.5),
+              color: _timerWarning ? const Color(0xFF000508) : Colors.white.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+              border: Border.all(
+                color: _timerWarning
+                    ? _timerColor().withValues(alpha: 0.85)
+                    : Colors.white.withValues(alpha: 0.18),
+                width: _timerWarning ? 2.0 : 1.0,
+              ),
+              boxShadow: _timerWarning
+                  ? [
+                      BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
+                      BoxShadow(
+                        color: _timerColor().withValues(alpha: 0.22),
+                        blurRadius: 16,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
             ),
             child: Text(
               '${_remaining.inSeconds}s',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.w900,
                 color: _timerColor(),
                 letterSpacing: -0.5,
+                shadows: _timerWarning
+                    ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
+                    : null,
               ),
             ),
           ),
@@ -444,39 +573,28 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTargetCard() {
-    // (D) scale on solve
-    return ScaleTransition(
-      scale: _targetScale,
+  Widget _buildSkipButton() {
+    return GestureDetector(
+      onTap: _isPlaying ? _skip : null,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 22),
+        height: 50,
         decoration: BoxDecoration(
-          color: _card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Icon(Icons.skip_next_rounded, color: Colors.white.withValues(alpha: 0.45), size: 18),
+            const SizedBox(width: 6),
             Text(
-              'TARGET',
+              'Skip',
               style: TextStyle(
-                fontSize: 11,
-                letterSpacing: 2.0,
-                color: Colors.white.withValues(alpha: 0.30),
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '$_target',
-              style: const TextStyle(
-                fontSize: 56,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: -1.5,
-                height: 1.0,
+                color: Colors.white.withValues(alpha: 0.45),
               ),
             ),
           ],
@@ -485,187 +603,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildDiceRow() {
-    // (C) fade + scale on puzzle change
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      transitionBuilder: (child, anim) => FadeTransition(
-        opacity: anim,
-        child: ScaleTransition(
-          scale: Tween<double>(
-            begin: 0.88,
-            end: 1.0,
-          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
-          child: child,
-        ),
-      ),
-      child: Row(
-        key: ValueKey(_puzzleKey),
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(_dice.length, (i) {
-          final isSelected = _selected.contains(i);
-          return GestureDetector(
-            onTap: () => _toggleSelect(i),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 110),
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: isSelected ? _green.withValues(alpha: 0.20) : _card,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected ? _green : Colors.white.withValues(alpha: 0.12),
-                  width: isSelected ? 2.0 : 1.0,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: _green.withValues(alpha: 0.28),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Center(
-                child: Text(
-                  '${_dice[i].value}',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: isSelected ? _green : Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildOpsRow() {
-    return Row(
-      children: _ops.map((op) {
-        final isSelected = _selectedOp == op;
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => _setOp(op),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 110),
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: isSelected ? _green.withValues(alpha: 0.18) : _card,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected ? _green : Colors.white.withValues(alpha: 0.10),
-                  width: isSelected ? 2.0 : 1.0,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  _opLabel(op),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: isSelected ? _green : Colors.white60,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildBottomButtons() {
-    final canUndo = _undoStack.isNotEmpty && _phase == _RunPhase.running;
-    final canSkip = _phase == _RunPhase.running;
-
-    return Row(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: canSkip ? _skip : null,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.skip_next_rounded, color: Colors.white38, size: 20),
-                  SizedBox(width: 6),
-                  Text(
-                    'Skip',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white38,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: GestureDetector(
-            onTap: canUndo ? _undo : null,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: canUndo
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.white.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: canUndo
-                      ? Colors.white.withValues(alpha: 0.22)
-                      : Colors.white.withValues(alpha: 0.06),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.undo_rounded,
-                    color: canUndo ? Colors.white60 : Colors.white.withValues(alpha: 0.18),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    canUndo ? 'Undo (${_undoStack.length})' : 'Undo',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: canUndo ? Colors.white60 : Colors.white.withValues(alpha: 0.18),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   // (B) +1 popup
   Widget _buildPlusOneOverlay() {
     return AnimatedBuilder(
-      animation: _solveCtrl,
+      animation: _plusOneCtrl,
       builder: (context, _) {
-        if (_solveCtrl.value == 0.0) return const SizedBox.shrink();
+        if (_plusOneCtrl.value == 0.0) return const SizedBox.shrink();
         return Positioned(
-          top: 180 + _plusOneOffset.value,
+          top: 150 + _plusOneOffset.value,
           left: 0,
           right: 0,
           child: IgnorePointer(
@@ -674,11 +619,11 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 opacity: _plusOneOpacity.value.clamp(0.0, 1.0),
                 child: Text(
                   '+1',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: _green,
-                    shadows: [Shadow(color: _green.withValues(alpha: 0.55), blurRadius: 14)],
+                    color: Color(0xFF3FE8FF),
+                    shadows: [Shadow(color: Color(0xFF3FE8FF), blurRadius: 14)],
                   ),
                 ),
               ),
