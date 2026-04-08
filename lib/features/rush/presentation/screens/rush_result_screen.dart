@@ -60,11 +60,11 @@ class _RushResultScreenState extends State<RushResultScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 52),
+              const SizedBox(height: 48),
               // Header
               Center(
                 child: Text(
-                  'Zeit abgelaufen',
+                  "Time's Up",
                   style: TextStyle(
                     fontSize: 15,
                     letterSpacing: 0.4,
@@ -73,8 +73,29 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
+              // (F) Difficulty badge
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                  ),
+                  child: Text(
+                    '${widget.difficulty.label.toUpperCase()} · 90s',
+                    style: TextStyle(
+                      fontSize: 11,
+                      letterSpacing: 1.4,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withValues(alpha: 0.45),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
-              // Score-Card
+              // Score card
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 36),
                 decoration: BoxDecoration(
@@ -102,7 +123,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      widget.score == 1 ? 'Puzzle gelöst' : 'Puzzles gelöst',
+                      widget.score == 1 ? 'puzzle solved' : 'puzzles solved',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white.withValues(alpha: 0.45),
@@ -119,7 +140,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                           border: Border.all(color: _green.withValues(alpha: 0.45)),
                         ),
                         child: const Text(
-                          '🏆  Neuer Rekord!',
+                          '🏆  New Record!',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -132,11 +153,10 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // PB-Info
               if (!_saving)
                 Center(
                   child: Text(
-                    'Rekord (${widget.difficulty.label}): $_pb',
+                    'Best (${widget.difficulty.label}): $_pb',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.30),
@@ -145,7 +165,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   ),
                 ),
               const Spacer(),
-              // Nochmal
+              // Play Again
               GestureDetector(
                 onTap: () => Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
@@ -176,7 +196,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                       Icon(Icons.replay_rounded, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'Nochmal',
+                        'Play Again',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -188,7 +208,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              // Hauptmenü
+              // Main Menu
               GestureDetector(
                 onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Container(
@@ -199,7 +219,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      'Zum Hauptmenü',
+                      'Main Menu',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

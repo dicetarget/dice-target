@@ -83,10 +83,9 @@ class _RushStartScreenState extends State<RushStartScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 28),
-              // Beschreibung
               Center(
                 child: Text(
-                  '90 Sekunden · Endlos-Puzzles · Auto-Weiter',
+                  '90 seconds · Endless puzzles · Auto-advance',
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.40),
@@ -95,9 +94,8 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              // Label
               Text(
-                'SCHWIERIGKEIT',
+                'DIFFICULTY',
                 style: TextStyle(
                   fontSize: 11,
                   letterSpacing: 1.6,
@@ -106,7 +104,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              // Difficulty-Auswahl
+              // Difficulty selector
               Row(
                 children: RushDifficulty.values.map((d) {
                   final isSelected = d == _selected;
@@ -156,13 +154,13 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 }).toList(),
               ),
               const SizedBox(height: 36),
-              // PB-Anzeige
+              // PB display
               Center(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: pb > 0
                       ? Text(
-                          'Persönlicher Rekord: $pb',
+                          'Personal Best: $pb',
                           key: ValueKey('pb_$pb'),
                           style: TextStyle(
                             fontSize: 15,
@@ -171,7 +169,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                           ),
                         )
                       : Text(
-                          'Noch kein Rekord',
+                          'No record yet',
                           key: const ValueKey('pb_none'),
                           style: TextStyle(
                             fontSize: 15,
@@ -182,7 +180,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 ),
               ),
               const Spacer(),
-              // Start-Button
+              // Start button
               GestureDetector(
                 onTap: _starting ? null : _startRun,
                 child: Container(
@@ -209,7 +207,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                       const Icon(Icons.timer_rounded, color: Colors.white, size: 22),
                       const SizedBox(width: 10),
                       Text(
-                        _starting ? 'Starte...' : 'Speed Run starten',
+                        _starting ? 'Starting...' : 'Start Speed Run',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,

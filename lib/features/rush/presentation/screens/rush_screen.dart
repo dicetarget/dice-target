@@ -17,7 +17,7 @@ import 'package:dice/features/rush/presentation/screens/rush_result_screen.dart'
 import 'package:flutter/material.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────
-// RushRunClock — eigene Klasse, NICHT aus practice_screen importiert
+// RushRunClock — standalone, NOT imported from practice_screen
 // ──────────────────────────────────────────────────────────────────────────────
 class RushRunClock {
   final Duration total;
@@ -28,7 +28,7 @@ class RushRunClock {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Undo-Snapshot
+// Undo snapshot
 // ──────────────────────────────────────────────────────────────────────────────
 class _UndoSnapshot {
   final List<DiceState> dice;
@@ -52,23 +52,21 @@ class RushScreen extends StatefulWidget {
 
 enum _RunPhase { running, ended }
 
-class _RushScreenState extends State<RushScreen> {
+class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   static const Duration _runDuration = Duration(seconds: 90);
   static const int _maxUndo = 4;
 
-  // Farben
   static const Color _green = Color(0xFF00E5A0);
   static const Color _bg = Color(0xFF0A0F1F);
   static const Color _card = Color(0xFF141A2E);
 
-  // Services
-  final RushRunClock _clock = const RushRunClock(_runDuration);
+  // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
   final RoundEvaluator _roundEvaluator = const RoundEvaluator();
   final MoveApplicationService _moveService = const MoveApplicationService();
   late final PuzzleCoordinator _coordinator;
 
-  // Run-State
+  // ── Run state ─────────────────────────────────────────────────────────────────
   _RunPhase _phase = _RunPhase.running;
   List<DiceState> _dice = [];
   int _target = 0;
@@ -77,13 +75,24 @@ class _RushScreenState extends State<RushScreen> {
   Duration _remaining = _runDuration;
   Timer? _timer;
 
-  // Interaktion
+  // ── Interaction ───────────────────────────────────────────────────────────────
   final Set<int> _selected = {};
   UiOp? _selectedOp;
   final List<_UndoSnapshot> _undoStack = [];
 
-  // Visuelles Feedback
-  bool _solvedFlash = false;
+  // ── (C) Dice transition key ────────────────────────────────────────────────────
+  int _puzzleKey = 0;
+
+  // ── (A) Timer pulse ────────────────────────────────────────────────────────────
+  late final AnimationController _pulseCtrl;
+  late final Animation<double> _pulseScale;
+  bool _pulseStarted = false;
+
+  // ── (B+D) Solve animations ────────────────────────────────────────────────────
+  late final AnimationController _solveCtrl;
+  late final Animation<double> _targetScale;
+  late final Animation<double> _plusOneOpacity;
+  late final Animation<double> _plusOneOffset;
 
   static const List<UiOp> _ops = [UiOp.add, UiOp.sub, UiOp.mul, UiOp.div];
 
@@ -91,12 +100,40 @@ class _RushScreenState extends State<RushScreen> {
   void initState() {
     super.initState();
     _pb = widget.personalBest;
+
+    // (A) Pulse — started later when ≤10s
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
+    _pulseScale = Tween<double>(
+      begin: 1.0,
+      end: 1.07,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+
+    // (B+D) Solve animations
+    _solveCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    // (D) Target: 1.0 → 1.13 → 1.0, then holds at 1.0
+    _targetScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.13), weight: 25),
+      TweenSequenceItem(tween: Tween(begin: 1.13, end: 1.0), weight: 25),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _solveCtrl, curve: Curves.easeOut));
+    // (B) +1 opacity: holds, then fades
+    _plusOneOpacity = TweenSequence<double>([
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 45),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 55),
+    ]).animate(_solveCtrl);
+    // (B) +1 drift upward
+    _plusOneOffset = Tween<double>(
+      begin: 0.0,
+      end: -56.0,
+    ).animate(CurvedAnimation(parent: _solveCtrl, curve: Curves.easeOut));
+
     _coordinator = PuzzleCoordinator(
       generator: PuzzleGenerator(),
       mode: GameMode.rush,
       config: DifficultyConfig.easy,
       baseSeed: DateTime.now().millisecondsSinceEpoch,
     );
+
     _loadPuzzle(first: true);
     _startTimer();
   }
@@ -104,6 +141,8 @@ class _RushScreenState extends State<RushScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _pulseCtrl.dispose();
+    _solveCtrl.dispose();
     super.dispose();
   }
 
@@ -114,7 +153,14 @@ class _RushScreenState extends State<RushScreen> {
       if (!mounted) return;
       setState(() {
         _remaining -= const Duration(seconds: 1);
-        if (_clock.isExpired(_runDuration - _remaining)) {
+
+        // (A) + (E) simplified: start pulse at ≤10s, check ≤0 directly
+        if (_remaining.inSeconds <= 10 && !_pulseStarted) {
+          _pulseStarted = true;
+          _pulseCtrl.repeat(reverse: true);
+        }
+
+        if (_remaining <= Duration.zero) {
           _remaining = Duration.zero;
           _timer?.cancel();
           _endRun();
@@ -141,6 +187,7 @@ class _RushScreenState extends State<RushScreen> {
     _undoStack.clear();
     _selected.clear();
     _selectedOp = null;
+    _puzzleKey++; // (C) triggers AnimatedSwitcher
 
     _gameRules.reset();
     _gameRules.start(_target);
@@ -162,9 +209,7 @@ class _RushScreenState extends State<RushScreen> {
 
   void _setOp(UiOp op) {
     if (_phase != _RunPhase.running) return;
-    setState(() {
-      _selectedOp = (_selectedOp == op) ? null : op;
-    });
+    setState(() => _selectedOp = (_selectedOp == op) ? null : op);
     _tryApply();
   }
 
@@ -183,11 +228,9 @@ class _RushScreenState extends State<RushScreen> {
       return;
     }
 
-    // Undo-Snapshot speichern (FIFO bei max)
     if (_undoStack.length >= _maxUndo) _undoStack.removeAt(0);
     _undoStack.add(_UndoSnapshot(dice: List.from(_dice), moves: _gameRules.moves));
 
-    // Move anwenden
     final newValues = _moveService.applyToDiceValues(
       diceValues: _dice.map((d) => d.value).toList(),
       removeIndicesDesc: result.removeIndicesDesc,
@@ -204,9 +247,7 @@ class _RushScreenState extends State<RushScreen> {
 
     sfx.valid();
 
-    if (result.willEndAfterMove) {
-      _checkSolve();
-    }
+    if (result.willEndAfterMove) _checkSolve();
   }
 
   void _checkSolve() {
@@ -220,18 +261,13 @@ class _RushScreenState extends State<RushScreen> {
   }
 
   void _onSolve() {
-    setState(() {
-      _score++;
-      _solvedFlash = true;
-    });
+    setState(() => _score++);
     sfx.win();
+    _solveCtrl.forward(from: 0); // (B+D)
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
-      setState(() {
-        _solvedFlash = false;
-        _loadPuzzle();
-      });
+      setState(() => _loadPuzzle()); // (C) _puzzleKey++ inside
     });
   }
 
@@ -253,10 +289,11 @@ class _RushScreenState extends State<RushScreen> {
     sfx.click();
   }
 
-  // ── Run beenden ───────────────────────────────────────────────────────────────
+  // ── End run ───────────────────────────────────────────────────────────────────
 
   void _endRun() {
     if (_phase == _RunPhase.ended) return;
+    _pulseCtrl.stop();
     setState(() => _phase = _RunPhase.ended);
     sfx.dailyComplete();
     if (!mounted) return;
@@ -268,7 +305,7 @@ class _RushScreenState extends State<RushScreen> {
     );
   }
 
-  // ── Hilfsmethoden ─────────────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────────
 
   String _opLabel(UiOp op) => switch (op) {
     UiOp.add => '+',
@@ -324,33 +361,39 @@ class _RushScreenState extends State<RushScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              _buildStatusRow(),
-              const SizedBox(height: 20),
-              _buildTargetCard(),
-              const SizedBox(height: 28),
-              _buildDiceRow(),
-              const SizedBox(height: 24),
-              _buildOpsRow(),
-              const Spacer(),
-              _buildBottomButtons(),
-              const SizedBox(height: 20),
-            ],
-          ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  _buildStatusRow(),
+                  const SizedBox(height: 20),
+                  _buildTargetCard(),
+                  const SizedBox(height: 28),
+                  _buildDiceRow(),
+                  const SizedBox(height: 24),
+                  _buildOpsRow(),
+                  const Spacer(),
+                  _buildBottomButtons(),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+            _buildPlusOneOverlay(), // (B)
+          ],
         ),
       ),
     );
   }
 
+  // ── Widgets ───────────────────────────────────────────────────────────────────
+
   Widget _buildStatusRow() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Score + PB
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -364,7 +407,7 @@ class _RushScreenState extends State<RushScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              'Jetzt: $_score',
+              'Now: $_score',
               style: const TextStyle(
                 fontSize: 24,
                 color: Colors.white,
@@ -375,22 +418,25 @@ class _RushScreenState extends State<RushScreen> {
           ],
         ),
         const Spacer(),
-        // Timer
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-          decoration: BoxDecoration(
-            color: _timerColor().withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _timerColor().withValues(alpha: 0.45), width: 1.5),
-          ),
-          child: Text(
-            '${_remaining.inSeconds}s',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: _timerColor(),
-              letterSpacing: -0.5,
+        // (A) pulse wraps the timer container
+        ScaleTransition(
+          scale: _pulseScale,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: _timerColor().withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _timerColor().withValues(alpha: 0.45), width: 1.5),
+            ),
+            child: Text(
+              '${_remaining.inSeconds}s',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: _timerColor(),
+                letterSpacing: -0.5,
+              ),
             ),
           ),
         ),
@@ -399,89 +445,102 @@ class _RushScreenState extends State<RushScreen> {
   }
 
   Widget _buildTargetCard() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 22),
-      decoration: BoxDecoration(
-        color: _solvedFlash ? _green.withValues(alpha: 0.18) : _card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: _solvedFlash
-              ? _green.withValues(alpha: 0.80)
-              : Colors.white.withValues(alpha: 0.07),
-          width: _solvedFlash ? 2.0 : 1.0,
+    // (D) scale on solve
+    return ScaleTransition(
+      scale: _targetScale,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 22),
+        decoration: BoxDecoration(
+          color: _card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'ZIEL',
-            style: TextStyle(
-              fontSize: 11,
-              letterSpacing: 2.0,
-              color: Colors.white.withValues(alpha: 0.30),
-              fontWeight: FontWeight.w700,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'TARGET',
+              style: TextStyle(
+                fontSize: 11,
+                letterSpacing: 2.0,
+                color: Colors.white.withValues(alpha: 0.30),
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$_target',
-            style: TextStyle(
-              fontSize: 56,
-              fontWeight: FontWeight.w900,
-              color: _solvedFlash ? _green : Colors.white,
-              letterSpacing: -1.5,
-              height: 1.0,
+            const SizedBox(height: 4),
+            Text(
+              '$_target',
+              style: const TextStyle(
+                fontSize: 56,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: -1.5,
+                height: 1.0,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDiceRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(_dice.length, (i) {
-        final isSelected = _selected.contains(i);
-        return GestureDetector(
-          onTap: () => _toggleSelect(i),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 110),
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              color: isSelected ? _green.withValues(alpha: 0.20) : _card,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected ? _green : Colors.white.withValues(alpha: 0.12),
-                width: isSelected ? 2.0 : 1.0,
+    // (C) fade + scale on puzzle change
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      transitionBuilder: (child, anim) => FadeTransition(
+        opacity: anim,
+        child: ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.88,
+            end: 1.0,
+          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
+          child: child,
+        ),
+      ),
+      child: Row(
+        key: ValueKey(_puzzleKey),
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(_dice.length, (i) {
+          final isSelected = _selected.contains(i);
+          return GestureDetector(
+            onTap: () => _toggleSelect(i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 110),
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: isSelected ? _green.withValues(alpha: 0.20) : _card,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected ? _green : Colors.white.withValues(alpha: 0.12),
+                  width: isSelected ? 2.0 : 1.0,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: _green.withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
               ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: _green.withValues(alpha: 0.28),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                '${_dice[i].value}',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected ? _green : Colors.white,
+              child: Center(
+                child: Text(
+                  '${_dice[i].value}',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? _green : Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
@@ -527,7 +586,6 @@ class _RushScreenState extends State<RushScreen> {
 
     return Row(
       children: [
-        // Skip
         Expanded(
           child: GestureDetector(
             onTap: canSkip ? _skip : null,
@@ -557,7 +615,6 @@ class _RushScreenState extends State<RushScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        // Undo
         Expanded(
           child: GestureDetector(
             onTap: canUndo ? _undo : null,
@@ -598,6 +655,37 @@ class _RushScreenState extends State<RushScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // (B) +1 popup
+  Widget _buildPlusOneOverlay() {
+    return AnimatedBuilder(
+      animation: _solveCtrl,
+      builder: (context, _) {
+        if (_solveCtrl.value == 0.0) return const SizedBox.shrink();
+        return Positioned(
+          top: 180 + _plusOneOffset.value,
+          left: 0,
+          right: 0,
+          child: IgnorePointer(
+            child: Center(
+              child: Opacity(
+                opacity: _plusOneOpacity.value.clamp(0.0, 1.0),
+                child: Text(
+                  '+1',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    color: _green,
+                    shadows: [Shadow(color: _green.withValues(alpha: 0.55), blurRadius: 14)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
