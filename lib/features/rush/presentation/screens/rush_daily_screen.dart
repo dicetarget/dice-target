@@ -176,6 +176,7 @@ class _RushDailyScreenState extends State<RushDailyScreen>
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
+          sfx.rushWarning(); // ← neu
         }
 
         if (_remaining <= Duration.zero) {
@@ -193,6 +194,8 @@ class _RushDailyScreenState extends State<RushDailyScreen>
     final puzzle = first
         ? _coordinator.startNewRun(targetMin: _targetMin, targetMax: _targetMax)
         : _coordinator.nextPuzzle(targetMin: _targetMin, targetMax: _targetMax);
+
+    if (first) sfx.rushDailyStart(); // ← neu
 
     _target = puzzle.target;
     _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();

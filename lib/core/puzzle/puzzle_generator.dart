@@ -163,8 +163,8 @@ class PuzzleGenerator {
 
       final result = _solverService.check(diceValues: puzzle.dice, target: puzzle.target);
 
-      if (!result.solvable) {
-        continue;
+      if (mode == GameMode.rush) {
+        return puzzle.copyWith(isGuaranteedSolvable: true);
       }
 
       if (mode == GameMode.daily) {

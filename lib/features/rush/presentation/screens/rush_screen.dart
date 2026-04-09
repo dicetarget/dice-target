@@ -6,6 +6,7 @@ import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/difficulty_config.dart';
 import 'package:dice/core/game_rules.dart';
 import 'package:dice/core/puzzle/game_mode.dart';
+import 'package:dice/core/puzzle/puzzle.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
@@ -68,7 +69,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // Timer colors — subtle default (white), warning colors only at ≤20s/≤10s
   static const Color _timerAmber = Color(0xFFFF9F00);
-  static const Color _timerRed = AppColors.failed; // Color(0xFFE57373)
+  static const Color _timerRed = AppColors.failed;
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -85,14 +86,17 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   Duration _remaining = _runDuration;
   Timer? _timer;
 
+  // ── Prefetch ──────────────────────────────────────────────────────────────────
+  Future<Puzzle>? _prefetchFuture;
+
   // ── Interaction — same flow as practice_screen ────────────────────────────────
   final Set<int> _selected = {};
-  UiOp? _pendingOp; // stored when < 2 dice selected
+  UiOp? _pendingOp;
   final List<_UndoSnapshot> _undoStack = [];
   int _moves = 0;
   int _mergePopKey = 0;
 
-  // ── Rolling notifiers (stub — rush has no rolling animations) ──────────────────
+  // ── Rolling notifiers ─────────────────────────────────────────────────────────
   final ValueNotifier<List<int>> _rollingDiceNotifier = ValueNotifier([]);
   final ValueNotifier<int> _rollingTargetNotifier = ValueNotifier(0);
 
@@ -106,7 +110,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   late final Animation<double> _plusOneOpacity;
   late final Animation<double> _plusOneOffset;
 
-  // ── (D) Celebrate — fed into TargetDisplayWidget ──────────────────────────────
+  // ── (D) Celebrate ─────────────────────────────────────────────────────────────
   late final AnimationController _celebrateCtrl;
   late final Animation<double> _celebrateT;
 
@@ -135,7 +139,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       end: -52.0,
     ).animate(CurvedAnimation(parent: _plusOneCtrl, curve: Curves.easeOut));
 
-    // (D) Celebrate — same shape as practice_screen
+    // (D) Celebrate
     _celebrateCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _celebrateT = TweenSequence<double>([
       TweenSequenceItem(
@@ -155,7 +159,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       baseSeed: DateTime.now().millisecondsSinceEpoch,
     );
 
-    _loadPuzzle(first: true);
+    _loadPuzzle();
     _startTimer();
   }
 
@@ -181,6 +185,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
+          sfx.rushWarning(); // ← neu
         }
 
         if (_remaining <= Duration.zero) {
@@ -194,17 +199,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // ── Puzzle ────────────────────────────────────────────────────────────────────
 
-  void _loadPuzzle({bool first = false}) {
-    final puzzle = first
-        ? _coordinator.startNewRun(
-            targetMin: widget.difficulty.targetMin,
-            targetMax: widget.difficulty.targetMax,
-          )
-        : _coordinator.nextPuzzle(
-            targetMin: widget.difficulty.targetMin,
-            targetMax: widget.difficulty.targetMax,
-          );
-
+  void _applyPuzzle(Puzzle puzzle) {
     _target = puzzle.target;
     _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();
     _undoStack.clear();
@@ -212,15 +207,52 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _pendingOp = null;
     _moves = 0;
     _mergePopKey = 0;
-
     _rollingTargetNotifier.value = _target;
     _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
-
     _gameRules.reset();
     _gameRules.start(_target);
   }
 
-  // ── Move logic — mirrors practice_screen ──────────────────────────────────────
+  void _loadPuzzle() {
+    final puzzle = _coordinator.startNewRun(
+      targetMin: widget.difficulty.targetMin,
+      targetMax: widget.difficulty.targetMax,
+    );
+    _applyPuzzle(puzzle);
+    sfx.rushStart(); // ← neu
+    _startPrefetch();
+  }
+
+  void _startPrefetch() {
+    _prefetchFuture = Future(
+      () => _coordinator.peekNext(
+        targetMin: widget.difficulty.targetMin,
+        targetMax: widget.difficulty.targetMax,
+      ),
+    );
+  }
+
+  Future<void> _advanceToNextPuzzle() async {
+    final prefetched = _prefetchFuture != null ? await _prefetchFuture : null;
+    _prefetchFuture = null;
+
+    final Puzzle puzzle;
+    if (prefetched != null) {
+      _coordinator.advanceIndex();
+      puzzle = prefetched;
+    } else {
+      puzzle = _coordinator.nextPuzzle(
+        targetMin: widget.difficulty.targetMin,
+        targetMax: widget.difficulty.targetMax,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() => _applyPuzzle(puzzle));
+    _startPrefetch();
+  }
+
+  // ── Move logic ────────────────────────────────────────────────────────────────
 
   void _handleToggleSelect(int index) {
     if (!_isPlaying) return;
@@ -314,14 +346,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
-      setState(() => _loadPuzzle());
+      _advanceToNextPuzzle();
     });
   }
 
   void _skip() {
     if (!_isPlaying) return;
     sfx.click();
-    setState(_loadPuzzle);
+    _advanceToNextPuzzle();
   }
 
   void _undo() {
@@ -435,7 +467,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                     _buildStatusRow(),
                     const SizedBox(height: AppSpacing.md),
 
-                    // ── Target display — identical to Free Play ──────────────
+                    // ── Target display ───────────────────────────────────────
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -448,7 +480,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    // ── Dice + ops + undo — identical to Free Play ───────────
+                    // ── Dice + ops + undo ────────────────────────────────────
                     Expanded(
                       child: PracticeGameArea(
                         showDice: true,
@@ -523,7 +555,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           ],
         ),
         const Spacer(),
-        // (A) Timer with pulse — subtle default, warning colors only when needed
+        // (A) Timer with pulse
         ScaleTransition(
           scale: _pulseScale,
           child: AnimatedContainer(
@@ -597,7 +629,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     );
   }
 
-  // (B) +1 popup
   Widget _buildPlusOneOverlay() {
     return AnimatedBuilder(
       animation: _plusOneCtrl,
@@ -616,7 +647,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.accent, // war: Color(0xFF3FE8FF)
+                    color: AppColors.accent,
                     shadows: const [Shadow(color: AppColors.accent, blurRadius: 14)],
                   ),
                 ),

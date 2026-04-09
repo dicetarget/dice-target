@@ -105,6 +105,24 @@ class PuzzleCoordinator {
     );
   }
 
+  /// Generiert puzzleIndex+1 ohne den Index zu verändern — für Rush-Prefetch.
+  Puzzle peekNext({int? targetMin, int? targetMax}) {
+    return _generator.generate(
+      mode: mode,
+      config: _config,
+      seed: _baseSeed,
+      puzzleIndex: _puzzleIndex + 1,
+      targetMin: targetMin,
+      targetMax: targetMax,
+    );
+  }
+
+  /// Erhöht Index ohne zu generieren — nach Verwendung eines prefetched Puzzles.
+  void advanceIndex() {
+    _puzzleIndex++;
+    _currentPuzzle = null;
+  }
+
   Puzzle resetAndGetFirstPuzzle({
     bool keepTarget = false,
     int? fixedTarget,
