@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class RushDailyResultScreen extends StatefulWidget {
@@ -23,20 +24,20 @@ class RushDailyResultScreen extends StatefulWidget {
 class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _bg = Color(0xFF0A0F1F);
-  static const Color _card = Color(0xFF141A2E);
 
   Timer? _countdownTimer;
   Duration _timeUntilNextDaily = Duration.zero;
 
   late final int _bestScore;
   late final bool _isNewRecord;
+  late final int _delta; // run2 - run1 (positive = improved)
 
   @override
   void initState() {
     super.initState();
     _bestScore = widget.run1Score > widget.run2Score ? widget.run1Score : widget.run2Score;
     _isNewRecord = _bestScore > widget.allTimeBest;
+    _delta = widget.run2Score - widget.run1Score;
     _updateCountdown();
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(_updateCountdown);
@@ -66,10 +67,10 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 22),
       decoration: BoxDecoration(
-        color: _card,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isBetter ? _green.withValues(alpha: 0.50) : Colors.white.withValues(alpha: 0.07),
+          color: isBetter ? _green.withValues(alpha: 0.50) : AppColors.cardBr,
           width: isBetter ? 1.5 : 1.0,
         ),
       ),
@@ -115,6 +116,38 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     );
   }
 
+  Widget _buildDeltaRow() {
+    final String label;
+    final Color color;
+    final IconData icon;
+
+    if (_delta > 0) {
+      label = '+$_delta in Run 2';
+      color = _green.withValues(alpha: 0.85);
+      icon = Icons.trending_up_rounded;
+    } else if (_delta < 0) {
+      label = '${_delta} in Run 2';
+      color = Colors.white.withValues(alpha: 0.35);
+      icon = Icons.trending_down_rounded;
+    } else {
+      label = 'Same score both runs';
+      color = Colors.white.withValues(alpha: 0.35);
+      icon = Icons.trending_flat_rounded;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 15, color: color),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final run1Better = widget.run1Score >= widget.run2Score;
@@ -123,7 +156,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: _bg,
+        backgroundColor: AppColors.bgTop,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -149,7 +182,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                      border: Border.all(color: AppColors.cardBr),
                     ),
                     child: Text(
                       'DAILY · 2 RUNS',
@@ -163,7 +196,6 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Run 1 + Run 2 cards
                 Row(
                   children: [
                     Expanded(child: _runCard('Run 1', widget.run1Score, run1Better)),
@@ -171,17 +203,16 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                     Expanded(child: _runCard('Run 2', widget.run2Score, run2Better)),
                   ],
                 ),
+                const SizedBox(height: 10),
+                _buildDeltaRow(),
                 const SizedBox(height: 16),
-                // Best + new record
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   decoration: BoxDecoration(
-                    color: _card,
+                    color: AppColors.card,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: _isNewRecord
-                          ? _green.withValues(alpha: 0.55)
-                          : Colors.white.withValues(alpha: 0.07),
+                      color: _isNewRecord ? _green.withValues(alpha: 0.55) : AppColors.cardBr,
                       width: _isNewRecord ? 2.0 : 1.0,
                     ),
                   ),
@@ -219,9 +250,9 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'All-time best: ${widget.allTimeBest}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.30),
+                            color: AppColors.muted,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -230,7 +261,6 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Countdown
                 Center(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -253,7 +283,6 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   ),
                 ),
                 const Spacer(),
-                // Main Menu
                 GestureDetector(
                   onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
                   child: Container(

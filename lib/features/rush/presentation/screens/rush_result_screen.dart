@@ -22,7 +22,6 @@ class RushResultScreen extends StatefulWidget {
 }
 
 class _RushResultScreenState extends State<RushResultScreen> {
-  // Speed Run green — nicht in AppColors, bleibt lokal
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
 
@@ -40,6 +39,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
     final storage = RushHighscoreStorage();
     final isNew = await storage.saveIfBetter(widget.difficulty, widget.score);
     final saved = await storage.load(widget.difficulty);
+    await storage.incrementStats(widget.score);
     if (mounted) {
       setState(() {
         _isNewPb = isNew;
@@ -51,6 +51,8 @@ class _RushResultScreenState extends State<RushResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final delta = (!_isNewPb && widget.previousPb > 0) ? widget.previousPb - widget.score : 0;
+
     return Scaffold(
       backgroundColor: AppColors.bgTop,
       body: SafeArea(
@@ -60,7 +62,6 @@ class _RushResultScreenState extends State<RushResultScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 48),
-              // Header
               Center(
                 child: Text(
                   "Time's Up",
@@ -73,7 +74,6 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Difficulty badge
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -94,7 +94,6 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Score card
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 36),
                 decoration: BoxDecoration(
@@ -127,24 +126,43 @@ class _RushResultScreenState extends State<RushResultScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (_isNewPb && !_saving) ...[
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: _green.withValues(alpha: 0.13),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: _green.withValues(alpha: 0.45)),
-                        ),
-                        child: const Text(
-                          '🏆  New Record!',
+                    if (!_saving) ...[
+                      const SizedBox(height: 16),
+                      if (_isNewPb)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: _green.withValues(alpha: 0.13),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: _green.withValues(alpha: 0.45)),
+                          ),
+                          child: const Text(
+                            '🏆  New Record!',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: _greenLt,
+                            ),
+                          ),
+                        )
+                      else if (delta > 0)
+                        Text(
+                          '−$delta from PB',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: _greenLt,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.35),
+                          ),
+                        )
+                      else if (widget.previousPb == 0)
+                        Text(
+                          'First run!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.35),
                           ),
                         ),
-                      ),
                     ],
                   ],
                 ),
@@ -162,7 +180,6 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   ),
                 ),
               const Spacer(),
-              // Play Again — pops back to RushStartScreen
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Container(
@@ -201,7 +218,6 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              // Main Menu
               GestureDetector(
                 onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Container(

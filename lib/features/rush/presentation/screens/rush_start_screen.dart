@@ -29,6 +29,8 @@ class _RushStartScreenState extends State<RushStartScreen> {
   final Map<RushDifficulty, int> _highscores = {};
   final RushHighscoreStorage _storage = RushHighscoreStorage();
   bool _starting = false;
+  int _totalRuns = 0;
+  int _totalPuzzles = 0;
 
   // Daily
   final RushDailyStorage _dailyStorage = RushDailyStorage();
@@ -41,12 +43,23 @@ class _RushStartScreenState extends State<RushStartScreen> {
     super.initState();
     _loadHighscores();
     _loadDailyState();
+    _loadStats();
   }
 
   Future<void> _loadHighscores() async {
     for (final d in RushDifficulty.values) {
       final score = await _storage.load(d);
       if (mounted) setState(() => _highscores[d] = score);
+    }
+  }
+
+  Future<void> _loadStats() async {
+    final stats = await _storage.loadStats();
+    if (mounted) {
+      setState(() {
+        _totalRuns = stats.totalRuns;
+        _totalPuzzles = stats.totalPuzzles;
+      });
     }
   }
 
@@ -176,7 +189,6 @@ class _RushStartScreenState extends State<RushStartScreen> {
   // ── Standard ───────────────────────────────────────────────────────────────
 
   Widget _buildStandardContent() {
-    final pb = _highscores[_selected] ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -189,7 +201,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 const SizedBox(height: 12),
                 _buildDifficultyCard(),
                 const SizedBox(height: 12),
-                _buildPbCard(pb),
+                _buildStatsCard(),
                 const SizedBox(height: 12),
                 _buildStandardFormatCard(),
               ],
@@ -307,6 +319,17 @@ class _RushStartScreenState extends State<RushStartScreen> {
                             color: isSel ? _green.withValues(alpha: 0.65) : Colors.white24,
                           ),
                         ),
+                        const SizedBox(height: 5),
+                        Text(
+                          (_highscores[d] ?? 0) > 0 ? 'PB ${_highscores[d]}' : '—',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isSel
+                                ? _green.withValues(alpha: 0.90)
+                                : Colors.white.withValues(alpha: 0.20),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -319,48 +342,22 @@ class _RushStartScreenState extends State<RushStartScreen> {
     );
   }
 
-  Widget _buildPbCard(int pb) {
+  Widget _buildStatsCard() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: pb > 0 ? _green.withValues(alpha: 0.30) : AppColors.cardBr),
+        border: Border.all(color: AppColors.cardBr),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.emoji_events_rounded,
-            size: 20,
-            color: pb > 0 ? _green.withValues(alpha: 0.80) : Colors.white24,
-          ),
-          const SizedBox(width: 10),
           Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: pb > 0
-                    ? Text(
-                        'Personal Best: $pb',
-                        key: ValueKey('pb_$pb'),
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: _green.withValues(alpha: 0.85),
-                        ),
-                      )
-                    : Text(
-                        'No record yet',
-                        key: const ValueKey('pb_none'),
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.25),
-                        ),
-                      ),
-              ),
-            ),
+            child: _StatsCell(label: 'Total Runs', value: '$_totalRuns', green: _green),
+          ),
+          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
+          Expanded(
+            child: _StatsCell(label: 'Puzzles Solved', value: '$_totalPuzzles', green: _green),
           ),
         ],
       ),
@@ -767,6 +764,36 @@ class _RushFormatRow extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: dimmed ? AppColors.muted : Colors.white,
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatsCell extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color green;
+
+  const _StatsCell({required this.label, required this.value, required this.green});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          value,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.35),
           ),
         ),
       ],

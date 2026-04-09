@@ -9,7 +9,7 @@ import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:dice/features/game/logic/target_generator.dart';
 
 class PuzzleGenerator {
-  static const int _maxGuaranteedAttempts = 40;
+  static const int _maxGuaranteedAttempts = 60;
   static const List<int> _movePool = [2, 3, 4];
 
   /// Generiert eine tägliche Move-Target Verteilung per Seed.
@@ -85,10 +85,10 @@ class PuzzleGenerator {
         );
 
       case GameMode.rush:
-        final rushSeed = PuzzleSeed.mix(seed, puzzleIndex);
-        return _generatePracticePuzzle(
+        return _generateGuaranteedPuzzle(
+          mode: mode,
           config: config,
-          seed: rushSeed,
+          baseSeed: seed,
           puzzleIndex: puzzleIndex,
           keepTarget: keepTarget,
           fixedTarget: fixedTarget,

@@ -18,10 +18,23 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   static const Color _amberLt = Color(0xFFFFF0A0);
 
   _Tab _tab = _Tab.free;
+  PracticeDifficulty _selectedDifficulty = PracticeDifficulty.easy;
 
-  Future<void> _start() async {
+  Future<void> _startFree() async {
     if (!mounted) return;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticeScreen()));
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const PracticeScreen(initialTrainingMode: false)));
+  }
+
+  Future<void> _startTraining() async {
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            PracticeScreen(initialTrainingMode: true, initialDifficulty: _selectedDifficulty),
+      ),
+    );
   }
 
   @override
@@ -90,6 +103,8 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     );
   }
 
+  // ── Free ───────────────────────────────────────────────────────────────────
+
   Widget _buildFreeContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,19 +128,19 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                     icon: Icons.lightbulb_outline_rounded,
                     text: 'Show Solution available',
                   ),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(icon: Icons.undo_rounded, text: 'Unlimited undo'),
                 ]),
               ],
             ),
           ),
         ),
         const SizedBox(height: 16),
-        _ActionButton(label: 'Start Free Play', onTap: _start, amber: _amber),
+        _ActionButton(label: 'Start Free Play', onTap: _startFree, amber: _amber),
         const SizedBox(height: 24),
       ],
     );
   }
+
+  // ── Training ───────────────────────────────────────────────────────────────
 
   Widget _buildTrainingContent() {
     return Column(
@@ -141,7 +156,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                   subtitle: 'Focus on a difficulty · Sharpen your skills',
                 ),
                 const SizedBox(height: 12),
-                _buildDifficultyInfoCard(),
+                _buildDifficultyCard(),
                 const SizedBox(height: 12),
                 _buildFormatCard([
                   _FreeFormatRow(
@@ -155,19 +170,19 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                     icon: Icons.lightbulb_outline_rounded,
                     text: 'Show Solution available',
                   ),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(icon: Icons.undo_rounded, text: 'Unlimited undo'),
                 ]),
               ],
             ),
           ),
         ),
         const SizedBox(height: 16),
-        _ActionButton(label: 'Start Training', onTap: _start, amber: _amber),
+        _ActionButton(label: 'Start Training', onTap: _startTraining, amber: _amber),
         const SizedBox(height: 24),
       ],
     );
   }
+
+  // ── Shared cards ───────────────────────────────────────────────────────────
 
   Widget _buildHeroCard({required String title, required String subtitle}) {
     return Container(
@@ -207,19 +222,14 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     );
   }
 
-  Widget _buildFormatCard(List<Widget> rows) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
-    );
-  }
+  Widget _buildDifficultyCard() {
+    final difficulties = [
+      (PracticeDifficulty.easy, 'Easy', '10–40'),
+      (PracticeDifficulty.medium, 'Medium', '30–70'),
+      (PracticeDifficulty.hard, 'Hard', '50–100'),
+      (PracticeDifficulty.expert, 'Expert', '80–120'),
+    ];
 
-  Widget _buildDifficultyInfoCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -241,30 +251,73 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           ),
           const SizedBox(height: 12),
           Row(
-            children: [
-              _DifficultyChip(label: 'Easy', range: '10-40', amber: _amber, amberLt: _amberLt),
-              const SizedBox(width: 8),
-              _DifficultyChip(label: 'Medium', range: '30-70', amber: _amber, amberLt: _amberLt),
-              const SizedBox(width: 8),
-              _DifficultyChip(label: 'Hard', range: '50-100', amber: _amber, amberLt: _amberLt),
-              const SizedBox(width: 8),
-              _DifficultyChip(label: 'Expert', range: '80-120', amber: _amber, amberLt: _amberLt),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Select difficulty inside the game.',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.25),
-            ),
+            children: difficulties.map((entry) {
+              final (difficulty, label, range) = entry;
+              final isSel = difficulty == _selectedDifficulty;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedDifficulty = difficulty),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSel
+                          ? _amber.withValues(alpha: 0.15)
+                          : Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSel
+                            ? _amber.withValues(alpha: 0.65)
+                            : Colors.white.withValues(alpha: 0.10),
+                        width: isSel ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isSel ? _amberLt : Colors.white38,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          range,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: isSel ? _amber.withValues(alpha: 0.65) : Colors.white24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildFormatCard(List<Widget> rows) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBr),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+    );
+  }
 }
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 class _TabBtn extends StatelessWidget {
   final String label;
@@ -372,55 +425,6 @@ class _FreeFormatRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DifficultyChip extends StatelessWidget {
-  final String label;
-  final String range;
-  final Color amber;
-  final Color amberLt;
-
-  const _DifficultyChip({
-    required this.label,
-    required this.range,
-    required this.amber,
-    required this.amberLt,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: Colors.white.withValues(alpha: 0.60),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              range,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.30),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

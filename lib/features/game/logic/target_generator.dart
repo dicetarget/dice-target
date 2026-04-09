@@ -37,7 +37,7 @@ class TargetGenerator {
     }
 
     if (bestTarget != null) {
-      return bestTarget!;
+      return bestTarget;
     }
 
     while (true) {

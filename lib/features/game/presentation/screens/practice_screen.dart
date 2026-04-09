@@ -52,6 +52,7 @@ class PracticeScreen extends StatefulWidget {
   final DailyController? dailyController;
   final bool initialTrainingMode;
   final PracticeDifficulty initialDifficulty;
+  final bool showModeBar;
 
   const PracticeScreen({
     super.key,
@@ -63,6 +64,7 @@ class PracticeScreen extends StatefulWidget {
     this.dailyController,
     this.initialTrainingMode = false,
     this.initialDifficulty = PracticeDifficulty.easy,
+    this.showModeBar = true,
   });
 
   @override
@@ -1798,7 +1800,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                           dailyMoves: (_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                           freePlayMoves: (!_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                         ),
-                        if (!_isDailyMode) ...[
+                        if (!_isDailyMode && widget.showModeBar) ...[
                           const SizedBox(height: AppSpacing.sm),
                           _buildPracticeModeBar(),
                         ],
