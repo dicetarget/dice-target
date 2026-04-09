@@ -7,7 +7,7 @@ import 'package:dice/features/daily/data/daily_repository.dart';
 import 'package:dice/features/daily/domain/daily_service.dart';
 import 'package:dice/features/daily/presentation/controllers/daily_controller.dart';
 import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
-import 'package:dice/features/game/presentation/screens/practice_screen.dart';
+import 'package:dice/features/game/presentation/screens/free_play_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:flutter/material.dart';
@@ -203,8 +203,9 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
 
   Widget _buildFreePlayButton() {
     return _NeonButton(
-      onPressed: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PracticeScreen())),
+      onPressed: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
       glowColor: _amber,

@@ -50,6 +50,8 @@ class PracticeScreen extends StatefulWidget {
   final int? dailyPuzzleIndex;
   final int? dailyPuzzleCount;
   final DailyController? dailyController;
+  final bool initialTrainingMode;
+  final PracticeDifficulty initialDifficulty;
 
   const PracticeScreen({
     super.key,
@@ -59,6 +61,8 @@ class PracticeScreen extends StatefulWidget {
     this.dailyPuzzleIndex,
     this.dailyPuzzleCount,
     this.dailyController,
+    this.initialTrainingMode = false,
+    this.initialDifficulty = PracticeDifficulty.easy,
   });
 
   @override
@@ -279,6 +283,8 @@ class _PracticeScreenState extends State<PracticeScreen>
     WidgetsBinding.instance.addObserver(this);
 
     _gameState = PracticeGameState.initial();
+    _trainingMode = widget.initialTrainingMode;
+    _practiceDifficulty = widget.initialDifficulty;
     _hintUsedLocal = widget.dailyController?.progress?.hintUsed == true;
     _attachDailyControllerListener();
 
@@ -1739,7 +1745,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                       fontWeight: FontWeight.w800,
                     ),
                   )
-                : null,
+                : Text(
+                    _trainingMode ? 'Training' : 'Free Play',
+                    style: AppTextStyles.appBarTitle.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
             centerTitle: true,
             leading: _isDailyMode
                 ? null

@@ -320,10 +320,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           const SizedBox(height: 6),
           Text(
             dateText,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: DailyScreen._muted,
+              color: Colors.white.withValues(alpha: 0.40),
             ),
           ),
         ],
@@ -490,11 +490,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     final bool isSolved = result?.solved ?? false;
     final bool isGaveUp = result?.gaveUp ?? false;
-    final bool isUnlocked = progress.gaveUp
-        ? true
-        : puzzleIndex <= progress.currentPuzzleIndex.clamp(0, totalPuzzles - 1);
-    final bool canTap = progress.gaveUp || isUnlocked;
-
     String statusText = '';
     Color statusColor = DailyScreen._muted;
 
@@ -954,14 +949,23 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDailyHeroCard(dailyNumber),
-                        const SizedBox(height: 12),
-                        _buildStreakCard(controller.dailyStreak),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildDailyHeroCard(dailyNumber),
+                                const SizedBox(height: 12),
+                                _buildStreakCard(controller.dailyStreak),
+                                const SizedBox(height: 12),
+                                _buildProgressCard(progress, daily.puzzles.length),
+                                const SizedBox(height: 12),
+                                _buildFormatCard(progress),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
-                        _buildProgressCard(progress, daily.puzzles.length),
-                        const SizedBox(height: 16),
-                        _buildFormatCard(progress),
-                        const Spacer(),
                         // ── Neon Start Button ─────────────────────────────
                         GestureDetector(
                           onTap: disableButton ? null : () async => _handleMainAction(progress),
@@ -1177,7 +1181,7 @@ class _FormatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: DailyScreen._cyan),
+        Icon(icon, size: 18, color: DailyScreen._gold),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
