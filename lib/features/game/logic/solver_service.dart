@@ -75,7 +75,8 @@ class SolverService {
   }
 
   _ParsedMove? _extractFirstMove(String expression) {
-    final match = RegExp(r'\((\d+)\s*([+\-×÷])\s*(\d+)\)').firstMatch(expression);
+    // Unicode-Minus − (U+2212) statt ASCII-Minus - (U+002D)
+    final match = RegExp(r'\((\d+)\s*([+−×÷])\s*(\d+)\)').firstMatch(expression);
     if (match == null) return null;
 
     final leftValue = int.tryParse(match.group(1) ?? '');
@@ -115,7 +116,7 @@ class SolverService {
     switch (symbol) {
       case '+':
         return UiOp.add;
-      case '-':
+      case '−': // Unicode-Minus U+2212
         return UiOp.sub;
       case '×':
         return UiOp.mul;
@@ -134,7 +135,7 @@ class SolverService {
     switch (operatorSymbol) {
       case '+':
         return leftValue + rightValue;
-      case '-':
+      case '−': // Unicode-Minus U+2212
         final result = leftValue - rightValue;
         return result > 0 ? result : null;
       case '×':

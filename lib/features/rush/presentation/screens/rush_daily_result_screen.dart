@@ -3,18 +3,23 @@
 import 'dart:async';
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:flutter/material.dart';
 
 class RushDailyResultScreen extends StatefulWidget {
   final int run1Score;
   final int run2Score;
   final int allTimeBest;
+  final int lastPuzzleTarget;
+  final List<int> lastPuzzleDice;
 
   const RushDailyResultScreen({
     super.key,
     required this.run1Score,
     required this.run2Score,
     required this.allTimeBest,
+    required this.lastPuzzleTarget,
+    required this.lastPuzzleDice,
   });
 
   @override
@@ -24,13 +29,17 @@ class RushDailyResultScreen extends StatefulWidget {
 class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
+  static const Color _cyan = Color(0xFF3FE8FF);
 
   Timer? _countdownTimer;
   Duration _timeUntilNextDaily = Duration.zero;
 
   late final int _bestScore;
   late final bool _isNewRecord;
-  late final int _delta; // run2 - run1 (positive = improved)
+  late final int _delta;
+
+  String? _lastPuzzleSolution;
+  bool _solutionComputed = false;
 
   @override
   void initState() {
@@ -42,12 +51,28 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(_updateCountdown);
     });
+    _computeLastPuzzleSolution();
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  void _computeLastPuzzleSolution() {
+    if (widget.lastPuzzleDice.isEmpty) {
+      setState(() => _solutionComputed = true);
+      return;
+    }
+    final solver = SolverService();
+    final result = solver.check(diceValues: widget.lastPuzzleDice, target: widget.lastPuzzleTarget);
+    if (mounted) {
+      setState(() {
+        _lastPuzzleSolution = result.solvable ? result.fullExpression : null;
+        _solutionComputed = true;
+      });
+    }
   }
 
   void _updateCountdown() {
@@ -61,6 +86,73 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     final m = (d.inMinutes % 60).toString().padLeft(2, '0');
     final s = (d.inSeconds % 60).toString().padLeft(2, '0');
     return '$h:$m:$s';
+  }
+
+  void _showSolutionDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: AppColors.cardBr),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+          title: const Text(
+            'Last Puzzle — Solution',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+          ),
+          content: Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: AppColors.bgBottom,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.cardBr),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Target: ${widget.lastPuzzleTarget}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFD4AC0D),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SelectableText(
+                  _lastPuzzleSolution ?? 'No solution found.',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    height: 1.5,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _cyan),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _runCard(String label, int score, bool isBetter) {
@@ -126,7 +218,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
       color = _green.withValues(alpha: 0.85);
       icon = Icons.trending_up_rounded;
     } else if (_delta < 0) {
-      label = '${_delta} in Run 2';
+      label = '$_delta in Run 2';
       color = Colors.white.withValues(alpha: 0.35);
       icon = Icons.trending_down_rounded;
     } else {
@@ -260,6 +352,38 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                if (_solutionComputed && widget.lastPuzzleDice.isNotEmpty)
+                  GestureDetector(
+                    onTap: _showSolutionDialog,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: _cyan.withValues(alpha: 0.07),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: _cyan.withValues(alpha: 0.35), width: 1.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline_rounded,
+                            size: 17,
+                            color: _cyan.withValues(alpha: 0.80),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Show Last Puzzle Solution',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: _cyan.withValues(alpha: 0.80),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
                 Center(
                   child: Row(

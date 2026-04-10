@@ -1,6 +1,7 @@
 // lib/features/rush/presentation/screens/rush_result_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +10,16 @@ class RushResultScreen extends StatefulWidget {
   final RushDifficulty difficulty;
   final int score;
   final int previousPb;
+  final int lastPuzzleTarget;
+  final List<int> lastPuzzleDice;
 
   const RushResultScreen({
     super.key,
     required this.difficulty,
     required this.score,
     required this.previousPb,
+    required this.lastPuzzleTarget,
+    required this.lastPuzzleDice,
   });
 
   @override
@@ -24,15 +29,20 @@ class RushResultScreen extends StatefulWidget {
 class _RushResultScreenState extends State<RushResultScreen> {
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
+  static const Color _cyan = Color(0xFF3FE8FF);
 
   bool _isNewPb = false;
   int _pb = 0;
   bool _saving = true;
 
+  String? _lastPuzzleSolution;
+  bool _solutionComputed = false;
+
   @override
   void initState() {
     super.initState();
     _saveAndLoad();
+    _computeLastPuzzleSolution();
   }
 
   Future<void> _saveAndLoad() async {
@@ -47,6 +57,88 @@ class _RushResultScreenState extends State<RushResultScreen> {
         _saving = false;
       });
     }
+  }
+
+  void _computeLastPuzzleSolution() {
+    if (widget.lastPuzzleDice.isEmpty) {
+      setState(() => _solutionComputed = true);
+      return;
+    }
+    final solver = SolverService();
+    final result = solver.check(diceValues: widget.lastPuzzleDice, target: widget.lastPuzzleTarget);
+    if (mounted) {
+      setState(() {
+        _lastPuzzleSolution = result.solvable ? result.fullExpression : null;
+        _solutionComputed = true;
+      });
+    }
+  }
+
+  void _showSolutionDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: AppColors.cardBr),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+          title: const Text(
+            'Last Puzzle — Solution',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+          ),
+          content: Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: AppColors.bgBottom,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.cardBr),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Target: ${widget.lastPuzzleTarget}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFD4AC0D),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SelectableText(
+                  _lastPuzzleSolution ?? 'No solution found.',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    height: 1.5,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _cyan),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -176,6 +268,38 @@ class _RushResultScreenState extends State<RushResultScreen> {
                       fontSize: 14,
                       color: AppColors.muted,
                       fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              if (_solutionComputed && widget.lastPuzzleDice.isNotEmpty)
+                GestureDetector(
+                  onTap: _showSolutionDialog,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: _cyan.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: _cyan.withValues(alpha: 0.35), width: 1.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline_rounded,
+                          size: 17,
+                          color: _cyan.withValues(alpha: 0.80),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Show Last Puzzle Solution',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: _cyan.withValues(alpha: 0.80),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

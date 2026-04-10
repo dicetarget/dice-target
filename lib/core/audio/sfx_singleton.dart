@@ -13,6 +13,11 @@ class Sfx {
   final AudioPlayer _lose = AudioPlayer();
   final AudioPlayer _click = AudioPlayer();
   final AudioPlayer _dailyComplete = AudioPlayer();
+  final AudioPlayer _undo = AudioPlayer();
+  final AudioPlayer _solution = AudioPlayer();
+  final AudioPlayer _startDaily = AudioPlayer();
+  final AudioPlayer _hint = AudioPlayer();
+  final AudioPlayer _giveUp = AudioPlayer();
   final AudioPlayer _rushStart = AudioPlayer();
   final AudioPlayer _rushDailyStart = AudioPlayer();
   final AudioPlayer _rushWarning = AudioPlayer();
@@ -22,17 +27,14 @@ class Sfx {
   bool _ready = false;
   bool _loading = false;
 
-  /// Call once on app start
   Future<void> init() async {
     if (_ready || _loading) return;
     _loading = true;
 
     try {
-      // 🔹 load persisted toggle FIRST
       final prefs = await SharedPreferences.getInstance();
       enabled = prefs.getBool(_prefsKey) ?? true;
 
-      // Low-latency SFX
       await _roll.setPlayerMode(PlayerMode.lowLatency);
       await _valid.setPlayerMode(PlayerMode.lowLatency);
       await _invalid.setPlayerMode(PlayerMode.lowLatency);
@@ -40,6 +42,11 @@ class Sfx {
       await _lose.setPlayerMode(PlayerMode.lowLatency);
       await _click.setPlayerMode(PlayerMode.lowLatency);
       await _dailyComplete.setPlayerMode(PlayerMode.lowLatency);
+      await _undo.setPlayerMode(PlayerMode.lowLatency);
+      await _solution.setPlayerMode(PlayerMode.lowLatency);
+      await _startDaily.setPlayerMode(PlayerMode.lowLatency);
+      await _hint.setPlayerMode(PlayerMode.lowLatency);
+      await _giveUp.setPlayerMode(PlayerMode.lowLatency);
       await _rushStart.setPlayerMode(PlayerMode.lowLatency);
       await _rushDailyStart.setPlayerMode(PlayerMode.lowLatency);
       await _rushWarning.setPlayerMode(PlayerMode.lowLatency);
@@ -51,6 +58,11 @@ class Sfx {
       await _lose.setReleaseMode(ReleaseMode.stop);
       await _click.setReleaseMode(ReleaseMode.stop);
       await _dailyComplete.setReleaseMode(ReleaseMode.stop);
+      await _undo.setReleaseMode(ReleaseMode.stop);
+      await _solution.setReleaseMode(ReleaseMode.stop);
+      await _startDaily.setReleaseMode(ReleaseMode.stop);
+      await _hint.setReleaseMode(ReleaseMode.stop);
+      await _giveUp.setReleaseMode(ReleaseMode.stop);
       await _rushStart.setReleaseMode(ReleaseMode.stop);
       await _rushDailyStart.setReleaseMode(ReleaseMode.stop);
       await _rushWarning.setReleaseMode(ReleaseMode.stop);
@@ -62,11 +74,15 @@ class Sfx {
       await _lose.setVolume(1.0);
       await _click.setVolume(1.0);
       await _dailyComplete.setVolume(1.0);
+      await _undo.setVolume(1.0);
+      await _solution.setVolume(1.0);
+      await _startDaily.setVolume(1.0);
+      await _hint.setVolume(1.0);
+      await _giveUp.setVolume(1.0);
       await _rushStart.setVolume(1.0);
       await _rushDailyStart.setVolume(1.0);
       await _rushWarning.setVolume(1.0);
 
-      // iOS-safe asset preloading
       await _roll.setSource(AssetSource('sfx/roll.wav'));
       await _valid.setSource(AssetSource('sfx/valid.wav'));
       await _invalid.setSource(AssetSource('sfx/invalid.wav'));
@@ -74,6 +90,11 @@ class Sfx {
       await _lose.setSource(AssetSource('sfx/lose.wav'));
       await _click.setSource(AssetSource('sfx/click.wav'));
       await _dailyComplete.setSource(AssetSource('sfx/daily_complete.wav'));
+      await _undo.setSource(AssetSource('sfx/undo.wav'));
+      await _solution.setSource(AssetSource('sfx/solution.wav'));
+      await _startDaily.setSource(AssetSource('sfx/start_daily.wav'));
+      await _hint.setSource(AssetSource('sfx/hint.wav'));
+      await _giveUp.setSource(AssetSource('sfx/give_up.wav'));
       await _rushStart.setSource(AssetSource('sfx/rush_start.wav'));
       await _rushDailyStart.setSource(AssetSource('sfx/rush_daily_start.wav'));
       await _rushWarning.setSource(AssetSource('sfx/rush_warning.wav'));
@@ -86,7 +107,6 @@ class Sfx {
     }
   }
 
-  /// Toggle + persist
   Future<void> toggle() async {
     enabled = !enabled;
     final prefs = await SharedPreferences.getInstance();
@@ -100,6 +120,11 @@ class Sfx {
   Future<void> lose() async => _play(_lose, 'sfx/lose.wav');
   Future<void> click() async => _play(_click, 'sfx/click.wav');
   Future<void> dailyComplete() async => _play(_dailyComplete, 'sfx/daily_complete.wav');
+  Future<void> undo() async => _play(_undo, 'sfx/undo.wav');
+  Future<void> solution() async => _play(_solution, 'sfx/solution.wav');
+  Future<void> startDaily() async => _play(_startDaily, 'sfx/start_daily.wav');
+  Future<void> hint() async => _play(_hint, 'sfx/hint.wav');
+  Future<void> giveUp() async => _play(_giveUp, 'sfx/give_up.wav');
   Future<void> rushStart() async => _play(_rushStart, 'sfx/rush_start.wav');
   Future<void> rushDailyStart() async => _play(_rushDailyStart, 'sfx/rush_daily_start.wav');
   Future<void> rushWarning() async => _play(_rushWarning, 'sfx/rush_warning.wav');

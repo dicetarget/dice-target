@@ -79,6 +79,7 @@ class _RushDailyScreenState extends State<RushDailyScreen>
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseScale;
   bool _pulseStarted = false;
+  bool _warningSoundPlayed = false;
 
   late final AnimationController _plusOneCtrl;
   late final Animation<double> _plusOneOpacity;
@@ -173,10 +174,14 @@ class _RushDailyScreenState extends State<RushDailyScreen>
       setState(() {
         _remaining -= const Duration(seconds: 1);
 
+        if (_remaining.inSeconds <= 20 && !_warningSoundPlayed) {
+          _warningSoundPlayed = true;
+          sfx.rushWarning();
+        }
+
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
-          sfx.rushWarning(); // ← neu
         }
 
         if (_remaining <= Duration.zero) {
@@ -195,7 +200,7 @@ class _RushDailyScreenState extends State<RushDailyScreen>
         ? _coordinator.startNewRun(targetMin: _targetMin, targetMax: _targetMax)
         : _coordinator.nextPuzzle(targetMin: _targetMin, targetMax: _targetMax);
 
-    if (first) sfx.rushDailyStart(); // ← neu
+    if (first) sfx.rushStart();
 
     _target = puzzle.target;
     _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();
@@ -333,6 +338,10 @@ class _RushDailyScreenState extends State<RushDailyScreen>
     sfx.dailyComplete();
     if (!mounted) return;
 
+    // Snapshot des aktuellen (ungelösten) Puzzles für den Result-Screen
+    final lastTarget = _target;
+    final lastDice = _dice.map((d) => d.value).toList();
+
     if (widget.runNumber == 1) {
       final int savedScore = _score;
       Navigator.of(context).pushReplacement(
@@ -356,6 +365,8 @@ class _RushDailyScreenState extends State<RushDailyScreen>
             run1Score: widget.run1Score,
             run2Score: _score,
             allTimeBest: state.allTimeBest,
+            lastPuzzleTarget: lastTarget,
+            lastPuzzleDice: lastDice,
           ),
         ),
       );

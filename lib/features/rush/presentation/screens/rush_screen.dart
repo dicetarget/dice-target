@@ -104,6 +104,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseScale;
   bool _pulseStarted = false;
+  bool _warningSoundPlayed = false;
 
   // ── (B) +1 popup ──────────────────────────────────────────────────────────────
   late final AnimationController _plusOneCtrl;
@@ -182,10 +183,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       setState(() {
         _remaining -= const Duration(seconds: 1);
 
+        if (_remaining.inSeconds <= 20 && !_warningSoundPlayed) {
+          _warningSoundPlayed = true;
+          sfx.rushWarning();
+        }
+
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
-          sfx.rushWarning(); // ← neu
         }
 
         if (_remaining <= Duration.zero) {
@@ -219,7 +224,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       targetMax: widget.difficulty.targetMax,
     );
     _applyPuzzle(puzzle);
-    sfx.rushStart(); // ← neu
+    sfx.rushStart();
     _startPrefetch();
   }
 
@@ -378,10 +383,20 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     setState(() => _phase = _RunPhase.ended);
     sfx.dailyComplete();
     if (!mounted) return;
+
+    // Snapshot des aktuellen (ungelösten) Puzzles für den Result-Screen
+    final lastTarget = _target;
+    final lastDice = _dice.map((d) => d.value).toList();
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) =>
-            RushResultScreen(difficulty: widget.difficulty, score: _score, previousPb: _pb),
+        builder: (_) => RushResultScreen(
+          difficulty: widget.difficulty,
+          score: _score,
+          previousPb: _pb,
+          lastPuzzleTarget: lastTarget,
+          lastPuzzleDice: lastDice,
+        ),
       ),
     );
   }

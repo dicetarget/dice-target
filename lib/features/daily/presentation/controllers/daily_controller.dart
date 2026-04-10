@@ -426,7 +426,7 @@ class DailyController extends ChangeNotifier {
     final hintUsed = currentProgress.hintUsed;
 
     if (totalDiff == 0 && !hintUsed) return 3;
-    if (totalDiff <= 3) return 2;
+    if (totalDiff == 0 || (!hintUsed && totalDiff <= 3)) return 2;
     return 1;
   }
 }
