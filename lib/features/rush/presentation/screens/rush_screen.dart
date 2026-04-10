@@ -67,7 +67,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   static const Color _card = AppColors.card;
   static const Color _accent = AppColors.accent;
 
-  // Timer colors — subtle default (white), warning colors only at ≤20s/≤10s
   static const Color _timerAmber = Color(0xFFFF9F00);
   static const Color _timerRed = AppColors.failed;
 
@@ -80,6 +79,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   // ── Run state ─────────────────────────────────────────────────────────────────
   _RunPhase _phase = _RunPhase.running;
   List<DiceState> _dice = [];
+  List<int> _originalDice = [];
   int _target = 0;
   int _score = 0;
   int _pb = 0;
@@ -89,7 +89,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   // ── Prefetch ──────────────────────────────────────────────────────────────────
   Future<Puzzle>? _prefetchFuture;
 
-  // ── Interaction — same flow as practice_screen ────────────────────────────────
+  // ── Interaction ───────────────────────────────────────────────────────────────
   final Set<int> _selected = {};
   UiOp? _pendingOp;
   final List<_UndoSnapshot> _undoStack = [];
@@ -122,14 +122,12 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     super.initState();
     _pb = widget.personalBest;
 
-    // (A) Timer pulse — starts at ≤10s
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
     _pulseScale = Tween<double>(
       begin: 1.0,
       end: 1.07,
     ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
-    // (B) +1 popup
     _plusOneCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
     _plusOneOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
@@ -140,7 +138,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       end: -52.0,
     ).animate(CurvedAnimation(parent: _plusOneCtrl, curve: Curves.easeOut));
 
-    // (D) Celebrate
     _celebrateCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _celebrateT = TweenSequence<double>([
       TweenSequenceItem(
@@ -206,6 +203,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   void _applyPuzzle(Puzzle puzzle) {
     _target = puzzle.target;
+    _originalDice = List<int>.from(puzzle.dice);
     _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();
     _undoStack.clear();
     _selected.clear();
@@ -340,7 +338,25 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       finalValue: _dice.last.value,
       rules: _gameRules,
     );
-    if (gs == GameState.solved) _onSolve();
+    if (gs == GameState.solved) {
+      _onSolve();
+    } else if (gs == GameState.notSolved) {
+      _resetCurrentPuzzle();
+    }
+  }
+
+  void _resetCurrentPuzzle() {
+    sfx.invalid();
+    setState(() {
+      _dice = _originalDice.map((v) => DiceState(value: v)).toList();
+      _rollingDiceNotifier.value = List<int>.from(_originalDice);
+      _undoStack.clear();
+      _selected.clear();
+      _pendingOp = null;
+      _moves = 0;
+    });
+    _gameRules.reset();
+    _gameRules.start(_target);
   }
 
   void _onSolve() {
@@ -384,9 +400,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     sfx.dailyComplete();
     if (!mounted) return;
 
-    // Snapshot des aktuellen (ungelösten) Puzzles für den Result-Screen
     final lastTarget = _target;
-    final lastDice = _dice.map((d) => d.value).toList();
+    final lastDice = _originalDice.toList();
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -478,11 +493,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 ),
                 child: Column(
                   children: [
-                    // ── Rush-specific status row ─────────────────────────────
                     _buildStatusRow(),
                     const SizedBox(height: AppSpacing.md),
-
-                    // ── Target display ───────────────────────────────────────
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -494,8 +506,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                       celebrateAnimation: _celebrateT,
                     ),
                     const SizedBox(height: AppSpacing.md),
-
-                    // ── Dice + ops + undo ────────────────────────────────────
                     Expanded(
                       child: PracticeGameArea(
                         showDice: true,
@@ -522,16 +532,12 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                         onUndo: _undo,
                       ),
                     ),
-
                     const SizedBox(height: AppSpacing.lg),
-
-                    // ── Skip button ──────────────────────────────────────────
                     _buildSkipButton(),
                     SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
                   ],
                 ),
               ),
-              // (B) +1 popup
               _buildPlusOneOverlay(),
             ],
           ),
@@ -570,7 +576,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           ],
         ),
         const Spacer(),
-        // (A) Timer with pulse
         ScaleTransition(
           scale: _pulseScale,
           child: AnimatedContainer(

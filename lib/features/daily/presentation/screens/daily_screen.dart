@@ -355,11 +355,19 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _FormatRow(icon: Icons.extension_rounded, text: '5 puzzles'),
+          _FormatRow(
+            icon: Icons.extension_rounded,
+            text: '5 puzzles — combine dice to reach the target',
+          ),
+          SizedBox(height: 10),
+          _FormatRow(icon: Icons.star_rounded, text: 'Fewer moves = more stars'),
           SizedBox(height: 10),
           _FormatRow(icon: Icons.flag_rounded, text: 'One scored run only'),
           SizedBox(height: 10),
-          _FormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint – but costs you 1 star'),
+          _FormatRow(
+            icon: Icons.lightbulb_outline_rounded,
+            text: '1 Hint available — costs you 1 star',
+          ),
         ],
       ),
     );
@@ -374,8 +382,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final title = isCompleted ? (runStars == 3 ? 'Perfect Run' : 'Daily Complete') : 'Daily Ended';
 
     final quality = switch (runStars) {
-      3 => 'Perfect precision. You nailed every puzzle!',
-      2 => 'Well done — completed without hints.',
+      3 => 'Perfect! Every puzzle solved in the fewest moves.',
+      2 => 'Well done — solved without hints.',
       1 => 'Completed with a hint. Try without next time!',
       _ => 'Keep at it — the next run is yours.',
     };
@@ -437,7 +445,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final totalTime = progress.totalTimeSeconds;
     final formattedTime = controller.formatTime(totalTime);
 
-    final efficiencyLabel = progress.gaveUp ? '—' : (totalDiff == 0 ? 'Optimal' : '+$totalDiff');
+    final efficiencyLabel = progress.gaveUp
+        ? '—'
+        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
     final efficiencyColor = progress.gaveUp
         ? DailyScreen._muted
         : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
@@ -450,7 +460,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         children: [
           Expanded(
             child: _SummaryCell(
-              label: 'Efficiency',
+              label: 'Moves',
               value: efficiencyLabel,
               valueColor: efficiencyColor,
             ),
@@ -498,16 +508,16 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       if (r.optimalMoves != null) {
         final diff = r.moves - r.optimalMoves!;
         if (diff <= 0) {
-          statusText = 'Optimal';
+          statusText = 'Perfect';
           statusColor = DailyScreen._gold;
         } else if (diff == 1) {
-          statusText = '+1';
+          statusText = '+1 move';
           statusColor = Colors.white.withValues(alpha: 0.8);
         } else if (diff == 2) {
-          statusText = '+2';
+          statusText = '+2 moves';
           statusColor = Colors.white.withValues(alpha: 0.65);
         } else {
-          statusText = '+3+';
+          statusText = '+3+ moves';
           statusColor = DailyScreen._muted;
         }
       } else {
@@ -634,8 +644,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
         final expr = result.fullExpression ?? 'No solution available.';
         final optimalText = result.optimalMoves != null
-            ? '${result.optimalMoves} Moves'
-            : '- Moves';
+            ? '${result.optimalMoves} moves'
+            : '— moves';
 
         return AlertDialog(
           backgroundColor: DailyScreen._card,
@@ -703,7 +713,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       ),
                       const SizedBox(height: 18),
                       const Text(
-                        'Optimal:',
+                        'Fewest moves:',
                         style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                       Text(
@@ -712,7 +722,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'You: ${result.moves} Moves',
+                        'Your moves: ${result.moves}',
                         style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                     ],
@@ -930,14 +940,12 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── Primäres Ergebnis zuerst ──────────────────────
                           _buildResultHero(progress),
                           const SizedBox(height: 12),
                           _buildRunSummaryCard(progress),
                           const SizedBox(height: 16),
                           _buildResultsCard(progress, daily.puzzles.length),
                           const SizedBox(height: 12),
-                          // ── Kontext / Stats danach ────────────────────────
                           _buildStreakCard(controller.dailyStreak),
                           const SizedBox(height: 12),
                           _buildCountdownCard(),
@@ -966,7 +974,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // ── Neon Start Button ─────────────────────────────
                         GestureDetector(
                           onTap: disableButton ? null : () async => _handleMainAction(progress),
                           child: AnimatedContainer(
