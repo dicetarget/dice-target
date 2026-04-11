@@ -20,6 +20,7 @@ class RushStartScreen extends StatefulWidget {
 class _RushStartScreenState extends State<RushStartScreen> {
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
+  static const Color _orange = Color(0xFFFF9F00);
 
   _Tab _tab = _Tab.standard;
 
@@ -167,13 +168,13 @@ class _RushStartScreenState extends State<RushStartScreen> {
           _TabBtn(
             label: 'Standard',
             active: _tab == _Tab.standard,
-            green: _green,
+            activeColor: _green,
             onTap: () => setState(() => _tab = _Tab.standard),
           ),
           _TabBtn(
             label: 'Daily',
             active: _tab == _Tab.daily,
-            green: _green,
+            activeColor: _orange,
             showDot: _dailyState != null && !_dailyState!.isCompleted,
             onTap: () {
               setState(() => _tab = _Tab.daily);
@@ -231,7 +232,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Standard',
+            'Speed Run',
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
@@ -242,7 +243,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            '90s · Endless puzzles · Auto-advance',
+            '90s • Endless • No limits',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -374,14 +375,11 @@ class _RushStartScreenState extends State<RushStartScreen> {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RushFormatRow(icon: Icons.skip_next_rounded, text: '1× Skip per puzzle · no penalty'),
+          _RushFormatRow(icon: Icons.skip_next_rounded, text: '1 Skip per run'),
           SizedBox(height: 10),
-          _RushFormatRow(
-            icon: Icons.lightbulb_outline_rounded,
-            text: '1× Hint per puzzle · next move',
-          ),
+          _RushFormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint per run'),
           SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.flag_outlined, text: 'No give up', dimmed: true),
+          _RushFormatRow(icon: Icons.all_inclusive_rounded, text: 'No limits'),
         ],
       ),
     );
@@ -411,7 +409,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
         Row(
           children: [
             Expanded(
-              child: _DailyRunCard(label: 'Run 1', score: state.run1, green: _green),
+              child: _DailyRunCard(label: 'Run 1', score: state.run1, green: _orange, isRun1: true),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -419,7 +417,8 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 label: 'Run 2',
                 score: state.run2,
                 locked: !state.run1Played,
-                green: _green,
+                green: _orange,
+                isRun1: false,
               ),
             ),
           ],
@@ -451,11 +450,9 @@ class _RushStartScreenState extends State<RushStartScreen> {
           )
         else
           _ActionButton(
-            label: _startingDaily
-                ? 'Starting...'
-                : (state.canStartRun1 ? 'Start Run 1' : 'Start Run 2'),
+            label: _startingDaily ? 'Starting...' : 'Start Daily Run',
             onTap: _startingDaily ? null : _startDailyRun,
-            green: _green,
+            green: _orange,
           ),
         const SizedBox(height: 24),
       ],
@@ -488,24 +485,24 @@ class _RushStartScreenState extends State<RushStartScreen> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _green.withValues(alpha: 0.25)),
+        border: Border.all(color: _orange.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Daily',
+            'Daily Challenge',
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
-              color: _green,
+              color: _orange,
               letterSpacing: -1.0,
               height: 1.0,
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            dateText,
+            '2 runs • Same puzzles • Best score counts',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -525,16 +522,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBr),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RushFormatRow(icon: Icons.repeat_rounded, text: '2 runs per day'),
-          SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.timer_outlined, text: '2 minutes per run'),
-          SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.sync_rounded, text: 'Same puzzles both runs'),
-          SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.skip_next_rounded, text: 'No skip', dimmed: true),
+          _RushFormatRow(icon: Icons.timer_outlined, text: '2 min per run', color: _orange),
+          const SizedBox(height: 10),
+          _RushFormatRow(
+            icon: Icons.emoji_events_rounded,
+            text: 'Best score counts',
+            color: _orange,
+          ),
+          const SizedBox(height: 10),
+          const _RushFormatRow(icon: Icons.skip_next_rounded, text: 'No skip', dimmed: true),
         ],
       ),
     );
@@ -546,18 +545,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _green.withValues(alpha: 0.30)),
+        border: Border.all(color: _orange.withValues(alpha: 0.30)),
       ),
       child: Row(
         children: [
-          Icon(Icons.emoji_events_rounded, size: 20, color: _green.withValues(alpha: 0.80)),
+          Icon(Icons.emoji_events_rounded, size: 20, color: _orange.withValues(alpha: 0.80)),
           const SizedBox(width: 10),
           Text(
             'All-time best: $best',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: _green.withValues(alpha: 0.85),
+              color: _orange.withValues(alpha: 0.85),
             ),
           ),
         ],
@@ -571,13 +570,13 @@ class _RushStartScreenState extends State<RushStartScreen> {
 class _TabBtn extends StatelessWidget {
   final String label;
   final bool active;
-  final Color green;
+  final Color activeColor;
   final VoidCallback onTap;
   final bool showDot;
   const _TabBtn({
     required this.label,
     required this.active,
-    required this.green,
+    required this.activeColor,
     required this.onTap,
     this.showDot = false,
   });
@@ -591,15 +590,18 @@ class _TabBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? green.withValues(alpha: 0.18) : Colors.transparent,
+            color: active ? activeColor.withValues(alpha: 0.18) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: active
-                  ? green.withValues(alpha: 0.55)
+                  ? activeColor.withValues(alpha: 0.55)
                   : showDot
-                  ? green.withValues(alpha: 0.30)
+                  ? activeColor.withValues(alpha: 0.30)
                   : Colors.transparent,
             ),
+            boxShadow: active
+                ? [BoxShadow(color: activeColor.withValues(alpha: 0.15), blurRadius: 8)]
+                : null,
           ),
           child: Stack(
             clipBehavior: Clip.none,
@@ -622,9 +624,11 @@ class _TabBtn extends StatelessWidget {
                     width: 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: green,
+                      color: activeColor,
                       shape: BoxShape.circle,
-                      boxShadow: [BoxShadow(color: green.withValues(alpha: 0.70), blurRadius: 6)],
+                      boxShadow: [
+                        BoxShadow(color: activeColor.withValues(alpha: 0.70), blurRadius: 6),
+                      ],
                     ),
                   ),
                 ),
@@ -687,22 +691,35 @@ class _DailyRunCard extends StatelessWidget {
   final int score;
   final bool locked;
   final Color green;
+  final bool isRun1;
   const _DailyRunCard({
     required this.label,
     required this.score,
     this.locked = false,
     required this.green,
+    required this.isRun1,
   });
 
   @override
   Widget build(BuildContext context) {
     final played = score >= 0;
+    final highlight = isRun1 && !locked;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: played ? green.withValues(alpha: 0.40) : AppColors.cardBr),
+        border: Border.all(
+          color: highlight
+              ? green.withValues(alpha: 0.55)
+              : played
+              ? green.withValues(alpha: 0.25)
+              : AppColors.cardBr,
+          width: highlight ? 1.5 : 1.0,
+        ),
+        boxShadow: highlight
+            ? [BoxShadow(color: green.withValues(alpha: 0.12), blurRadius: 10, spreadRadius: 1)]
+            : null,
       ),
       child: Column(
         children: [
@@ -711,7 +728,9 @@ class _DailyRunCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               letterSpacing: 0.6,
-              color: Colors.white.withValues(alpha: 0.40),
+              color: highlight
+                  ? green.withValues(alpha: 0.80)
+                  : Colors.white.withValues(alpha: 0.40),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -721,10 +740,10 @@ class _DailyRunCard extends StatelessWidget {
           else if (played)
             Text(
               '$score',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: highlight ? Colors.white : Colors.white.withValues(alpha: 0.55),
                 letterSpacing: -1,
                 height: 1.0,
               ),
@@ -749,14 +768,16 @@ class _RushFormatRow extends StatelessWidget {
   final IconData icon;
   final String text;
   final bool dimmed;
+  final Color? color;
 
-  const _RushFormatRow({required this.icon, required this.text, this.dimmed = false});
+  const _RushFormatRow({required this.icon, required this.text, this.dimmed = false, this.color});
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = dimmed ? AppColors.muted : (color ?? const Color(0xFF00E5A0));
     return Row(
       children: [
-        Icon(icon, size: 18, color: dimmed ? AppColors.muted : const Color(0xFF00E5A0)),
+        Icon(icon, size: 18, color: iconColor),
         const SizedBox(width: 10),
         Expanded(
           child: Text(

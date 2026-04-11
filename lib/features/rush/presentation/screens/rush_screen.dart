@@ -210,8 +210,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _pendingOp = null;
     _moves = 0;
     _mergePopKey = 0;
-    _skipUsed = false;
-    _hintUsed = false;
     _rollingTargetNotifier.value = _target;
     _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
     _gameRules.reset();

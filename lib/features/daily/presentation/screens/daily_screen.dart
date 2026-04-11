@@ -48,6 +48,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   bool _isStartingDaily = false;
   bool _ownsController = false;
 
+  // Kollabierbare Puzzle-Karten
+  final Set<int> _expandedPuzzles = {};
+
   static final DateTime _dailyNumberEpoch = DateTime(2026, 3, 17);
   static const String _dailyStateKey = 'daily_in_progress_state';
 
@@ -355,25 +358,94 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _FormatRow(
-            icon: Icons.extension_rounded,
-            text: '5 puzzles — combine dice to reach the target',
-          ),
+          _FormatRow(icon: Icons.extension_rounded, text: '5 puzzles — reach the target'),
           SizedBox(height: 10),
-          _FormatRow(icon: Icons.star_rounded, text: 'Fewer moves = more stars'),
+          _FormatRow(icon: Icons.merge_type_rounded, text: 'Combine multiple dice in one move'),
           SizedBox(height: 10),
-          _FormatRow(icon: Icons.flag_rounded, text: 'One scored run only'),
+          _FormatRow(icon: Icons.star_rounded, text: 'Fewer moves = better rating'),
           SizedBox(height: 10),
-          _FormatRow(
-            icon: Icons.lightbulb_outline_rounded,
-            text: '1 Hint available — costs you 1 star',
-          ),
+          _FormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint (reduces max rating)'),
         ],
       ),
     );
   }
 
   // ── Cards: result screen ──────────────────────────────────────────────────
+
+  /// Kompakte Countdown-Zeile ohne eigene Card — direkt unter Result Hero
+  Widget _buildCompactCountdownRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.schedule_rounded, size: 13, color: Colors.white.withValues(alpha: 0.28)),
+        const SizedBox(width: 5),
+        Text(
+          'Next daily in ${_formatCountdown(_timeUntilNextDaily)}',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.white.withValues(alpha: 0.28),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Merged Stats-Card: Streak + Total Runs + Best Rating + Puzzles Solved
+  Widget _buildMergedStatsCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: _cardDecoration(),
+      child: Row(
+        children: [
+          // Streak
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${controller.dailyStreak}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Streak',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.35),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
+          Expanded(
+            child: _StatCell(label: 'Total Runs', value: '${controller.lifetimeTotalRuns}'),
+          ),
+          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
+          Expanded(
+            child: _StatCell(label: 'Best', value: _starsLabel(controller.lifetimeBestRating)),
+          ),
+          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
+          Expanded(
+            child: _StatCell(label: 'Solved', value: '${controller.lifetimeTotalPuzzlesSolved}'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildResultHero(DailyProgress progress) {
     final isCompleted = progress.isCompleted;
@@ -447,7 +519,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     final efficiencyLabel = progress.gaveUp
         ? '—'
-        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
+        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves — could be solved faster');
     final efficiencyColor = progress.gaveUp
         ? DailyScreen._muted
         : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
@@ -488,7 +560,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           const SizedBox(height: 12),
           for (int i = 0; i < totalPuzzles; i++) ...[
             _buildPuzzleResultCard(progress, i, totalPuzzles),
-            if (i != totalPuzzles - 1) const SizedBox(height: 10),
+            if (i != totalPuzzles - 1) const SizedBox(height: 8),
           ],
         ],
       ),
@@ -500,6 +572,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     final bool isSolved = result?.solved ?? false;
     final bool isGaveUp = result?.gaveUp ?? false;
+    final bool isExpanded = _expandedPuzzles.contains(puzzleIndex);
+
     String statusText = '';
     Color statusColor = DailyScreen._muted;
 
@@ -532,94 +606,116 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       statusColor = DailyScreen._muted;
     }
 
-    final bool showButtons = result != null && (isSolved || isGaveUp);
+    final bool hasDetails = result != null && (isSolved || isGaveUp);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.bgBottom,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: DailyScreen._border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Puzzle ${puzzleIndex + 1}',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Text(
-                statusText,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: statusColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (result != null && (isSolved || isGaveUp))
+    return GestureDetector(
+      onTap: hasDetails
+          ? () => setState(() {
+              if (isExpanded) {
+                _expandedPuzzles.remove(puzzleIndex);
+              } else {
+                _expandedPuzzles.add(puzzleIndex);
+              }
+            })
+          : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.bgBottom,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: DailyScreen._border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header row — immer sichtbar ──────────────────────────────
             Row(
               children: [
                 Expanded(
-                  child: _MiniInfoItem(label: 'Moves', value: '${result.moves}'),
-                ),
-                Expanded(
-                  child: _MiniInfoItem(label: 'Time', value: _formatDuration(result.elapsed)),
-                ),
-              ],
-            )
-          else
-            Text('No result saved.', style: TextStyle(fontSize: 13, color: DailyScreen._muted)),
-          if (showButtons) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _showBestSolutionDialog(result),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: DailyScreen._cyan,
-                  side: BorderSide(color: DailyScreen._cyan.withValues(alpha: 0.55)),
-                  backgroundColor: DailyScreen._cyan.withValues(alpha: 0.08),
-                ),
-                icon: const Icon(Icons.lightbulb_outline_rounded, size: 18),
-                label: const Text('Show Best Solution'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: GestureDetector(
-                onTap: () =>
-                    _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.0),
+                  child: Text(
+                    'Puzzle ${puzzleIndex + 1}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Train Again',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                ),
+                Text(
+                  statusText,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: statusColor),
+                ),
+                if (hasDetails) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    isExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: Colors.white.withValues(alpha: 0.30),
+                  ),
+                ],
+              ],
+            ),
+
+            // ── Expandierter Inhalt ──────────────────────────────────────
+            if (isExpanded && hasDetails) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _MiniInfoItem(label: 'Moves', value: '${result!.moves}'),
+                  ),
+                  Expanded(
+                    child: _MiniInfoItem(label: 'Time', value: _formatDuration(result.elapsed)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _showBestSolutionDialog(result),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: DailyScreen._cyan,
+                    side: BorderSide(color: DailyScreen._cyan.withValues(alpha: 0.55)),
+                    backgroundColor: DailyScreen._cyan.withValues(alpha: 0.08),
+                  ),
+                  icon: const Icon(Icons.lightbulb_outline_rounded, size: 18),
+                  label: const Text('Show Best Solution'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () =>
+                      _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 1.0),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Train Again',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -881,7 +977,11 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         return;
       }
     } finally {
-      _isStartingDaily = false;
+      if (mounted) {
+        setState(() => _isStartingDaily = false);
+      } else {
+        _isStartingDaily = false;
+      }
     }
   }
 
@@ -935,25 +1035,35 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: showResults
+                  // ── Result Screen ──────────────────────────────────────
                   ? SingleChildScrollView(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // 1. Result Hero
                           _buildResultHero(progress),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
+
+                          // 2. Countdown — kompakt, zentriert
+                          _buildCompactCountdownRow(),
+                          const SizedBox(height: 16),
+
+                          // 3. Run Summary
                           _buildRunSummaryCard(progress),
                           const SizedBox(height: 16),
+
+                          // 4. Results (kollabierbar)
                           _buildResultsCard(progress, daily.puzzles.length),
                           const SizedBox(height: 12),
-                          _buildStreakCard(controller.dailyStreak),
+
+                          // 5. Stats — merged (Streak + Lifetime)
+                          _buildMergedStatsCard(),
                           const SizedBox(height: 12),
-                          _buildCountdownCard(),
-                          const SizedBox(height: 12),
-                          _buildLifetimeStatsCard(),
                         ],
                       ),
                     )
+                  // ── Pre-Run Screen ─────────────────────────────────────
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1136,6 +1246,35 @@ class _MiniInfoItem extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatCell extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatCell({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.35),
+          ),
         ),
       ],
     );
