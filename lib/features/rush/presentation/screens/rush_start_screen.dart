@@ -18,7 +18,6 @@ class RushStartScreen extends StatefulWidget {
 }
 
 class _RushStartScreenState extends State<RushStartScreen> {
-  // Speed Run green — nicht in AppColors, bleibt lokal
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
 
@@ -375,9 +374,12 @@ class _RushStartScreenState extends State<RushStartScreen> {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RushFormatRow(icon: Icons.skip_next_rounded, text: 'Skip anytime · no penalty'),
+          _RushFormatRow(icon: Icons.skip_next_rounded, text: '1× Skip per puzzle · no penalty'),
           SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.lightbulb_outline_rounded, text: 'No hints', dimmed: true),
+          _RushFormatRow(
+            icon: Icons.lightbulb_outline_rounded,
+            text: '1× Hint per puzzle · next move',
+          ),
           SizedBox(height: 10),
           _RushFormatRow(icon: Icons.flag_outlined, text: 'No give up', dimmed: true),
         ],
@@ -785,7 +787,7 @@ class _StatsCell extends StatelessWidget {
       children: [
         Text(
           value,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
         ),
         const SizedBox(height: 3),
         Text(

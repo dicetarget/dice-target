@@ -14,7 +14,6 @@ import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_application_service.dart';
 import 'package:dice/features/game/logic/round_evaluator.dart';
-import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:dice/features/game/models/dice_state.dart';
 import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
 import 'package:dice/features/game/presentation/widgets/practice_game_area.dart';
@@ -48,7 +47,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
   static const Color _accent = AppColors.accent;
   static const Color _timerAmber = Color(0xFFFF9F00);
   static const Color _timerRed = AppColors.failed;
-  static const Color _cyan = Color(0xFF3FE8FF);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -66,10 +64,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
   Duration _remaining = _runDuration;
   Timer? _timer;
   bool _scoreSaved = false;
-
-  // ── Skip / Hint (1× each) ─────────────────────────────────────────────────────
-  bool _skipUsed = false;
-  bool _hintUsed = false;
 
   // ── Interaction ───────────────────────────────────────────────────────────────
   final Set<int> _selected = {};
@@ -96,8 +90,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
   late final Animation<double> _celebrateT;
 
   bool get _isPlaying => _phase == _RunPhase.running;
-  bool get _canSkip => _isPlaying && !_skipUsed;
-  bool get _canHint => _isPlaying && !_hintUsed;
 
   @override
   void initState() {
@@ -182,17 +174,14 @@ class _RushDailyScreenState extends State<RushDailyScreen>
       if (!mounted) return;
       setState(() {
         _remaining -= const Duration(seconds: 1);
-
         if (_remaining.inSeconds <= 20 && !_warningSoundPlayed) {
           _warningSoundPlayed = true;
           sfx.rushWarning();
         }
-
         if (_remaining.inSeconds <= 10 && !_pulseStarted) {
           _pulseStarted = true;
           _pulseCtrl.repeat(reverse: true);
         }
-
         if (_remaining <= Duration.zero) {
           _remaining = Duration.zero;
           _timer?.cancel();
@@ -345,86 +334,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
       _pendingOp = null;
     });
     sfx.click();
-  }
-
-  void _skip() {
-    if (!_canSkip) return;
-    setState(() => _skipUsed = true);
-    sfx.click();
-    setState(() => _loadPuzzle());
-  }
-
-  void _showHint() {
-    if (!_canHint) return;
-    setState(() => _hintUsed = true);
-    sfx.click();
-
-    final solver = SolverService();
-    final result = solver.check(diceValues: _originalDice, target: _target);
-    final solution = result.solvable ? result.fullExpression : null;
-
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: AppColors.cardBr),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-        title: const Text(
-          'Hint — Solution',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
-        ),
-        content: Container(
-          width: double.maxFinite,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: AppColors.bgBottom,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.cardBr),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Target: $_target',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFFD4AC0D),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SelectableText(
-                solution ?? 'No solution found.',
-                style: const TextStyle(
-                  fontSize: 17,
-                  height: 1.5,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text(
-              'Close',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _cyan),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   // ── End run ───────────────────────────────────────────────────────────────────
@@ -615,8 +524,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
                           onUndo: _undo,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _buildActionRow(),
                       SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
                     ],
                   ),
@@ -700,72 +607,6 @@ class _RushDailyScreenState extends State<RushDailyScreen>
           ),
         ),
       ],
-    );
-  }
-
-  /// Skip (links) + Hint (rechts) — je 1× verwendbar
-  Widget _buildActionRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionButton(
-            icon: Icons.skip_next_rounded,
-            label: _skipUsed ? 'Skipped' : 'Skip',
-            enabled: _canSkip,
-            onTap: _skip,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildActionButton(
-            icon: Icons.lightbulb_outline_rounded,
-            label: _hintUsed ? 'Hint used' : 'Hint',
-            enabled: _canHint,
-            onTap: _showHint,
-            activeColor: _cyan,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required bool enabled,
-    required VoidCallback onTap,
-    Color? activeColor,
-  }) {
-    final color = enabled
-        ? (activeColor ?? Colors.white).withValues(alpha: 0.55)
-        : Colors.white.withValues(alpha: 0.18);
-
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.button),
-          border: Border.all(
-            color: enabled
-                ? (activeColor ?? Colors.white).withValues(alpha: 0.18)
-                : Colors.white.withValues(alpha: 0.07),
-            width: 0.5,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 17),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
