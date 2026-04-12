@@ -20,7 +20,7 @@ class RushStartScreen extends StatefulWidget {
 class _RushStartScreenState extends State<RushStartScreen> {
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _orange = Color(0xFFFF9F00);
+  static const Color _cyan = Color(0xFF3FE8FF);
 
   _Tab _tab = _Tab.standard;
 
@@ -174,7 +174,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
           _TabBtn(
             label: 'Daily',
             active: _tab == _Tab.daily,
-            activeColor: _orange,
+            activeColor: _cyan,
             showDot: _dailyState != null && !_dailyState!.isCompleted,
             onTap: () {
               setState(() => _tab = _Tab.daily);
@@ -290,14 +290,14 @@ class _RushStartScreenState extends State<RushStartScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
                       color: isSel
-                          ? _green.withValues(alpha: 0.15)
-                          : Colors.white.withValues(alpha: 0.05),
+                          ? _green.withValues(alpha: 0.08)
+                          : Colors.white.withValues(alpha: 0.03),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSel
-                            ? _green.withValues(alpha: 0.65)
-                            : Colors.white.withValues(alpha: 0.10),
-                        width: isSel ? 1.5 : 1.0,
+                            ? _green.withValues(alpha: 0.40)
+                            : Colors.white.withValues(alpha: 0.07),
+                        width: isSel ? 1.0 : 0.5,
                       ),
                     ),
                     child: Column(
@@ -306,8 +306,10 @@ class _RushStartScreenState extends State<RushStartScreen> {
                           d.label,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: isSel ? _greenLt : Colors.white38,
+                            fontWeight: FontWeight.w700,
+                            color: isSel
+                                ? Colors.white.withValues(alpha: 0.90)
+                                : Colors.white.withValues(alpha: 0.28),
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -315,8 +317,10 @@ class _RushStartScreenState extends State<RushStartScreen> {
                           '${d.targetMin}–${d.targetMax}',
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: isSel ? _green.withValues(alpha: 0.65) : Colors.white24,
+                            fontWeight: FontWeight.w500,
+                            color: isSel
+                                ? _green.withValues(alpha: 0.50)
+                                : Colors.white.withValues(alpha: 0.15),
                           ),
                         ),
                         const SizedBox(height: 5),
@@ -324,10 +328,10 @@ class _RushStartScreenState extends State<RushStartScreen> {
                           (_highscores[d] ?? 0) > 0 ? 'PB ${_highscores[d]}' : '—',
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             color: isSel
-                                ? _green.withValues(alpha: 0.90)
-                                : Colors.white.withValues(alpha: 0.20),
+                                ? _green.withValues(alpha: 0.65)
+                                : Colors.white.withValues(alpha: 0.13),
                           ),
                         ),
                       ],
@@ -344,18 +348,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
 
   Widget _buildStatsCard() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
           Expanded(
             child: _StatsCell(label: 'Total Runs', value: '$_totalRuns', green: _green),
           ),
-          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
+          Container(width: 1, height: 24, color: Colors.white.withValues(alpha: 0.06)),
           Expanded(
             child: _StatsCell(label: 'Puzzles Solved', value: '$_totalPuzzles', green: _green),
           ),
@@ -366,20 +370,24 @@ class _RushStartScreenState extends State<RushStartScreen> {
 
   Widget _buildStandardFormatCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RushFormatRow(icon: Icons.skip_next_rounded, text: '1 Skip per run'),
-          SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint per run'),
-          SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.all_inclusive_rounded, text: 'No limits'),
+          _RushFormatRow(icon: Icons.skip_next_rounded, text: '1 Skip per run', small: true),
+          SizedBox(height: 8),
+          _RushFormatRow(
+            icon: Icons.lightbulb_outline_rounded,
+            text: '1 Hint per run',
+            small: true,
+          ),
+          SizedBox(height: 8),
+          _RushFormatRow(icon: Icons.all_inclusive_rounded, text: 'No limits', small: true),
         ],
       ),
     );
@@ -409,7 +417,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
         Row(
           children: [
             Expanded(
-              child: _DailyRunCard(label: 'Run 1', score: state.run1, green: _orange, isRun1: true),
+              child: _DailyRunCard(label: 'Run 1', score: state.run1, green: _cyan, isRun1: true),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -417,7 +425,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
                 label: 'Run 2',
                 score: state.run2,
                 locked: !state.run1Played,
-                green: _orange,
+                green: _cyan,
                 isRun1: false,
               ),
             ),
@@ -452,7 +460,8 @@ class _RushStartScreenState extends State<RushStartScreen> {
           _ActionButton(
             label: _startingDaily ? 'Starting...' : 'Start Daily Run',
             onTap: _startingDaily ? null : _startDailyRun,
-            green: _orange,
+            green: _cyan,
+            primary: false,
           ),
         const SizedBox(height: 24),
       ],
@@ -485,17 +494,17 @@ class _RushStartScreenState extends State<RushStartScreen> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _orange.withValues(alpha: 0.25)),
+        border: Border.all(color: _cyan.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Daily Challenge',
+            'Daily Run',
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
-              color: _orange,
+              color: _cyan,
               letterSpacing: -1.0,
               height: 1.0,
             ),
@@ -525,13 +534,9 @@ class _RushStartScreenState extends State<RushStartScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RushFormatRow(icon: Icons.timer_outlined, text: '2 min per run', color: _orange),
+          _RushFormatRow(icon: Icons.timer_outlined, text: '2 min per run', color: _cyan),
           const SizedBox(height: 10),
-          _RushFormatRow(
-            icon: Icons.emoji_events_rounded,
-            text: 'Best score counts',
-            color: _orange,
-          ),
+          _RushFormatRow(icon: Icons.emoji_events_rounded, text: 'Best score counts', color: _cyan),
           const SizedBox(height: 10),
           const _RushFormatRow(icon: Icons.skip_next_rounded, text: 'No skip', dimmed: true),
         ],
@@ -545,18 +550,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _orange.withValues(alpha: 0.30)),
+        border: Border.all(color: _cyan.withValues(alpha: 0.30)),
       ),
       child: Row(
         children: [
-          Icon(Icons.emoji_events_rounded, size: 20, color: _orange.withValues(alpha: 0.80)),
+          Icon(Icons.emoji_events_rounded, size: 20, color: _cyan.withValues(alpha: 0.80)),
           const SizedBox(width: 10),
           Text(
             'All-time best: $best',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: _orange.withValues(alpha: 0.85),
+              color: _cyan.withValues(alpha: 0.85),
             ),
           ),
         ],
@@ -644,7 +649,13 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final Color green;
-  const _ActionButton({required this.label, required this.onTap, required this.green});
+  final bool primary;
+  const _ActionButton({
+    required this.label,
+    required this.onTap,
+    required this.green,
+    this.primary = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -652,32 +663,41 @@ class _ActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(vertical: 22),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: en
-                ? [green.withValues(alpha: 0.28), green.withValues(alpha: 0.13)]
+                ? [green.withValues(alpha: 0.45), green.withValues(alpha: 0.22)]
                 : [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)],
           ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: en ? green.withValues(alpha: 0.65) : Colors.white.withValues(alpha: 0.10),
-            width: 1.5,
+            color: en
+                ? green.withValues(alpha: primary ? 0.95 : 0.80)
+                : Colors.white.withValues(alpha: 0.10),
+            width: primary ? 2.0 : 1.5,
           ),
           boxShadow: en
-              ? [BoxShadow(color: green.withValues(alpha: 0.22), blurRadius: 20, spreadRadius: 1)]
+              ? [
+                  BoxShadow(
+                    color: green.withValues(alpha: primary ? 0.22 : 0.14),
+                    blurRadius: primary ? 12 : 8,
+                    spreadRadius: 0,
+                  ),
+                ]
               : null,
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w900,
               color: en ? Colors.white : Colors.white30,
-              letterSpacing: -0.2,
+              letterSpacing: -0.3,
+              shadows: en ? [Shadow(color: green.withValues(alpha: 0.35), blurRadius: 8)] : null,
             ),
           ),
         ),
@@ -769,23 +789,40 @@ class _RushFormatRow extends StatelessWidget {
   final String text;
   final bool dimmed;
   final Color? color;
+  final bool small;
 
-  const _RushFormatRow({required this.icon, required this.text, this.dimmed = false, this.color});
+  const _RushFormatRow({
+    required this.icon,
+    required this.text,
+    this.dimmed = false,
+    this.color,
+    this.small = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = dimmed ? AppColors.muted : (color ?? const Color(0xFF00E5A0));
+    final iconColor = dimmed
+        ? Colors.white.withValues(alpha: 0.18)
+        : small
+        ? Colors.white.withValues(alpha: 0.25)
+        : (color ?? const Color(0xFF00E5A0));
+    final textColor = dimmed
+        ? Colors.white.withValues(alpha: 0.18)
+        : small
+        ? Colors.white.withValues(alpha: 0.28)
+        : Colors.white;
+
     return Row(
       children: [
-        Icon(icon, size: 18, color: iconColor),
-        const SizedBox(width: 10),
+        Icon(icon, size: small ? 14 : 18, color: iconColor),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: dimmed ? AppColors.muted : Colors.white,
+              fontSize: small ? 12 : 14,
+              fontWeight: small ? FontWeight.w500 : FontWeight.w600,
+              color: textColor,
             ),
           ),
         ),
@@ -808,15 +845,19 @@ class _StatsCell extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Colors.white.withValues(alpha: 0.35),
+          ),
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.35),
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.20),
           ),
         ),
       ],

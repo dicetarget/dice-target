@@ -13,7 +13,6 @@ class PracticeTopControlsBar extends StatelessWidget {
   final int? dailyPuzzleNumber;
   final int? dailyPuzzleCount;
   final int? dailyMoves;
-  // NEU:
   final bool showMerged;
   final VoidCallback onToggleMerged;
   final int? freePlayMoves;
@@ -47,158 +46,144 @@ class PracticeTopControlsBar extends StatelessWidget {
     return _buildFreePlayBar();
   }
 
-  Widget _buildFreePlayBar() {
+  BoxDecoration get _barDecoration => BoxDecoration(
+    color: _barBg,
+    borderRadius: BorderRadius.circular(AppRadius.button),
+    border: Border.all(color: _barBorder, width: 0.5),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.28),
+        blurRadius: 10,
+        offset: const Offset(0, 5),
+      ),
+    ],
+  );
+
+  // ── Daily Bar: [Puzzle N/5] [Moves] [empty] ───────────────────────────────
+  Widget _buildDailyBar() {
+    final number = dailyPuzzleNumber ?? 1;
+    final total = dailyPuzzleCount ?? 3;
+    final moves = dailyMoves;
+
     return Container(
       constraints: const BoxConstraints(minHeight: 52),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: _barBg,
-        borderRadius: BorderRadius.circular(AppRadius.button),
-        border: Border.all(color: _barBorder, width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.28),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      decoration: _barDecoration,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Links: Merged Toggle
-          GestureDetector(
-            onTap: onToggleMerged,
-            child: Row(
+          // Links: Puzzle Progress
+          SizedBox(
+            width: 80,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  showMerged ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                  size: 16,
-                  color: showMerged ? _neonAccentLt : _textSecondary,
-                ),
-                const SizedBox(width: 4),
                 Text(
-                  'Merged',
+                  'Puzzle',
                   style: AppTextStyles.body.copyWith(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: showMerged ? _neonAccentLt : _textSecondary,
+                    color: _textSecondary,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$number / $total',
+                  style: AppTextStyles.body.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: _textPrimary,
                     height: 1,
                   ),
                 ),
               ],
             ),
           ),
-          // NEU:
-          const Spacer(),
+
           // Mitte: Moves
-          if (freePlayMoves != null)
-            Text(
-              '$freePlayMoves ${freePlayMoves == 1 ? 'Move' : 'Moves'}',
-              style: AppTextStyles.body.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: _neonAccentLt.withValues(alpha: 0.85),
-                height: 1,
-              ),
-            ),
-          const Spacer(),
-          // Rechts: Sound Iconer(),
-          // Rechts: Sound Icon
-          GestureDetector(
-            onTap: onToggleSound,
-            child: Icon(
-              soundOn ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-              size: 20,
-              color: soundOn ? _neonAccentLt : _textSecondary,
+          Expanded(
+            child: Center(
+              child: moves != null
+                  ? Text(
+                      '$moves ${moves == 1 ? 'Move' : 'Moves'}',
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: _neonAccentLt.withValues(alpha: 0.90),
+                        height: 1,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ),
+
+          // Rechts: leer (Sound ist in AppBar)
+          const SizedBox(width: 80),
         ],
       ),
     );
   }
 
-  // ── Daily: [Calendar icon + puzzle N/total] [Sound icon] ──────────────────
-  Widget _buildDailyBar() {
-    final number = dailyPuzzleNumber ?? 1;
-    final total = dailyPuzzleCount ?? 3;
+  // ── Free Play / Training Bar: [Merged] [Moves] [empty] ───────────────────
+  Widget _buildFreePlayBar() {
+    final moves = freePlayMoves;
 
     return Container(
       constraints: const BoxConstraints(minHeight: 52),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: _barBg,
-        borderRadius: BorderRadius.circular(AppRadius.button),
-        border: Border.all(color: _barBorder, width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.28),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      decoration: _barDecoration,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: _neonAccent.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-              border: Border.all(color: _neonAccent.withValues(alpha: 0.30), width: 0.5),
-            ),
-            child: Icon(Icons.calendar_today_rounded, size: 15, color: _neonAccentLt),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Daily Puzzle',
-                style: AppTextStyles.body.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: _textSecondary,
-                  height: 1.1,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '$number / $total',
-                style: AppTextStyles.body.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: _textPrimary,
-                  height: 1,
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          if (dailyMoves != null)
-            Text(
-              '$dailyMoves ${dailyMoves == 1 ? 'Move' : 'Moves'}',
-              style: AppTextStyles.body.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: _neonAccentLt.withValues(alpha: 0.85),
-                height: 1,
-              ),
-            ),
-          const Spacer(),
-          GestureDetector(
-            onTap: onToggleSound,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-              child: Icon(
-                soundOn ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                size: 20,
-                color: soundOn ? _neonAccentLt : _textSecondary,
+          // Links: Merged Toggle
+          SizedBox(
+            width: 80,
+            child: GestureDetector(
+              onTap: onToggleMerged,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    showMerged ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+                    size: 16,
+                    color: showMerged ? _neonAccentLt : _textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Merged',
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: showMerged ? _neonAccentLt : _textSecondary,
+                      height: 1,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
+          // Mitte: Moves
+          Expanded(
+            child: Center(
+              child: moves != null
+                  ? Text(
+                      '$moves ${moves == 1 ? 'Move' : 'Moves'}',
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: _neonAccentLt.withValues(alpha: 0.90),
+                        height: 1,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+
+          // Rechts: leer (Sound ist in AppBar)
+          const SizedBox(width: 80),
         ],
       ),
     );

@@ -115,14 +115,18 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         const Spacer(),
                         _buildTitle(),
                         const SizedBox(height: 52),
-                        // Daily Challenge
-                        _buildDailyButton(),
-                        const SizedBox(height: 14),
-                        // Speed Run — between Daily and Free Play
+
+                        // ── Speed Run — stärkstes Element ──────────────
                         _buildSpeedRunButton(),
                         const SizedBox(height: 14),
-                        // Free Play
+
+                        // ── Daily Challenge — mittlere Stärke ──────────
+                        _buildDailyButton(),
+                        const SizedBox(height: 14),
+
+                        // ── Free Play — schwächstes Element ───────────
                         _buildFreePlayButton(),
+
                         const Spacer(),
                         _buildRulesButton(),
                         const SizedBox(height: 24),
@@ -163,25 +167,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildDailyButton() {
-    return _NeonButton(
-      onPressed: _isOpeningDaily ? null : _openDaily,
-      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
-      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.70),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.18), _cyan.withValues(alpha: 0.08)],
-      ),
-      labelColor: _cyanLt,
-      sublabelColor: _cyan.withValues(alpha: 0.65),
-      isPrimary: true,
-      isLoading: _isOpeningDaily,
-    );
-  }
-
+  // ── Speed Run — stärkster Glow, stärkster Border, größte Schrift ──────────
   Widget _buildSpeedRunButton() {
     return _NeonButton(
       onPressed: () =>
@@ -189,18 +175,45 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       label: 'Speed Run',
       sublabel: '90 seconds · Endless puzzles',
       glowColor: _green,
-      borderColor: _green.withValues(alpha: 0.75),
+      borderColor: _green.withValues(alpha: 0.90),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_green.withValues(alpha: 0.18), _green.withValues(alpha: 0.08)],
+        colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.12)],
       ),
       labelColor: _greenLt,
-      sublabelColor: _green.withValues(alpha: 0.60),
-      isPrimary: false,
+      sublabelColor: _green.withValues(alpha: 0.70),
+      glowAlpha: 0.45,
+      glowBlur: 28,
+      borderWidth: 2.0,
+      labelSize: 28,
     );
   }
 
+  // ── Daily — mittlere Stärke ───────────────────────────────────────────────
+  Widget _buildDailyButton() {
+    return _NeonButton(
+      onPressed: _isOpeningDaily ? null : _openDaily,
+      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
+      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.55),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
+      ),
+      labelColor: _cyanLt,
+      sublabelColor: _cyan.withValues(alpha: 0.50),
+      glowAlpha: 0.18,
+      glowBlur: 14,
+      borderWidth: 1.0,
+      labelSize: 22,
+      isLoading: _isOpeningDaily,
+    );
+  }
+
+  // ── Free Play — schwächstes Element ──────────────────────────────────────
   Widget _buildFreePlayButton() {
     return _NeonButton(
       onPressed: () => Navigator.of(
@@ -209,15 +222,18 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
       glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.85),
+      borderColor: _amber.withValues(alpha: 0.30),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.22), const Color(0xFF8B6914).withValues(alpha: 0.12)],
+        colors: [_amber.withValues(alpha: 0.07), const Color(0xFF8B6914).withValues(alpha: 0.04)],
       ),
-      labelColor: _amberLt,
-      sublabelColor: _amber.withValues(alpha: 0.60),
-      isPrimary: false,
+      labelColor: _amberLt.withValues(alpha: 0.65),
+      sublabelColor: _amber.withValues(alpha: 0.35),
+      glowAlpha: 0.06,
+      glowBlur: 8,
+      borderWidth: 0.5,
+      labelSize: 20,
     );
   }
 
@@ -249,6 +265,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 }
 
+// ── _NeonButton ───────────────────────────────────────────────────────────────
+
 class _NeonButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -258,7 +276,10 @@ class _NeonButton extends StatefulWidget {
   final LinearGradient bgGradient;
   final Color labelColor;
   final Color sublabelColor;
-  final bool isPrimary;
+  final double glowAlpha;
+  final double glowBlur;
+  final double borderWidth;
+  final double labelSize;
   final bool isLoading;
 
   const _NeonButton({
@@ -270,7 +291,10 @@ class _NeonButton extends StatefulWidget {
     required this.bgGradient,
     required this.labelColor,
     required this.sublabelColor,
-    required this.isPrimary,
+    required this.glowAlpha,
+    required this.glowBlur,
+    required this.borderWidth,
+    required this.labelSize,
     this.isLoading = false,
   });
 
@@ -310,14 +334,14 @@ class _NeonButtonState extends State<_NeonButton> {
                     ),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: enabled ? widget.borderColor : Colors.white.withValues(alpha: 0.10),
-                width: widget.isPrimary ? 1.5 : 1.0,
+                color: enabled ? widget.borderColor : Colors.white.withValues(alpha: 0.08),
+                width: widget.borderWidth,
               ),
               boxShadow: enabled
                   ? [
                       BoxShadow(
-                        color: widget.glowColor.withValues(alpha: widget.isPrimary ? 0.28 : 0.18),
-                        blurRadius: widget.isPrimary ? 20 : 14,
+                        color: widget.glowColor.withValues(alpha: widget.glowAlpha),
+                        blurRadius: widget.glowBlur,
                         spreadRadius: 1,
                       ),
                       BoxShadow(
@@ -351,27 +375,24 @@ class _NeonButtonState extends State<_NeonButton> {
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.label,
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: widget.labelColor,
-                              letterSpacing: -0.2,
-                              shadows: enabled
-                                  ? [
-                                      Shadow(
-                                        color: widget.glowColor.withValues(alpha: 0.50),
-                                        blurRadius: 10,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        widget.label,
+                        style: TextStyle(
+                          fontSize: widget.labelSize,
+                          fontWeight: FontWeight.w900,
+                          color: widget.labelColor,
+                          letterSpacing: -0.2,
+                          shadows: enabled
+                              ? [
+                                  Shadow(
+                                    color: widget.glowColor.withValues(
+                                      alpha: widget.glowAlpha * 1.2,
+                                    ),
+                                    blurRadius: 10,
+                                  ),
+                                ]
+                              : null,
+                        ),
                       ),
                       if (widget.sublabel.isNotEmpty) ...[
                         const SizedBox(height: 4),

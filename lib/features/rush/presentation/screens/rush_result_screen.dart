@@ -143,226 +143,178 @@ class _RushResultScreenState extends State<RushResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final delta = (!_isNewPb && widget.previousPb > 0) ? widget.previousPb - widget.score : 0;
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Scaffold(
       backgroundColor: AppColors.bgTop,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 48),
+              const Spacer(flex: 2),
+
+              // ── Score — zentral, dominant ─────────────────────────────────
               Center(
-                child: Text(
-                  "Time's Up",
-                  style: TextStyle(
-                    fontSize: 15,
-                    letterSpacing: 0.4,
-                    color: Colors.white.withValues(alpha: 0.38),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.07),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.cardBr),
-                  ),
-                  child: Text(
-                    '${widget.difficulty.label.toUpperCase()} · 90s',
-                    style: TextStyle(
-                      fontSize: 11,
-                      letterSpacing: 1.4,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white.withValues(alpha: 0.45),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 36),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: _isNewPb ? _green.withValues(alpha: 0.55) : AppColors.cardBr,
-                    width: _isNewPb ? 2.0 : 1.0,
-                  ),
-                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Kleines Label
                     Text(
-                      '${widget.score}',
-                      style: const TextStyle(
-                        fontSize: 88,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -3,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.score == 1 ? 'puzzle solved' : 'puzzles solved',
+                      'Time\'s Up',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white.withValues(alpha: 0.45),
+                        fontSize: 14,
+                        letterSpacing: 0.3,
+                        color: Colors.white.withValues(alpha: 0.35),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    // Score — größtes Element
+                    Text(
+                      '${widget.score}',
+                      style: const TextStyle(
+                        fontSize: 100,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -4,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.score == 1 ? 'puzzle solved' : 'puzzles solved',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white.withValues(alpha: 0.50),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // New PB Badge oder Best-Info
                     if (!_saving) ...[
-                      const SizedBox(height: 16),
                       if (_isNewPb)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                           decoration: BoxDecoration(
                             color: _green.withValues(alpha: 0.13),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: _green.withValues(alpha: 0.45)),
                           ),
                           child: const Text(
                             '🏆  New Record!',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: FontWeight.w800,
                               color: _greenLt,
                             ),
                           ),
                         )
-                      else if (delta > 0)
+                      else
                         Text(
-                          '−$delta from PB',
+                          'Best: $_pb',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.35),
-                          ),
-                        )
-                      else if (widget.previousPb == 0)
-                        Text(
-                          'First run!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.35),
+                            color: Colors.white.withValues(alpha: 0.28),
                           ),
                         ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              if (!_saving)
-                Center(
-                  child: Text(
-                    'Best (${widget.difficulty.label}): $_pb',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.muted,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              if (_solutionComputed && widget.lastPuzzleDice.isNotEmpty)
+
+              const Spacer(flex: 3),
+
+              // ── Last Puzzle Solution — optional, sehr sekundär ────────────
+              if (_solutionComputed && widget.lastPuzzleDice.isNotEmpty) ...[
                 GestureDetector(
                   onTap: _showSolutionDialog,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: _cyan.withValues(alpha: 0.07),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _cyan.withValues(alpha: 0.35), width: 1.0),
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.lightbulb_outline_rounded,
-                          size: 17,
-                          color: _cyan.withValues(alpha: 0.80),
+                          size: 14,
+                          color: Colors.white.withValues(alpha: 0.25),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
-                          'Show Last Puzzle Solution',
+                          'Show last puzzle solution',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: _cyan.withValues(alpha: 0.80),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.25),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              const Spacer(),
+                const SizedBox(height: 16),
+              ],
+
+              // ── Play Again — primärer Button ──────────────────────────────
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 19),
+                  padding: const EdgeInsets.symmetric(vertical: 22),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.13)],
+                      colors: [_green.withValues(alpha: 0.45), _green.withValues(alpha: 0.22)],
                     ),
-                    borderRadius: BorderRadius.circular(17),
-                    border: Border.all(color: _green.withValues(alpha: 0.60), width: 1.5),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: _green.withValues(alpha: 0.90), width: 2.0),
                     boxShadow: [
                       BoxShadow(
-                        color: _green.withValues(alpha: 0.18),
-                        blurRadius: 16,
-                        spreadRadius: 1,
+                        color: _green.withValues(alpha: 0.22),
+                        blurRadius: 12,
+                        spreadRadius: 0,
                       ),
                     ],
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.replay_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Play Again',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
+                  child: const Center(
+                    child: Text(
+                      'Play Again',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
+
+              // ── Main Menu — sekundär ──────────────────────────────────────
               GestureDetector(
                 onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 19),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(17),
-                    border: Border.all(color: AppColors.cardBr),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'Main Menu',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.muted,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.30),
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
             ],
           ),
         ),

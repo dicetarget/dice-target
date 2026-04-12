@@ -85,9 +85,13 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   Duration _remaining = _runDuration;
   Timer? _timer;
 
-  // ── Skip / Hint (1× per puzzle) ───────────────────────────────────────────────
+  // ── Skip / Hint (1× per run) ──────────────────────────────────────────────
   bool _skipUsed = false;
   bool _hintUsed = false;
+
+  // ── Start Hint ────────────────────────────────────────────────────────────
+  bool _showStartHint = true;
+  Timer? _startHintTimer;
 
   // ── Prefetch ──────────────────────────────────────────────────────────────────
   Future<Puzzle>? _prefetchFuture;
@@ -167,6 +171,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer?.cancel();
+    _startHintTimer?.cancel();
     _pulseCtrl.dispose();
     _plusOneCtrl.dispose();
     _celebrateCtrl.dispose();
@@ -224,6 +229,13 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _applyPuzzle(puzzle);
     sfx.rushStart();
     _startPrefetch();
+
+    // Start-Hinweis für 1.5s anzeigen
+    _showStartHint = true;
+    _startHintTimer?.cancel();
+    _startHintTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) setState(() => _showStartHint = false);
+    });
   }
 
   void _startPrefetch() {
@@ -641,6 +653,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 ),
               ),
               _buildPlusOneOverlay(),
+              _buildStartHintOverlay(),
             ],
           ),
         ),
@@ -654,67 +667,108 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'PB: $_pb',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.38),
-                fontWeight: FontWeight.w600,
+        // Score — links, sekundär
+        SizedBox(
+          width: 80,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Score',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.30),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
               ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              'Now: $_score',
-              style: const TextStyle(
-                fontSize: 22,
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
+              Text(
+                '$_score',
+                style: const TextStyle(
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                  height: 1.1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const Spacer(),
-        ScaleTransition(
-          scale: _pulseScale,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: _timerWarning ? const Color(0xFF000508) : Colors.white.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(AppRadius.medium),
-              border: Border.all(
-                color: _timerWarning
-                    ? _timerColor().withValues(alpha: 0.85)
-                    : Colors.white.withValues(alpha: 0.18),
-                width: _timerWarning ? 2.0 : 1.0,
+
+        // Timer — zentriert, Hauptfokus
+        Expanded(
+          child: Center(
+            child: ScaleTransition(
+              scale: _pulseScale,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: _timerWarning
+                      ? const Color(0xFF000508)
+                      : Colors.white.withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  border: Border.all(
+                    color: _timerWarning
+                        ? _timerColor().withValues(alpha: 0.85)
+                        : Colors.white.withValues(alpha: 0.18),
+                    width: _timerWarning ? 2.0 : 1.0,
+                  ),
+                  boxShadow: _timerWarning
+                      ? [
+                          BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
+                          BoxShadow(
+                            color: _timerColor().withValues(alpha: 0.22),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  '${_remaining.inSeconds}s',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    color: _timerColor(),
+                    letterSpacing: -0.5,
+                    shadows: _timerWarning
+                        ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
+                        : null,
+                  ),
+                ),
               ),
-              boxShadow: _timerWarning
-                  ? [
-                      BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
-                      BoxShadow(
-                        color: _timerColor().withValues(alpha: 0.22),
-                        blurRadius: 16,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
             ),
-            child: Text(
-              '${_remaining.inSeconds}s',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
-                color: _timerColor(),
-                letterSpacing: -0.5,
-                shadows: _timerWarning
-                    ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
-                    : null,
+          ),
+        ),
+
+        // PB — rechts, sehr sekundär
+        SizedBox(
+          width: 80,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'PB',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.30),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
               ),
-            ),
+              Text(
+                '$_pb',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
+                  height: 1.1,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -782,6 +836,40 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStartHintOverlay() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          opacity: _showStartHint ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 400),
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 80),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
+              ),
+              child: Text(
+                'Solve as many as you can',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.70),
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

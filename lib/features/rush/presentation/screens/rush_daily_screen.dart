@@ -543,67 +543,108 @@ class _RushDailyScreenState extends State<RushDailyScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Run ${widget.runNumber} of 2',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.38),
-                fontWeight: FontWeight.w600,
+        // Score — links, sekundär
+        SizedBox(
+          width: 80,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Score',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.30),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
               ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              'Score: $_score',
-              style: const TextStyle(
-                fontSize: 22,
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
+              Text(
+                '$_score',
+                style: const TextStyle(
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                  height: 1.1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const Spacer(),
-        ScaleTransition(
-          scale: _pulseScale,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: _timerWarning ? const Color(0xFF000508) : Colors.white.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(AppRadius.medium),
-              border: Border.all(
-                color: _timerWarning
-                    ? _timerColor().withValues(alpha: 0.85)
-                    : Colors.white.withValues(alpha: 0.18),
-                width: _timerWarning ? 2.0 : 1.0,
+
+        // Timer — zentriert, Hauptfokus
+        Expanded(
+          child: Center(
+            child: ScaleTransition(
+              scale: _pulseScale,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: _timerWarning
+                      ? const Color(0xFF000508)
+                      : Colors.white.withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  border: Border.all(
+                    color: _timerWarning
+                        ? _timerColor().withValues(alpha: 0.85)
+                        : Colors.white.withValues(alpha: 0.18),
+                    width: _timerWarning ? 2.0 : 1.0,
+                  ),
+                  boxShadow: _timerWarning
+                      ? [
+                          BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
+                          BoxShadow(
+                            color: _timerColor().withValues(alpha: 0.22),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  _formatRemaining(),
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    color: _timerColor(),
+                    letterSpacing: -0.5,
+                    shadows: _timerWarning
+                        ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
+                        : null,
+                  ),
+                ),
               ),
-              boxShadow: _timerWarning
-                  ? [
-                      BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
-                      BoxShadow(
-                        color: _timerColor().withValues(alpha: 0.22),
-                        blurRadius: 16,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
             ),
-            child: Text(
-              _formatRemaining(),
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: _timerColor(),
-                letterSpacing: -0.5,
-                shadows: _timerWarning
-                    ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
-                    : null,
+          ),
+        ),
+
+        // Run Info — rechts, sehr sekundär
+        SizedBox(
+          width: 80,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Run',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.30),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
               ),
-            ),
+              Text(
+                '${widget.runNumber}/2',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
+                  height: 1.1,
+                ),
+              ),
+            ],
           ),
         ),
       ],
