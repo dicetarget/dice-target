@@ -27,7 +27,6 @@ class DailyScreen extends StatefulWidget {
 
   final DailyController? controllerOverride;
 
-  // ── Dark-Neon palette via AppColors ───────────────────────────────────────
   static const Color _bg = AppColors.bgTop;
   static const Color _cyan = Color(0xFF3FE8FF);
   static const Color _card = AppColors.card;
@@ -49,7 +48,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   bool _isStartingDaily = false;
   bool _ownsController = false;
 
-  // Kollabierbare Puzzle-Karten
   final Set<int> _expandedPuzzles = {};
 
   static const String _dailyStateKey = 'daily_in_progress_state';
@@ -63,22 +61,18 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       controller = widget.controllerOverride!;
     } else {
       final generator = PuzzleGenerator();
-
       final coordinator = PuzzleCoordinator(
         generator: generator,
         mode: GameMode.daily,
         config: DifficultyConfig.easy,
         baseSeed: 0,
       );
-
       final repository = DailyRepository(
         service: DailyService(coordinator: coordinator),
         storage: DailyLocalStorage(),
       );
-
       controller = DailyController(repository: repository);
       _ownsController = true;
-
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         controller.loadToday();
@@ -96,9 +90,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   void dispose() {
     _countdownTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
-    if (_ownsController) {
-      controller.dispose();
-    }
+    if (_ownsController) controller.dispose();
     super.dispose();
   }
 
@@ -180,8 +172,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     puzzleResults.sort((a, b) => a.puzzleIndex.compareTo(b.puzzleIndex));
   }
 
-  // ── Decoration helper ─────────────────────────────────────────────────────
-
   BoxDecoration _cardDecoration({double radius = 20, Color? borderColor}) {
     return BoxDecoration(
       color: DailyScreen._card,
@@ -190,7 +180,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
-  // ── Existing card builders (unchanged) ────────────────────────────────────
+  // ── Sub-widgets ───────────────────────────────────────────────────────────
 
   Widget _buildCompactCountdownRow() {
     return Row(
@@ -321,7 +311,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
   Widget _buildPuzzleResultCard(DailyProgress progress, int puzzleIndex, int totalPuzzles) {
     final result = _resultForPuzzle(progress, puzzleIndex);
-
     final bool isSolved = result?.solved ?? false;
     final bool isGaveUp = result?.gaveUp ?? false;
     final bool isExpanded = _expandedPuzzles.contains(puzzleIndex);
@@ -437,26 +426,23 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ),
               ),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  onTap: () =>
-                      _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
-                  child: Container(
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 1.0),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Train Again',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
+              GestureDetector(
+                onTap: () =>
+                    _handleMainAction(progress, startPuzzleIndex: puzzleIndex, allowReplay: true),
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 1.0),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Train Again',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -486,7 +472,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             : media.width > 700
             ? 680.0
             : double.maxFinite;
-
         final expr = result.fullExpression ?? 'No solution available.';
         final optimalText = result.optimalMoves != null
             ? '${result.optimalMoves} moves'
@@ -644,7 +629,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
         final puzzle = daily.puzzles[puzzleIndex];
         final solverResult = _solverService.check(diceValues: puzzle.dice, target: puzzle.target);
-
         final fullExpression = solverResult.fullExpression;
         final optimalMoves = solverResult.solvable ? solverResult.moveCount : null;
 
@@ -696,9 +680,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             fullExpression: fullExpression,
           );
 
-          if (currentPuzzleIndex < daily.puzzles.length - 1) {
-            sfx.win();
-          }
+          if (currentPuzzleIndex < daily.puzzles.length - 1) sfx.win();
           solvedCount += 1;
           currentPuzzleIndex += 1;
 
@@ -720,7 +702,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             await controller.loadToday();
             return;
           }
-
           continue;
         }
 
@@ -735,7 +716,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     }
   }
 
-  // ── Hub: Daily Puzzle section ─────────────────────────────────────────────
+  // ── Daily Puzzle section — PRIMARY (bottom, larger) ───────────────────────
 
   Widget _buildDailyPuzzleSection(DailyProgress progress, int totalPuzzles) {
     final showResults = progress.isCompleted || progress.gaveUp;
@@ -744,44 +725,43 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24), // larger than Speed (16)
       decoration: BoxDecoration(
         color: AppColors.bgBottom,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: DailyScreen._gold.withValues(alpha: showResults ? 0.45 : 0.28),
-          width: 1.5,
+          color: DailyScreen._gold.withValues(alpha: showResults ? 0.55 : 0.35),
+          width: 2.0, // stronger than Speed (1.5)
         ),
         boxShadow: [
           BoxShadow(
-            color: DailyScreen._gold.withValues(alpha: 0.07),
-            blurRadius: 24,
-            spreadRadius: 2,
+            color: DailyScreen._gold.withValues(alpha: 0.12), // stronger glow
+            blurRadius: 32,
+            spreadRadius: 3,
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Card header ─────────────────────────────────────────────────
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Daily Puzzle',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 22, // larger than Speed (17)
                         fontWeight: FontWeight.w900,
                         color: DailyScreen._gold,
                         letterSpacing: -0.5,
                         height: 1.0,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
                       'Solve in the fewest moves',
                       style: TextStyle(
@@ -809,10 +789,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18), // more breathing room than Speed
 
           if (showResults) ...[
-            // ── Result state ─────────────────────────────────────────────
             _buildRunSummaryCard(progress),
             const SizedBox(height: 12),
             _buildResultsCard(progress, totalPuzzles),
@@ -821,7 +800,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             const SizedBox(height: 14),
             _buildMergedStatsCard(),
           ] else ...[
-            // ── Pre-run state ─────────────────────────────────────────────
             _ProgressSteps(solvedCount: progress.solvedCount, totalPuzzles: totalPuzzles),
             const SizedBox(height: 8),
             Text(
@@ -832,7 +810,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 color: Colors.white.withValues(alpha: 0.35),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Row(
               children: [
                 const Text('🔥', style: TextStyle(fontSize: 15)),
@@ -847,14 +825,14 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // CTA Button
+            const SizedBox(height: 20),
+            // CTA — PRIMARY: tallest button on screen
             GestureDetector(
               onTap: disableButton ? null : () async => _handleMainAction(progress),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 140),
                 width: double.infinity,
-                height: 50,
+                height: 58, // taller than Speed (44)
                 decoration: BoxDecoration(
                   gradient: disableButton
                       ? LinearGradient(
@@ -867,24 +845,24 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            DailyScreen._gold.withValues(alpha: 0.18),
-                            DailyScreen._gold.withValues(alpha: 0.08),
+                            DailyScreen._gold.withValues(alpha: 0.22),
+                            DailyScreen._gold.withValues(alpha: 0.10),
                           ],
                         ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: disableButton
                         ? Colors.white.withValues(alpha: 0.10)
-                        : DailyScreen._gold.withValues(alpha: 0.65),
-                    width: 1.5,
+                        : DailyScreen._gold.withValues(alpha: 0.75),
+                    width: 2.0,
                   ),
                   boxShadow: disableButton
                       ? []
                       : [
                           BoxShadow(
-                            color: DailyScreen._gold.withValues(alpha: 0.22),
-                            blurRadius: 16,
-                            spreadRadius: 1,
+                            color: DailyScreen._gold.withValues(alpha: 0.30),
+                            blurRadius: 24,
+                            spreadRadius: 2,
                           ),
                         ],
                 ),
@@ -892,15 +870,15 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   child: Text(
                     _actionLabel(progress),
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 17, // larger than Speed (14)
+                      fontWeight: FontWeight.w900,
                       color: disableButton ? DailyScreen._muted : DailyScreen._gold,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Text(
               '5 puzzles  ·  Use all dice  ·  Fewer moves = better rating  ·  1 hint allowed',
               style: TextStyle(
@@ -963,11 +941,11 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Primary card: Daily Puzzle ──────────────────────────
-                  _buildDailyPuzzleSection(progress, daily.puzzles.length),
-                  const SizedBox(height: 16),
-                  // ── Secondary card: Daily Speed ─────────────────────────
+                  // Speed: compact, quick entry — TOP
                   const _DailySpeedCard(),
+                  const SizedBox(height: 16),
+                  // Puzzle: primary, main feature — BOTTOM
+                  _buildDailyPuzzleSection(progress, daily.puzzles.length),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -979,7 +957,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   }
 }
 
-// ── Existing widget helpers (unchanged) ───────────────────────────────────────
+// ── Widget helpers ────────────────────────────────────────────────────────────
 
 class _SummaryCell extends StatelessWidget {
   final String label;
@@ -1109,7 +1087,7 @@ class _ProgressSteps extends StatelessWidget {
   }
 }
 
-// ── Daily Speed Card (new) ────────────────────────────────────────────────────
+// ── Daily Speed Card — SECONDARY (top, compact) ───────────────────────────────
 
 class _DailySpeedCard extends StatefulWidget {
   const _DailySpeedCard();
@@ -1119,8 +1097,8 @@ class _DailySpeedCard extends StatefulWidget {
 }
 
 class _DailySpeedCardState extends State<_DailySpeedCard> {
-  static const Color _green = Color(0xFF4CAF82); // AppColors.solved
-  static const Color _muted = Color(0xFF4A5568); // AppColors.muted
+  static const Color _green = Color(0xFF4CAF82);
+  static const Color _muted = Color(0xFF4A5568);
 
   final RushDailyStorage _storage = RushDailyStorage();
   RushDailyState? _state;
@@ -1150,26 +1128,32 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16), // compact (Puzzle = 24)
       decoration: BoxDecoration(
         color: AppColors.bgBottom,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: _green.withValues(alpha: 0.22), width: 1.5),
+        border: Border.all(
+          color: _green.withValues(alpha: 0.22),
+          width: 1.5, // thinner than Puzzle (2.0)
+        ),
         boxShadow: [
-          BoxShadow(color: _green.withValues(alpha: 0.05), blurRadius: 20, spreadRadius: 1),
+          BoxShadow(
+            color: _green.withValues(alpha: 0.05), // lighter glow
+            blurRadius: 14,
+            spreadRadius: 1,
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Card header ───────────────────────────────────────────────
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Daily Speed',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 17, // smaller than Puzzle (22)
                   fontWeight: FontWeight.w900,
                   color: _green,
                   letterSpacing: -0.5,
@@ -1179,11 +1163,11 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
               SizedBox(height: 3),
               Text(
                 '2 runs · Best score counts',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: _muted),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: _muted),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12), // tighter than Puzzle (18)
 
           if (state == null) ...[
             const SizedBox(
@@ -1197,7 +1181,6 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
               ),
             ),
           ] else ...[
-            // ── Run scores row ────────────────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -1209,7 +1192,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                     muted: _muted,
                   ),
                 ),
-                Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08)),
+                Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
                 Expanded(
                   child: _SpeedRunCell(
                     label: 'Run 2',
@@ -1219,7 +1202,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                     muted: _muted,
                   ),
                 ),
-                Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08)),
+                Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
                 Expanded(
                   child: _SpeedRunCell(
                     label: 'Best',
@@ -1232,9 +1215,8 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // ── CTA Button ────────────────────────────────────────────
+            const SizedBox(height: 12), // tighter than Puzzle (20)
+            // CTA — normal prominence
             GestureDetector(
               onTap: _ctaDisabled(state)
                   ? null
@@ -1254,7 +1236,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 140),
                 width: double.infinity,
-                height: 50,
+                height: 44, // shorter than Puzzle (58)
                 decoration: BoxDecoration(
                   gradient: _ctaDisabled(state)
                       ? LinearGradient(
@@ -1266,22 +1248,22 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                       : LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [_green.withValues(alpha: 0.18), _green.withValues(alpha: 0.08)],
+                          colors: [_green.withValues(alpha: 0.15), _green.withValues(alpha: 0.07)],
                         ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: _ctaDisabled(state)
                         ? Colors.white.withValues(alpha: 0.10)
-                        : _green.withValues(alpha: 0.55),
+                        : _green.withValues(alpha: 0.45),
                     width: 1.5,
                   ),
                   boxShadow: _ctaDisabled(state)
                       ? []
                       : [
                           BoxShadow(
-                            color: _green.withValues(alpha: 0.18),
-                            blurRadius: 16,
-                            spreadRadius: 1,
+                            color: _green.withValues(alpha: 0.12),
+                            blurRadius: 12,
+                            spreadRadius: 0,
                           ),
                         ],
                 ),
@@ -1289,17 +1271,15 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                   child: Text(
                     _ctaLabel(state),
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 14, // smaller than Puzzle (17)
+                      fontWeight: FontWeight.w700,
                       color: _ctaDisabled(state) ? _muted : _green,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-
-            // ── Rules ─────────────────────────────────────────────────
+            const SizedBox(height: 10),
             Text(
               '2 min per run  ·  Same puzzles  ·  No skip  ·  No hint',
               style: TextStyle(
@@ -1341,7 +1321,7 @@ class _SpeedRunCell extends StatelessWidget {
         Text(
           score,
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w900,
             color: isHighlight
                 ? Colors.white

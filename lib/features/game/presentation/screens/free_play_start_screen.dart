@@ -14,8 +14,8 @@ class FreePlayStartScreen extends StatefulWidget {
 }
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
-  static const Color _amber = Color(0xFFD4AC0D);
-  static const Color _amberLt = Color(0xFFFFF0A0);
+  // Neutral slate-blue — no color-meaning conflict with Daily (gold) or Speed Run (green)
+  static const Color _neutral = Color(0xFF6B8BAF);
 
   _Tab _tab = _Tab.free;
   PracticeDifficulty _selectedDifficulty = PracticeDifficulty.easy;
@@ -89,13 +89,13 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           _TabBtn(
             label: 'Free',
             active: _tab == _Tab.free,
-            amber: _amber,
+            neutral: _neutral,
             onTap: () => setState(() => _tab = _Tab.free),
           ),
           _TabBtn(
             label: 'Training',
             active: _tab == _Tab.training,
-            amber: _amber,
+            neutral: _neutral,
             onTap: () => setState(() => _tab = _Tab.training),
           ),
         ],
@@ -120,11 +120,14 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildFormatCard([
-                  _FreeFormatRow(icon: Icons.all_inclusive_rounded, text: 'Unlimited puzzles'),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(
+                  const _FreeFormatRow(
+                    icon: Icons.all_inclusive_rounded,
+                    text: 'Unlimited puzzles',
+                  ),
+                  const SizedBox(height: 10),
+                  const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+                  const SizedBox(height: 10),
+                  const _FreeFormatRow(
                     icon: Icons.lightbulb_outline_rounded,
                     text: 'Show Solution available',
                   ),
@@ -134,7 +137,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        _ActionButton(label: 'Start Free Play', onTap: _startFree, amber: _amber),
+        _ActionButton(label: 'Start Free Play', onTap: _startFree, neutral: _neutral),
         const SizedBox(height: 24),
       ],
     );
@@ -159,14 +162,14 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 _buildDifficultyCard(),
                 const SizedBox(height: 12),
                 _buildFormatCard([
-                  _FreeFormatRow(
+                  const _FreeFormatRow(
                     icon: Icons.tune_rounded,
                     text: 'Focused target range per difficulty',
                   ),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
-                  SizedBox(height: 10),
-                  _FreeFormatRow(
+                  const SizedBox(height: 10),
+                  const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+                  const SizedBox(height: 10),
+                  const _FreeFormatRow(
                     icon: Icons.lightbulb_outline_rounded,
                     text: 'Show Solution available',
                   ),
@@ -176,7 +179,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        _ActionButton(label: 'Start Training', onTap: _startTraining, amber: _amber),
+        _ActionButton(label: 'Start Training', onTap: _startTraining, neutral: _neutral),
         const SizedBox(height: 24),
       ],
     );
@@ -191,7 +194,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _amber.withValues(alpha: 0.25)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)), // neutral, no glow
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +204,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w900,
-              color: _amber,
+              color: Colors.white, // white, not amber
               letterSpacing: -1.0,
               height: 1.0,
             ),
@@ -263,12 +266,12 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
                       color: isSel
-                          ? _amber.withValues(alpha: 0.15)
+                          ? _neutral.withValues(alpha: 0.15)
                           : Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSel
-                            ? _amber.withValues(alpha: 0.65)
+                            ? _neutral.withValues(alpha: 0.55)
                             : Colors.white.withValues(alpha: 0.10),
                         width: isSel ? 1.5 : 1.0,
                       ),
@@ -280,7 +283,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: isSel ? _amberLt : Colors.white38,
+                            color: isSel ? Colors.white : Colors.white38,
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -289,7 +292,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: isSel ? _amber.withValues(alpha: 0.65) : Colors.white24,
+                            color: isSel ? _neutral.withValues(alpha: 0.75) : Colors.white24,
                           ),
                         ),
                       ],
@@ -322,12 +325,12 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
 class _TabBtn extends StatelessWidget {
   final String label;
   final bool active;
-  final Color amber;
+  final Color neutral;
   final VoidCallback onTap;
   const _TabBtn({
     required this.label,
     required this.active,
-    required this.amber,
+    required this.neutral,
     required this.onTap,
   });
 
@@ -340,9 +343,11 @@ class _TabBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? amber.withValues(alpha: 0.18) : Colors.transparent,
+            color: active ? neutral.withValues(alpha: 0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: active ? amber.withValues(alpha: 0.55) : Colors.transparent),
+            border: Border.all(
+              color: active ? neutral.withValues(alpha: 0.40) : Colors.transparent,
+            ),
           ),
           child: Center(
             child: Text(
@@ -363,8 +368,8 @@ class _TabBtn extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
-  final Color amber;
-  const _ActionButton({required this.label, required this.onTap, required this.amber});
+  final Color neutral;
+  const _ActionButton({required this.label, required this.onTap, required this.neutral});
 
   @override
   Widget build(BuildContext context) {
@@ -378,16 +383,17 @@ class _ActionButton extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: en
-                ? [amber.withValues(alpha: 0.28), amber.withValues(alpha: 0.13)]
+                ? [neutral.withValues(alpha: 0.18), neutral.withValues(alpha: 0.08)]
                 : [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)],
           ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: en ? amber.withValues(alpha: 0.65) : Colors.white.withValues(alpha: 0.10),
+            color: en ? neutral.withValues(alpha: 0.45) : Colors.white.withValues(alpha: 0.10),
             width: 1.5,
           ),
+          // No strong glow — desaturated
           boxShadow: en
-              ? [BoxShadow(color: amber.withValues(alpha: 0.22), blurRadius: 20, spreadRadius: 1)]
+              ? [BoxShadow(color: neutral.withValues(alpha: 0.10), blurRadius: 12, spreadRadius: 0)]
               : null,
         ),
         child: Center(
@@ -416,7 +422,7 @@ class _FreeFormatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFFD4AC0D)),
+        Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.30)), // neutral icon
         const SizedBox(width: 10),
         Expanded(
           child: Text(
