@@ -1077,8 +1077,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                                 _buildStreakCard(controller.dailyStreak),
                                 const SizedBox(height: 12),
                                 _buildProgressCard(progress, daily.puzzles.length),
-                                const SizedBox(height: 12),
-                                _buildFormatCard(progress),
                               ],
                             ),
                           ),

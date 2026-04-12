@@ -33,35 +33,16 @@ class PracticeSmallActionsRow extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                 color: enabled
-                    ? _undoActive.withValues(alpha: 0.14)
-                    : Colors.white.withValues(alpha: 0.04),
+                    ? _undoActive.withValues(alpha: 0.07)
+                    : Colors.white.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
                 border: Border.all(
                   color: enabled
-                      ? _undoActive.withValues(alpha: 0.70)
-                      : Colors.white.withValues(alpha: 0.12),
+                      ? _undoActive.withValues(alpha: 0.28)
+                      : Colors.white.withValues(alpha: 0.08),
+                  width: 0.5,
                 ),
-                boxShadow: enabled
-                    ? [
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          blurRadius: 14,
-                          spreadRadius: 1,
-                          offset: Offset.zero,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.22),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.10),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                // Kein boxShadow — Undo ist sekundäre Aktion
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -72,12 +53,10 @@ class PracticeSmallActionsRow extends StatelessWidget {
                     'Undo',
                     style: AppTextStyles.body.copyWith(
                       fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: color,
                       height: 1,
-                      shadows: enabled
-                          ? [Shadow(color: _undoActive.withValues(alpha: 0.50), blurRadius: 8)]
-                          : null,
+                      // Kein Shadow
                     ),
                   ),
                 ],

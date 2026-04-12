@@ -1598,18 +1598,11 @@ class _PracticeScreenState extends State<PracticeScreen>
             borderRadius: BorderRadius.circular(AppRadius.button),
             border: Border.all(
               color: _canUseHint
-                  ? const Color(0xFFD4AC0D).withValues(alpha: 0.75)
-                  : Colors.white.withValues(alpha: 0.08),
-              width: _canUseHint ? 1.0 : 0.5,
+                  ? const Color(0xFFD4AC0D).withValues(alpha: 0.35)
+                  : Colors.white.withValues(alpha: 0.06),
+              width: 0.5,
             ),
-            boxShadow: _canUseHint
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFFFFD93D).withValues(alpha: 0.28),
-                      blurRadius: 14,
-                    ),
-                  ]
-                : [],
+            boxShadow: [],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1627,14 +1620,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                   fontWeight: FontWeight.w800,
                   color: _canUseHint ? const Color(0xFFFFF0A0) : AppColors.muted,
                   height: 1,
-                  shadows: _canUseHint
-                      ? [
-                          Shadow(
-                            color: const Color(0xFFFFD93D).withValues(alpha: 0.40),
-                            blurRadius: 8,
-                          ),
-                        ]
-                      : null,
+                  shadows: null,
                 ),
               ),
             ],
@@ -1650,7 +1636,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     final Color activeColor = isReplay
         ? AppColors.ink.withValues(alpha: 0.55)
-        : const Color(0xFFE57373).withValues(alpha: 0.80);
+        : const Color(0xFFE57373).withValues(alpha: 0.45);
     final Color textColor = canAct ? activeColor : AppColors.muted;
 
     return Padding(
@@ -1675,8 +1661,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                 color: isReplay
                     ? Colors.white.withValues(alpha: 0.08)
                     : (_canGiveUpDaily
-                          ? const Color(0xFFE57373).withValues(alpha: 0.25)
-                          : Colors.white.withValues(alpha: 0.06)),
+                          ? const Color(0xFFE57373).withValues(alpha: 0.10)
+                          : Colors.white.withValues(alpha: 0.04)),
                 width: 0.5,
               ),
             ),
