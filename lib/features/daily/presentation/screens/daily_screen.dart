@@ -7,6 +7,8 @@ import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/features/rush/data/rush_daily_storage.dart';
+import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +30,6 @@ class DailyScreen extends StatefulWidget {
   // ── Dark-Neon palette via AppColors ───────────────────────────────────────
   static const Color _bg = AppColors.bgTop;
   static const Color _cyan = Color(0xFF3FE8FF);
-  static const Color _cyanLt = Color(0xFFE0FEFF);
   static const Color _card = AppColors.card;
   static const Color _border = AppColors.cardBr;
   static const Color _solved = AppColors.solved;
@@ -51,7 +52,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   // Kollabierbare Puzzle-Karten
   final Set<int> _expandedPuzzles = {};
 
-  static final DateTime _dailyNumberEpoch = DateTime(2026, 3, 17);
   static const String _dailyStateKey = 'daily_in_progress_state';
 
   @override
@@ -114,18 +114,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
-  int _dailyNumberForToday() {
-    final today = DateTime.now();
-    final normalizedToday = DateTime(today.year, today.month, today.day);
-    final normalizedEpoch = DateTime(
-      _dailyNumberEpoch.year,
-      _dailyNumberEpoch.month,
-      _dailyNumberEpoch.day,
-    );
-    final diff = normalizedToday.difference(normalizedEpoch).inDays;
-    return diff < 0 ? 1 : diff + 1;
-  }
 
   void _updateCountdown() {
     final now = DateTime.now();
@@ -192,7 +180,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     puzzleResults.sort((a, b) => a.puzzleIndex.compareTo(b.puzzleIndex));
   }
 
-  // ── Decorations helper ────────────────────────────────────────────────────
+  // ── Decoration helper ─────────────────────────────────────────────────────
 
   BoxDecoration _cardDecoration({double radius = 20, Color? borderColor}) {
     return BoxDecoration(
@@ -202,177 +190,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
-  // ── Cards: pre-run screen ─────────────────────────────────────────────────
+  // ── Existing card builders (unchanged) ────────────────────────────────────
 
-  Widget _buildStreakCard(int streak) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: _cardDecoration(),
-      child: Row(
-        children: [
-          const Text('🔥', style: TextStyle(fontSize: 22)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Daily Streak: $streak',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCountdownCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: _cardDecoration(),
-      child: Row(
-        children: [
-          Icon(Icons.schedule_rounded, size: 22, color: DailyScreen._cyan),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Next Daily in ${_formatCountdown(_timeUntilNextDaily)}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLifetimeStatsCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: _cardDecoration(),
-      child: Row(
-        children: [
-          Expanded(
-            child: _InfoItem(label: 'Total Runs', value: '${controller.lifetimeTotalRuns}'),
-          ),
-          Expanded(
-            child: _InfoItem(
-              label: 'Best Rating',
-              value: _starsLabel(controller.lifetimeBestRating),
-            ),
-          ),
-          Expanded(
-            child: _InfoItem(
-              label: 'Puzzles Solved',
-              value: '${controller.lifetimeTotalPuzzlesSolved}',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyHeroCard(int dailyNumber) {
-    final now = DateTime.now();
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    final dateText =
-        '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]} ${now.year}';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: DailyScreen._card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: DailyScreen._gold.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Daily',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-              color: DailyScreen._gold,
-              letterSpacing: -1.0,
-              height: 1.0,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            dateText,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.40),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressCard(DailyProgress progress, int totalPuzzles) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: _cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _InfoItem(label: 'Progress', value: '${progress.solvedCount} / $totalPuzzles puzzles'),
-          const SizedBox(height: 14),
-          _ProgressSteps(solvedCount: progress.solvedCount, totalPuzzles: totalPuzzles),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormatCard(DailyProgress progress) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: _cardDecoration(),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _FormatRow(icon: Icons.extension_rounded, text: '5 puzzles — reach the target'),
-          SizedBox(height: 10),
-          _FormatRow(icon: Icons.merge_type_rounded, text: 'Combine multiple dice in one move'),
-          SizedBox(height: 10),
-          _FormatRow(icon: Icons.star_rounded, text: 'Fewer moves = better rating'),
-          SizedBox(height: 10),
-          _FormatRow(icon: Icons.lightbulb_outline_rounded, text: '1 Hint (reduces max rating)'),
-        ],
-      ),
-    );
-  }
-
-  // ── Cards: result screen ──────────────────────────────────────────────────
-
-  /// Kompakte Countdown-Zeile ohne eigene Card — direkt unter Result Hero
   Widget _buildCompactCountdownRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -391,7 +210,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
-  /// Merged Stats-Card: Streak + Total Runs + Best Rating + Puzzles Solved
   Widget _buildMergedStatsCard() {
     return Container(
       width: double.infinity,
@@ -399,7 +217,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       decoration: _cardDecoration(),
       child: Row(
         children: [
-          // Streak
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -441,71 +258,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
           Expanded(
             child: _StatCell(label: 'Solved', value: '${controller.lifetimeTotalPuzzlesSolved}'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultHero(DailyProgress progress) {
-    final isCompleted = progress.isCompleted;
-    final runStars = controller.runStars();
-
-    final title = isCompleted ? (runStars == 3 ? 'Perfect Run' : 'Daily Complete') : 'Daily Ended';
-
-    final quality = switch (runStars) {
-      3 => 'Perfect! Every puzzle solved in the fewest moves.',
-      2 => 'Well done — solved without hints.',
-      1 => 'Completed with a hint. Try without next time!',
-      _ => 'Keep at it — the next run is yours.',
-    };
-
-    final starRow = Row(
-      children: List.generate(3, (i) {
-        final filled = i < runStars;
-        return Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(
-            filled ? '★' : '☆',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w900,
-              color: filled ? DailyScreen._gold : DailyScreen._muted,
-            ),
-          ),
-        );
-      }),
-    );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(
-        borderColor: runStars == 3
-            ? DailyScreen._gold.withValues(alpha: 0.45)
-            : DailyScreen._border,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: DailyScreen._gold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          starRow,
-          const SizedBox(height: 10),
-          Text(
-            quality,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: DailyScreen._muted,
-            ),
           ),
         ],
       ),
@@ -630,7 +382,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header row — immer sichtbar ──────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -659,14 +410,12 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ],
               ],
             ),
-
-            // ── Expandierter Inhalt ──────────────────────────────────────
             if (isExpanded && hasDetails) ...[
               const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
-                    child: _MiniInfoItem(label: 'Moves', value: '${result!.moves}'),
+                    child: _MiniInfoItem(label: 'Moves', value: '${result.moves}'),
                   ),
                   Expanded(
                     child: _MiniInfoItem(label: 'Time', value: _formatDuration(result.elapsed)),
@@ -852,7 +601,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
-  // ── Main action ───────────────────────────────────────────────────────────
+  // ── Main action (unchanged) ───────────────────────────────────────────────
 
   Future<void> _handleMainAction(
     DailyProgress progress, {
@@ -875,6 +624,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final puzzleResults = List<DailyPuzzleResult>.from(progress.puzzleResults)
       ..sort((a, b) => a.puzzleIndex.compareTo(b.puzzleIndex));
 
+    final navigator = Navigator.of(context);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_dailyStateKey);
 
@@ -898,7 +648,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         final fullExpression = solverResult.fullExpression;
         final optimalMoves = solverResult.solvable ? solverResult.moveCount : null;
 
-        final result = await Navigator.of(context).push<DailyPuzzlePlayResult>(
+        final result = await navigator.push<DailyPuzzlePlayResult>(
           MaterialPageRoute(
             builder: (_) => PracticeScreen(
               initialPuzzle: puzzle,
@@ -985,12 +735,191 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     }
   }
 
+  // ── Hub: Daily Puzzle section ─────────────────────────────────────────────
+
+  Widget _buildDailyPuzzleSection(DailyProgress progress, int totalPuzzles) {
+    final showResults = progress.isCompleted || progress.gaveUp;
+    final disableButton = progress.isCompleted || progress.gaveUp || _isStartingDaily;
+    final runStars = controller.runStars();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.bgBottom,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: DailyScreen._gold.withValues(alpha: showResults ? 0.45 : 0.28),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: DailyScreen._gold.withValues(alpha: 0.07),
+            blurRadius: 24,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Card header ─────────────────────────────────────────────────
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Daily Puzzle',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: DailyScreen._gold,
+                        letterSpacing: -0.5,
+                        height: 1.0,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Solve in the fewest moves',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: DailyScreen._muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (showResults)
+                Row(
+                  children: List.generate(3, (i) {
+                    final filled = i < runStars;
+                    return Text(
+                      filled ? '★' : '☆',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: filled ? DailyScreen._gold : DailyScreen._muted,
+                      ),
+                    );
+                  }),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          if (showResults) ...[
+            // ── Result state ─────────────────────────────────────────────
+            _buildRunSummaryCard(progress),
+            const SizedBox(height: 12),
+            _buildResultsCard(progress, totalPuzzles),
+            const SizedBox(height: 14),
+            _buildCompactCountdownRow(),
+            const SizedBox(height: 14),
+            _buildMergedStatsCard(),
+          ] else ...[
+            // ── Pre-run state ─────────────────────────────────────────────
+            _ProgressSteps(solvedCount: progress.solvedCount, totalPuzzles: totalPuzzles),
+            const SizedBox(height: 8),
+            Text(
+              '${progress.solvedCount} of $totalPuzzles puzzles solved',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.35),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 15)),
+                const SizedBox(width: 6),
+                Text(
+                  '${controller.dailyStreak} day streak',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // CTA Button
+            GestureDetector(
+              onTap: disableButton ? null : () async => _handleMainAction(progress),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: disableButton
+                      ? LinearGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.04),
+                            Colors.white.withValues(alpha: 0.02),
+                          ],
+                        )
+                      : LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            DailyScreen._gold.withValues(alpha: 0.18),
+                            DailyScreen._gold.withValues(alpha: 0.08),
+                          ],
+                        ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: disableButton
+                        ? Colors.white.withValues(alpha: 0.10)
+                        : DailyScreen._gold.withValues(alpha: 0.65),
+                    width: 1.5,
+                  ),
+                  boxShadow: disableButton
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: DailyScreen._gold.withValues(alpha: 0.22),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                ),
+                child: Center(
+                  child: Text(
+                    _actionLabel(progress),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: disableButton ? DailyScreen._muted : DailyScreen._gold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '5 puzzles  ·  Use all dice  ·  Fewer moves = better rating  ·  1 hint allowed',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.22),
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final dailyNumber = _dailyNumberForToday();
-
     return Scaffold(
       backgroundColor: DailyScreen._bg,
       appBar: AppBar(
@@ -999,7 +928,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         surfaceTintColor: Colors.transparent,
         foregroundColor: Colors.white,
         title: const Text(
-          'Daily',
+          'Daily Challenge',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -1028,126 +957,20 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             );
           }
 
-          final showResults = progress.isCompleted || progress.gaveUp;
-          final disableButton = progress.isCompleted || progress.gaveUp || _isStartingDaily;
-
           return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: showResults
-                  // ── Result Screen ──────────────────────────────────────
-                  ? SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 1. Result Hero
-                          _buildResultHero(progress),
-                          const SizedBox(height: 10),
-
-                          // 2. Countdown — kompakt, zentriert
-                          _buildCompactCountdownRow(),
-                          const SizedBox(height: 16),
-
-                          // 3. Run Summary
-                          _buildRunSummaryCard(progress),
-                          const SizedBox(height: 16),
-
-                          // 4. Results (kollabierbar)
-                          _buildResultsCard(progress, daily.puzzles.length),
-                          const SizedBox(height: 12),
-
-                          // 5. Stats — merged (Streak + Lifetime)
-                          _buildMergedStatsCard(),
-                          const SizedBox(height: 12),
-                        ],
-                      ),
-                    )
-                  // ── Pre-Run Screen ─────────────────────────────────────
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildDailyHeroCard(dailyNumber),
-                                const SizedBox(height: 12),
-                                _buildStreakCard(controller.dailyStreak),
-                                const SizedBox(height: 12),
-                                _buildProgressCard(progress, daily.puzzles.length),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: disableButton ? null : () async => _handleMainAction(progress),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 140),
-                            width: double.infinity,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              gradient: disableButton
-                                  ? LinearGradient(
-                                      colors: [
-                                        Colors.white.withValues(alpha: 0.04),
-                                        Colors.white.withValues(alpha: 0.02),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        DailyScreen._cyan.withValues(alpha: 0.12),
-                                        DailyScreen._cyan.withValues(alpha: 0.05),
-                                      ],
-                                    ),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: disableButton
-                                    ? Colors.white.withValues(alpha: 0.10)
-                                    : DailyScreen._cyan.withValues(alpha: 0.70),
-                                width: 1.5,
-                              ),
-                              boxShadow: disableButton
-                                  ? []
-                                  : [
-                                      BoxShadow(
-                                        color: DailyScreen._cyan.withValues(alpha: 0.30),
-                                        blurRadius: 20,
-                                        spreadRadius: 1,
-                                      ),
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.35),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 6),
-                                      ),
-                                    ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                _actionLabel(progress),
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  color: disableButton ? DailyScreen._muted : DailyScreen._cyanLt,
-                                  shadows: disableButton
-                                      ? null
-                                      : [
-                                          Shadow(
-                                            color: DailyScreen._cyan.withValues(alpha: 0.50),
-                                            blurRadius: 10,
-                                          ),
-                                        ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Primary card: Daily Puzzle ──────────────────────────
+                  _buildDailyPuzzleSection(progress, daily.puzzles.length),
+                  const SizedBox(height: 16),
+                  // ── Secondary card: Daily Speed ─────────────────────────
+                  const _DailySpeedCard(),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           );
         },
@@ -1156,7 +979,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   }
 }
 
-// ── Widget helpers ────────────────────────────────────────────────────────────
+// ── Existing widget helpers (unchanged) ───────────────────────────────────────
 
 class _SummaryCell extends StatelessWidget {
   final String label;
@@ -1186,35 +1009,6 @@ class _SummaryCell extends StatelessWidget {
             fontWeight: FontWeight.w800,
             color: valueColor ?? Colors.white,
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoItem({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: DailyScreen._muted,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
         ),
       ],
     );
@@ -1315,22 +1109,254 @@ class _ProgressSteps extends StatelessWidget {
   }
 }
 
-class _FormatRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
+// ── Daily Speed Card (new) ────────────────────────────────────────────────────
 
-  const _FormatRow({required this.icon, required this.text});
+class _DailySpeedCard extends StatefulWidget {
+  const _DailySpeedCard();
+
+  @override
+  State<_DailySpeedCard> createState() => _DailySpeedCardState();
+}
+
+class _DailySpeedCardState extends State<_DailySpeedCard> {
+  static const Color _green = Color(0xFF4CAF82); // AppColors.solved
+  static const Color _muted = Color(0xFF4A5568); // AppColors.muted
+
+  final RushDailyStorage _storage = RushDailyStorage();
+  RushDailyState? _state;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final state = await _storage.load();
+    if (mounted) setState(() => _state = state);
+  }
+
+  String _ctaLabel(RushDailyState state) {
+    if (state.isCompleted) return 'Completed';
+    if (state.canStartRun2) return 'Start Run 2';
+    return 'Start Run 1';
+  }
+
+  bool _ctaDisabled(RushDailyState state) => state.isCompleted;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final state = _state;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.bgBottom,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _green.withValues(alpha: 0.22), width: 1.5),
+        boxShadow: [
+          BoxShadow(color: _green.withValues(alpha: 0.05), blurRadius: 20, spreadRadius: 1),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Card header ───────────────────────────────────────────────
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Daily Speed',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: _green,
+                  letterSpacing: -0.5,
+                  height: 1.0,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                '2 runs · Best score counts',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: _muted),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          if (state == null) ...[
+            const SizedBox(
+              height: 36,
+              child: Center(
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _green),
+                ),
+              ),
+            ),
+          ] else ...[
+            // ── Run scores row ────────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: _SpeedRunCell(
+                    label: 'Run 1',
+                    score: state.run1Played ? '${state.run1}' : '—',
+                    done: state.run1Played,
+                    green: _green,
+                    muted: _muted,
+                  ),
+                ),
+                Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08)),
+                Expanded(
+                  child: _SpeedRunCell(
+                    label: 'Run 2',
+                    score: state.run2Played ? '${state.run2}' : '—',
+                    done: state.run2Played,
+                    green: _green,
+                    muted: _muted,
+                  ),
+                ),
+                Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08)),
+                Expanded(
+                  child: _SpeedRunCell(
+                    label: 'Best',
+                    score: state.bestRunScore >= 0 ? '${state.bestRunScore}' : '—',
+                    done: false,
+                    green: _green,
+                    muted: _muted,
+                    isHighlight: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // ── CTA Button ────────────────────────────────────────────
+            GestureDetector(
+              onTap: _ctaDisabled(state)
+                  ? null
+                  : () async {
+                      final navigator = Navigator.of(context);
+                      final runNumber = state.canStartRun2 ? 2 : 1;
+                      final run1Score = state.canStartRun2 ? state.run1 : -1;
+                      await navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              RushDailyScreen(runNumber: runNumber, run1Score: run1Score),
+                        ),
+                      );
+                      if (!mounted) return;
+                      await _load();
+                    },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: _ctaDisabled(state)
+                      ? LinearGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.04),
+                            Colors.white.withValues(alpha: 0.02),
+                          ],
+                        )
+                      : LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [_green.withValues(alpha: 0.18), _green.withValues(alpha: 0.08)],
+                        ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _ctaDisabled(state)
+                        ? Colors.white.withValues(alpha: 0.10)
+                        : _green.withValues(alpha: 0.55),
+                    width: 1.5,
+                  ),
+                  boxShadow: _ctaDisabled(state)
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: _green.withValues(alpha: 0.18),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                ),
+                child: Center(
+                  child: Text(
+                    _ctaLabel(state),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: _ctaDisabled(state) ? _muted : _green,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Rules ─────────────────────────────────────────────────
+            Text(
+              '2 min per run  ·  Same puzzles  ·  No skip  ·  No hint',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.22),
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SpeedRunCell extends StatelessWidget {
+  final String label;
+  final String score;
+  final bool done;
+  final Color green;
+  final Color muted;
+  final bool isHighlight;
+
+  const _SpeedRunCell({
+    required this.label,
+    required this.score,
+    required this.done,
+    required this.green,
+    required this.muted,
+    this.isHighlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 18, color: DailyScreen._gold),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+        Text(
+          score,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            color: isHighlight
+                ? Colors.white
+                : done
+                ? green
+                : Colors.white.withValues(alpha: 0.25),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.30),
           ),
         ),
       ],

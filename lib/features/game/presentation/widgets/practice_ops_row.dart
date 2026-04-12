@@ -120,7 +120,6 @@ class _PremiumOpButtonState extends State<_PremiumOpButton> {
         ? (isSelected ? style.activeSymbol : Colors.white.withValues(alpha: 0.96))
         : Colors.white.withValues(alpha: 0.40);
 
-    // ── ANGEPASST: stärkerer scale + deutlicherer selected state ──
     final double scale = isPressed ? 0.84 : (isSelected ? 1.12 : 1.0);
     final double yOffset = isPressed ? 10 : 0;
 
@@ -169,13 +168,12 @@ class _PremiumOpButtonState extends State<_PremiumOpButton> {
                     border: Border.all(
                       color: enabled
                           ? (isSelected
-                                ? style.glow.withValues(alpha: 0.90)
+                                ? style.glow.withValues(alpha: 0.65)
                                 : (isPressed
                                       ? style.glow.withValues(alpha: 0.48)
                                       : Colors.white.withValues(alpha: 0.16)))
                           : Colors.white.withValues(alpha: 0.10),
-                      // ── ANGEPASST: dickere Border wenn selected ──
-                      width: isSelected ? 2.5 : (isPressed ? 1.4 : 1.0),
+                      width: isSelected ? 1.8 : (isPressed ? 1.4 : 1.0),
                     ),
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -338,18 +336,17 @@ class _PremiumOpButtonState extends State<_PremiumOpButton> {
     }
 
     if (isSelected) {
-      // ── ANGEPASST: deutlich stärkerer Glow ──
       return [
         BoxShadow(
-          color: style.glow.withValues(alpha: 0.90 + (_pulse * 0.10)),
+          color: style.glow.withValues(alpha: 0.50 + (_pulse * 0.08)),
           blurRadius: 0,
-          spreadRadius: 3.5,
+          spreadRadius: 1.5,
           offset: const Offset(0, 0),
         ),
         BoxShadow(
-          color: style.glow.withValues(alpha: 0.75 + (_pulse * 0.20)),
-          blurRadius: 28,
-          spreadRadius: 4,
+          color: style.glow.withValues(alpha: 0.30 + (_pulse * 0.12)),
+          blurRadius: 18,
+          spreadRadius: 2,
           offset: const Offset(0, 0),
         ),
         BoxShadow(

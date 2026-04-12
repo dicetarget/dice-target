@@ -1,14 +1,10 @@
 // lib/features/rush/presentation/screens/rush_start_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/features/rush/data/rush_daily_storage.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
-import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
-
-enum _Tab { standard, daily }
 
 class RushStartScreen extends StatefulWidget {
   const RushStartScreen({super.key});
@@ -19,12 +15,7 @@ class RushStartScreen extends StatefulWidget {
 
 class _RushStartScreenState extends State<RushStartScreen> {
   static const Color _green = Color(0xFF00E5A0);
-  static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _cyan = Color(0xFF3FE8FF);
 
-  _Tab _tab = _Tab.standard;
-
-  // Standard
   RushDifficulty _selected = RushDifficulty.easy;
   final Map<RushDifficulty, int> _highscores = {};
   final RushHighscoreStorage _storage = RushHighscoreStorage();
@@ -32,17 +23,10 @@ class _RushStartScreenState extends State<RushStartScreen> {
   int _totalRuns = 0;
   int _totalPuzzles = 0;
 
-  // Daily
-  final RushDailyStorage _dailyStorage = RushDailyStorage();
-  RushDailyState? _dailyState;
-  bool _loadingDaily = false;
-  bool _startingDaily = false;
-
   @override
   void initState() {
     super.initState();
     _loadHighscores();
-    _loadDailyState();
     _loadStats();
   }
 
@@ -68,7 +52,8 @@ class _RushStartScreenState extends State<RushStartScreen> {
     setState(() => _starting = true);
     try {
       if (!mounted) return;
-      await Navigator.of(context).push(
+      final navigator = Navigator.of(context);
+      await navigator.push(
         MaterialPageRoute(
           builder: (_) =>
               RushScreen(difficulty: _selected, personalBest: _highscores[_selected] ?? 0),
@@ -77,40 +62,6 @@ class _RushStartScreenState extends State<RushStartScreen> {
       await _loadHighscores();
     } finally {
       if (mounted) setState(() => _starting = false);
-    }
-  }
-
-  Future<void> _loadDailyState() async {
-    setState(() => _loadingDaily = true);
-    final state = await _dailyStorage.load();
-    if (mounted) {
-      setState(() {
-        _dailyState = state;
-        _loadingDaily = false;
-      });
-    }
-  }
-
-  Future<void> _startDailyRun() async {
-    if (_startingDaily) return;
-    final state = _dailyState;
-    if (state == null || state.isCompleted) return;
-
-    setState(() => _startingDaily = true);
-    try {
-      if (!mounted) return;
-      if (state.canStartRun1) {
-        await Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const RushDailyScreen(runNumber: 1)));
-      } else if (state.canStartRun2) {
-        await Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => RushDailyScreen(runNumber: 2, run1Score: state.run1)),
-        );
-      }
-      await _loadDailyState();
-    } finally {
-      if (mounted) setState(() => _startingDaily = false);
     }
   }
 
@@ -143,50 +94,13 @@ class _RushStartScreenState extends State<RushStartScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              _buildTabSwitcher(),
-              const SizedBox(height: 20),
-              Expanded(
-                child: _tab == _Tab.standard ? _buildStandardContent() : _buildDailyContent(),
-              ),
+              Expanded(child: _buildStandardContent()),
             ],
           ),
         ),
       ),
     );
   }
-
-  Widget _buildTabSwitcher() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          _TabBtn(
-            label: 'Standard',
-            active: _tab == _Tab.standard,
-            activeColor: _green,
-            onTap: () => setState(() => _tab = _Tab.standard),
-          ),
-          _TabBtn(
-            label: 'Daily',
-            active: _tab == _Tab.daily,
-            activeColor: _cyan,
-            showDot: _dailyState != null && !_dailyState!.isCompleted,
-            onTap: () {
-              setState(() => _tab = _Tab.daily);
-              _loadDailyState();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Standard ───────────────────────────────────────────────────────────────
 
   Widget _buildStandardContent() {
     return Column(
@@ -392,270 +306,15 @@ class _RushStartScreenState extends State<RushStartScreen> {
       ),
     );
   }
-
-  // ── Daily ──────────────────────────────────────────────────────────────────
-
-  Widget _buildDailyContent() {
-    if (_loadingDaily) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white30, strokeWidth: 2));
-    }
-    final state = _dailyState;
-    if (state == null) {
-      return Center(
-        child: Text(
-          'Could not load daily.',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.35)),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildDailyHeroCard(),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _DailyRunCard(label: 'Run 1', score: state.run1, green: _cyan, isRun1: true),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _DailyRunCard(
-                label: 'Run 2',
-                score: state.run2,
-                locked: !state.run1Played,
-                green: _cyan,
-                isRun1: false,
-              ),
-            ),
-          ],
-        ),
-        if (state.allTimeBest > 0) ...[
-          const SizedBox(height: 12),
-          _buildAllTimeBestCard(state.allTimeBest),
-        ],
-        const SizedBox(height: 12),
-        _buildDailyFormatCard(),
-        const Spacer(),
-        if (state.isCompleted)
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(17),
-              border: Border.all(color: AppColors.cardBr),
-            ),
-            child: Center(
-              child: Text(
-                'Completed today ✓',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.35),
-                ),
-              ),
-            ),
-          )
-        else
-          _ActionButton(
-            label: _startingDaily ? 'Starting...' : 'Start Daily Run',
-            onTap: _startingDaily ? null : _startDailyRun,
-            green: _cyan,
-            primary: false,
-          ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-
-  Widget _buildDailyHeroCard() {
-    final now = DateTime.now();
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    final dateText =
-        '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]} ${now.year}';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _cyan.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Daily Run',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-              color: _cyan,
-              letterSpacing: -1.0,
-              height: 1.0,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '2 runs • Same puzzles • Best score counts',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.40),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyFormatCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _RushFormatRow(icon: Icons.timer_outlined, text: '2 min per run', color: _cyan),
-          const SizedBox(height: 10),
-          _RushFormatRow(icon: Icons.emoji_events_rounded, text: 'Best score counts', color: _cyan),
-          const SizedBox(height: 10),
-          const _RushFormatRow(icon: Icons.skip_next_rounded, text: 'No skip', dimmed: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAllTimeBestCard(int best) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _cyan.withValues(alpha: 0.30)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.emoji_events_rounded, size: 20, color: _cyan.withValues(alpha: 0.80)),
-          const SizedBox(width: 10),
-          Text(
-            'All-time best: $best',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: _cyan.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-
-class _TabBtn extends StatelessWidget {
-  final String label;
-  final bool active;
-  final Color activeColor;
-  final VoidCallback onTap;
-  final bool showDot;
-  const _TabBtn({
-    required this.label,
-    required this.active,
-    required this.activeColor,
-    required this.onTap,
-    this.showDot = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: active ? activeColor.withValues(alpha: 0.18) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: active
-                  ? activeColor.withValues(alpha: 0.55)
-                  : showDot
-                  ? activeColor.withValues(alpha: 0.30)
-                  : Colors.transparent,
-            ),
-            boxShadow: active
-                ? [BoxShadow(color: activeColor.withValues(alpha: 0.15), blurRadius: 8)]
-                : null,
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Center(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: active ? Colors.white : Colors.white38,
-                  ),
-                ),
-              ),
-              if (showDot)
-                Positioned(
-                  top: -3,
-                  right: 12,
-                  child: Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: activeColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: activeColor.withValues(alpha: 0.70), blurRadius: 6),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final Color green;
-  final bool primary;
-  const _ActionButton({
-    required this.label,
-    required this.onTap,
-    required this.green,
-    this.primary = true,
-  });
+  const _ActionButton({required this.label, required this.onTap, required this.green});
 
   @override
   Widget build(BuildContext context) {
@@ -674,19 +333,11 @@ class _ActionButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: en
-                ? green.withValues(alpha: primary ? 0.95 : 0.80)
-                : Colors.white.withValues(alpha: 0.10),
-            width: primary ? 2.0 : 1.5,
+            color: en ? green.withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.10),
+            width: 2.0,
           ),
           boxShadow: en
-              ? [
-                  BoxShadow(
-                    color: green.withValues(alpha: primary ? 0.22 : 0.14),
-                    blurRadius: primary ? 12 : 8,
-                    spreadRadius: 0,
-                  ),
-                ]
+              ? [BoxShadow(color: green.withValues(alpha: 0.22), blurRadius: 12, spreadRadius: 0)]
               : null,
         ),
         child: Center(
@@ -706,111 +357,17 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-class _DailyRunCard extends StatelessWidget {
-  final String label;
-  final int score;
-  final bool locked;
-  final Color green;
-  final bool isRun1;
-  const _DailyRunCard({
-    required this.label,
-    required this.score,
-    this.locked = false,
-    required this.green,
-    required this.isRun1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final played = score >= 0;
-    final highlight = isRun1 && !locked;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: highlight
-              ? green.withValues(alpha: 0.55)
-              : played
-              ? green.withValues(alpha: 0.25)
-              : AppColors.cardBr,
-          width: highlight ? 1.5 : 1.0,
-        ),
-        boxShadow: highlight
-            ? [BoxShadow(color: green.withValues(alpha: 0.12), blurRadius: 10, spreadRadius: 1)]
-            : null,
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 0.6,
-              color: highlight
-                  ? green.withValues(alpha: 0.80)
-                  : Colors.white.withValues(alpha: 0.40),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          if (locked)
-            Icon(Icons.lock_outline_rounded, color: Colors.white.withValues(alpha: 0.20), size: 22)
-          else if (played)
-            Text(
-              '$score',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w900,
-                color: highlight ? Colors.white : Colors.white.withValues(alpha: 0.55),
-                letterSpacing: -1,
-                height: 1.0,
-              ),
-            )
-          else
-            Text(
-              '—',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: Colors.white.withValues(alpha: 0.25),
-                height: 1.0,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 class _RushFormatRow extends StatelessWidget {
   final IconData icon;
   final String text;
-  final bool dimmed;
-  final Color? color;
   final bool small;
 
-  const _RushFormatRow({
-    required this.icon,
-    required this.text,
-    this.dimmed = false,
-    this.color,
-    this.small = false,
-  });
+  const _RushFormatRow({required this.icon, required this.text, this.small = false});
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = dimmed
-        ? Colors.white.withValues(alpha: 0.18)
-        : small
-        ? Colors.white.withValues(alpha: 0.25)
-        : (color ?? const Color(0xFF00E5A0));
-    final textColor = dimmed
-        ? Colors.white.withValues(alpha: 0.18)
-        : small
-        ? Colors.white.withValues(alpha: 0.28)
-        : Colors.white;
+    final iconColor = small ? Colors.white.withValues(alpha: 0.25) : const Color(0xFF00E5A0);
+    final textColor = small ? Colors.white.withValues(alpha: 0.28) : Colors.white;
 
     return Row(
       children: [
