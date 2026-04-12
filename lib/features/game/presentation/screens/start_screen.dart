@@ -190,23 +190,26 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  // ── Daily — mittlere Stärke ───────────────────────────────────────────────
+  // ── Daily — calmer, secondary to Speed Run ────────────────────────────────
   Widget _buildDailyButton() {
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
       sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
       glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.55),
+      borderColor: _cyan.withValues(alpha: 0.38), // reduced from 0.55
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
+        colors: [
+          _cyan.withValues(alpha: 0.08), // reduced from 0.12
+          _cyan.withValues(alpha: 0.03), // reduced from 0.05
+        ],
       ),
       labelColor: _cyanLt,
-      sublabelColor: _cyan.withValues(alpha: 0.50),
-      glowAlpha: 0.18,
-      glowBlur: 14,
+      sublabelColor: _cyan.withValues(alpha: 0.40), // reduced from 0.50
+      glowAlpha: 0.10, // reduced from 0.18
+      glowBlur: 10, // reduced from 14
       borderWidth: 1.0,
       labelSize: 22,
       isLoading: _isOpeningDaily,

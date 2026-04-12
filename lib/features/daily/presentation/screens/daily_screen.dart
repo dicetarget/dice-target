@@ -725,7 +725,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24), // larger than Speed (16)
+      padding: const EdgeInsets.all(28), // larger than Speed (16)
       decoration: BoxDecoration(
         color: AppColors.bgBottom,
         borderRadius: BorderRadius.circular(24),
@@ -754,7 +754,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                     Text(
                       'Daily Puzzle',
                       style: TextStyle(
-                        fontSize: 22, // larger than Speed (17)
+                        fontSize: 24, // larger than Speed (16)
                         fontWeight: FontWeight.w900,
                         color: DailyScreen._gold,
                         letterSpacing: -0.5,
@@ -832,7 +832,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 140),
                 width: double.infinity,
-                height: 58, // taller than Speed (44)
+                height: 64, // taller than Speed (40)
                 decoration: BoxDecoration(
                   gradient: disableButton
                       ? LinearGradient(
@@ -860,8 +860,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       ? []
                       : [
                           BoxShadow(
-                            color: DailyScreen._gold.withValues(alpha: 0.30),
-                            blurRadius: 24,
+                            color: DailyScreen._gold.withValues(alpha: 0.38),
+                            blurRadius: 30,
                             spreadRadius: 2,
                           ),
                         ],
@@ -1153,7 +1153,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
               Text(
                 'Daily Speed',
                 style: TextStyle(
-                  fontSize: 17, // smaller than Puzzle (22)
+                  fontSize: 16, // smaller than Puzzle (24)
                   fontWeight: FontWeight.w900,
                   color: _green,
                   letterSpacing: -0.5,
@@ -1236,7 +1236,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 140),
                 width: double.infinity,
-                height: 44, // shorter than Puzzle (58)
+                height: 40, // shorter than Puzzle (64)
                 decoration: BoxDecoration(
                   gradient: _ctaDisabled(state)
                       ? LinearGradient(
@@ -1261,8 +1261,8 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                       ? []
                       : [
                           BoxShadow(
-                            color: _green.withValues(alpha: 0.12),
-                            blurRadius: 12,
+                            color: _green.withValues(alpha: 0.07),
+                            blurRadius: 8,
                             spreadRadius: 0,
                           ),
                         ],
