@@ -3,689 +3,732 @@
 import 'dart:async';
 
 import 'package:dice/core/audio/sfx_singleton.dart';
-import 'package:dice/core/difficulty_config.dart';
-import 'package:dice/core/game_rules.dart';
-import 'package:dice/core/puzzle/game_mode.dart';
-import 'package:dice/core/puzzle/puzzle_coordinator.dart';
-import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/core/theme/app_radius.dart';
-import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
-import 'package:dice/features/game/logic/move_application_service.dart';
-import 'package:dice/features/game/logic/round_evaluator.dart';
-import 'package:dice/features/game/models/dice_state.dart';
-import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
-import 'package:dice/features/game/presentation/widgets/practice_game_area.dart';
-import 'package:dice/features/game/presentation/widgets/target_display_widget.dart';
-import 'package:dice/features/rush/data/rush_daily_storage.dart';
-import 'package:dice/features/rush/presentation/screens/rush_daily_between_screen.dart';
-import 'package:dice/features/rush/presentation/screens/rush_daily_result_screen.dart';
+import 'package:dice/features/rush/domain/rush_state.dart';
+import 'package:dice/features/rush/presentation/controllers/rush_controller.dart';
 import 'package:flutter/material.dart';
 
 class RushDailyScreen extends StatefulWidget {
+  /// 1 = erster Run des Tages, 2 = zweiter Run.
   final int runNumber;
+
+  /// Score aus Run 1 (nur relevant wenn runNumber == 2, sonst -1).
   final int run1Score;
 
-  const RushDailyScreen({super.key, required this.runNumber, this.run1Score = -1});
+  const RushDailyScreen({super.key, required this.runNumber, required this.run1Score});
 
   @override
   State<RushDailyScreen> createState() => _RushDailyScreenState();
 }
 
-enum _RunPhase { running, ended }
+class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderStateMixin {
+  static const Color _green = Color(0xFF4CAF82);
+  static const Color _muted = Color(0xFF4A5568);
 
-class _RushDailyScreenState extends State<RushDailyScreen>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
-  static const Duration _runDuration = Duration(seconds: 120);
-  static const int _maxUndo = 4;
-  static const int _targetMin = 15;
-  static const int _targetMax = 55;
+  late final RushController _controller;
+  StreamSubscription<RushEvent>? _eventSub;
 
-  static const Color _ink = AppColors.ink;
-  static const Color _card = AppColors.card;
-  static const Color _accent = AppColors.accent;
-  static const Color _timerAmber = Color(0xFFFF9F00);
-  static const Color _timerRed = AppColors.failed;
+  late final AnimationController _shakeCtrl;
+  late final Animation<double> _shakeAnim;
 
-  // ── Services ──────────────────────────────────────────────────────────────────
-  final GameRules _gameRules = GameRules();
-  final RoundEvaluator _roundEvaluator = const RoundEvaluator();
-  final MoveApplicationService _moveService = const MoveApplicationService();
-  final RushDailyStorage _storage = RushDailyStorage();
-  late final PuzzleCoordinator _coordinator;
-
-  // ── Run state ─────────────────────────────────────────────────────────────────
-  _RunPhase _phase = _RunPhase.running;
-  List<DiceState> _dice = [];
-  List<int> _originalDice = [];
-  int _target = 0;
-  int _score = 0;
-  Duration _remaining = _runDuration;
-  Timer? _timer;
-  bool _scoreSaved = false;
-
-  // ── Interaction ───────────────────────────────────────────────────────────────
-  final Set<int> _selected = {};
-  UiOp? _pendingOp;
-  final List<_UndoSnapshot> _undoStack = [];
-  int _moves = 0;
-  int _mergePopKey = 0;
-
-  // ── Notifiers ─────────────────────────────────────────────────────────────────
-  final ValueNotifier<List<int>> _rollingDiceNotifier = ValueNotifier([]);
-  final ValueNotifier<int> _rollingTargetNotifier = ValueNotifier(0);
-
-  // ── Animations ────────────────────────────────────────────────────────────────
-  late final AnimationController _pulseCtrl;
-  late final Animation<double> _pulseScale;
-  bool _pulseStarted = false;
-  bool _warningSoundPlayed = false;
-
-  late final AnimationController _plusOneCtrl;
-  late final Animation<double> _plusOneOpacity;
-  late final Animation<double> _plusOneOffset;
-
-  late final AnimationController _celebrateCtrl;
-  late final Animation<double> _celebrateT;
-
-  bool get _isPlaying => _phase == _RunPhase.running;
+  late final AnimationController _flashCtrl;
+  late final Animation<double> _flashOpacity;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
 
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
-    _pulseScale = Tween<double>(
-      begin: 1.0,
-      end: 1.07,
-    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
-
-    _plusOneCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
-    _plusOneOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 60),
-    ]).animate(_plusOneCtrl);
-    _plusOneOffset = Tween<double>(
-      begin: 0.0,
-      end: -52.0,
-    ).animate(CurvedAnimation(parent: _plusOneCtrl, curve: Curves.easeOut));
-
-    _celebrateCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _celebrateT = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)),
-        weight: 55,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeInCubic)),
-        weight: 45,
-      ),
-    ]).animate(_celebrateCtrl);
-
-    _coordinator = PuzzleCoordinator(
-      generator: PuzzleGenerator(),
-      mode: GameMode.rush,
-      config: DifficultyConfig.easy,
-      baseSeed: RushDailyStorage.dailySeed(),
+    _controller = RushController(
+      isDailyMode: true,
+      dailyRunNumber: widget.runNumber,
+      runDuration: RushController.dailyDuration,
+      forcedTargetMin: 15,
+      forcedTargetMax: 55,
     );
 
-    _loadPuzzle(first: true);
-    _startTimer();
+    _shakeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
+    _shakeAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -10.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: -8.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -8.0, end: 8.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8.0, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeCtrl, curve: Curves.easeOut));
+
+    _flashCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _flashOpacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 0.35).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.35, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 75,
+      ),
+    ]).animate(_flashCtrl);
+
+    _eventSub = _controller.events.listen(_handleEvent);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.startRun();
+    });
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _timer?.cancel();
-    _pulseCtrl.dispose();
-    _plusOneCtrl.dispose();
-    _celebrateCtrl.dispose();
-    _rollingDiceNotifier.dispose();
-    _rollingTargetNotifier.dispose();
+    _eventSub?.cancel();
+    _shakeCtrl.dispose();
+    _flashCtrl.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  // ── App lifecycle — save score on background ──────────────────────────────────
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused && _phase == _RunPhase.running) {
-      _saveCurrentScore();
-    }
-  }
-
-  Future<void> _saveCurrentScore() async {
-    if (_scoreSaved) return;
-    _scoreSaved = true;
-    _timer?.cancel();
-    if (widget.runNumber == 1) {
-      await _storage.saveRun1(_score);
-    } else {
-      await _storage.saveRun2(_score);
-    }
-  }
-
-  // ── Timer ─────────────────────────────────────────────────────────────────────
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) return;
-      setState(() {
-        _remaining -= const Duration(seconds: 1);
-        if (_remaining.inSeconds <= 20 && !_warningSoundPlayed) {
-          _warningSoundPlayed = true;
-          sfx.rushWarning();
-        }
-        if (_remaining.inSeconds <= 10 && !_pulseStarted) {
-          _pulseStarted = true;
-          _pulseCtrl.repeat(reverse: true);
-        }
-        if (_remaining <= Duration.zero) {
-          _remaining = Duration.zero;
-          _timer?.cancel();
-          _endRun();
-        }
-      });
-    });
-  }
-
-  // ── Puzzle ────────────────────────────────────────────────────────────────────
-
-  void _loadPuzzle({bool first = false}) {
-    final puzzle = first
-        ? _coordinator.startNewRun(targetMin: _targetMin, targetMax: _targetMax)
-        : _coordinator.nextPuzzle(targetMin: _targetMin, targetMax: _targetMax);
-
-    if (first) sfx.rushStart();
-
-    _target = puzzle.target;
-    _originalDice = List<int>.from(puzzle.dice);
-    _dice = puzzle.dice.map((v) => DiceState(value: v)).toList();
-    _undoStack.clear();
-    _selected.clear();
-    _pendingOp = null;
-    _moves = 0;
-    _mergePopKey = 0;
-    _rollingTargetNotifier.value = _target;
-    _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
-    _gameRules.reset();
-    _gameRules.start(_target);
-  }
-
-  // ── Moves ─────────────────────────────────────────────────────────────────────
-
-  void _handleToggleSelect(int index) {
-    if (!_isPlaying) return;
-    if (index < 0 || index >= _dice.length) return;
-    setState(() {
-      if (_selected.contains(index)) {
-        if (_selected.length == 1) _pendingOp = null;
-        _selected.remove(index);
-      } else {
-        _selected.add(index);
-      }
-    });
-    if (_pendingOp != null && _selected.length >= 2) {
-      final op = _pendingOp!;
-      setState(() => _pendingOp = null);
-      _applyMove(op);
-    }
-  }
-
-  void _handleApplyOp(UiOp op) {
-    if (!_isPlaying) return;
-    if (_pendingOp == op) {
-      setState(() => _pendingOp = null);
-      return;
-    }
-    if (_selected.length < 2) {
-      setState(() => _pendingOp = op);
-      return;
-    }
-    setState(() => _pendingOp = null);
-    _applyMove(op);
-  }
-
-  void _applyMove(UiOp op) {
-    final result = _moveService.buildMove(
-      diceValues: _dice.map((d) => d.value).toList(),
-      selectedIndices: _selected.toList(),
-      op: op,
-      gameMode: GameMode.rush,
-    );
-    if (result == null) {
-      sfx.invalid();
-      return;
-    }
-
-    if (_undoStack.length >= _maxUndo) _undoStack.removeAt(0);
-    _undoStack.add(_UndoSnapshot(dice: List.from(_dice), moves: _moves));
-
-    final newValues = _moveService.applyToDiceValues(
-      diceValues: _dice.map((d) => d.value).toList(),
-      removeIndicesDesc: result.removeIndicesDesc,
-      mergedValue: result.mergedValue,
-    );
-    _gameRules.registerMove();
-    _moves++;
-
-    setState(() {
-      _dice = newValues.map((v) => DiceState(value: v)).toList();
-      _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
-      _selected.clear();
-      _pendingOp = null;
-      _mergePopKey++;
-    });
-
-    if (!result.willEndAfterMove) sfx.valid();
-    if (result.willEndAfterMove) _checkSolve();
-  }
-
-  void _checkSolve() {
-    if (_dice.isEmpty) return;
-    final gs = _roundEvaluator.evaluate(
-      target: _target,
-      finalValue: _dice.last.value,
-      rules: _gameRules,
-    );
-    if (gs == GameState.solved) {
-      _onSolve();
-    } else if (gs == GameState.notSolved) {
-      _resetCurrentPuzzle();
-    }
-  }
-
-  void _resetCurrentPuzzle() {
-    sfx.invalid();
-    setState(() {
-      _dice = _originalDice.map((v) => DiceState(value: v)).toList();
-      _rollingDiceNotifier.value = List<int>.from(_originalDice);
-      _undoStack.clear();
-      _selected.clear();
-      _pendingOp = null;
-      _moves = 0;
-    });
-    _gameRules.reset();
-    _gameRules.start(_target);
-  }
-
-  void _onSolve() {
-    setState(() => _score++);
-    sfx.win();
-    _celebrateCtrl.forward(from: 0);
-    _plusOneCtrl.forward(from: 0);
-    Future.delayed(const Duration(milliseconds: 520), () {
-      if (!mounted || _phase == _RunPhase.ended) return;
-      setState(() => _loadPuzzle());
-    });
-  }
-
-  void _undo() {
-    if (!_isPlaying || _undoStack.isEmpty) return;
-    final snapshot = _undoStack.removeLast();
-    _gameRules.moves = snapshot.moves;
-    _moves = snapshot.moves;
-    setState(() {
-      _dice = List.from(snapshot.dice);
-      _rollingDiceNotifier.value = _dice.map((d) => d.value).toList();
-      _selected.clear();
-      _pendingOp = null;
-    });
-    sfx.click();
-  }
-
-  // ── End run ───────────────────────────────────────────────────────────────────
-
-  void _endRun() async {
-    if (_phase == _RunPhase.ended) return;
-    _pulseCtrl.stop();
-    setState(() => _phase = _RunPhase.ended);
-
-    if (!_scoreSaved) {
-      _scoreSaved = true;
-      if (widget.runNumber == 1) {
-        await _storage.saveRun1(_score);
-      } else {
-        await _storage.saveRun2(_score);
-      }
-    }
-
-    sfx.dailyComplete();
+  void _handleEvent(RushEvent event) {
     if (!mounted) return;
-
-    final lastTarget = _target;
-    final lastDice = _originalDice.toList();
-
-    if (widget.runNumber == 1) {
-      final int savedScore = _score;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (ctx) => RushDailyBetweenScreen(
-            run1Score: savedScore,
-            lastPuzzleTarget: lastTarget,
-            lastPuzzleDice: lastDice,
-            onStartRun2: () => Navigator.of(ctx).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => RushDailyScreen(runNumber: 2, run1Score: savedScore),
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      final state = await _storage.load();
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => RushDailyResultScreen(
-            run1Score: widget.run1Score,
-            run2Score: _score,
-            allTimeBest: state.allTimeBest,
-            lastPuzzleTarget: lastTarget,
-            lastPuzzleDice: lastDice,
-          ),
-        ),
-      );
+    switch (event) {
+      case RushEventShake():
+        _shakeCtrl.forward(from: 0);
+      case RushEventSolveFlash():
+        _flashCtrl.forward(from: 0);
+      case RushEventFinished():
+        _navigateToResult();
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────────
-
-  Color _timerColor() {
-    final s = _remaining.inSeconds;
-    if (s <= 10) return _timerRed;
-    if (s <= 20) return _timerAmber;
-    return Colors.white;
-  }
-
-  bool get _timerWarning => _remaining.inSeconds <= 20;
-
-  String _formatRemaining() {
-    final m = _remaining.inMinutes;
-    final s = _remaining.inSeconds % 60;
-    if (m > 0) return '${m}m ${s.toString().padLeft(2, '0')}s';
-    return '${s}s';
-  }
-
-  // ── Build ─────────────────────────────────────────────────────────────────────
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    final canUndo = _undoStack.isNotEmpty && _isPlaying;
-
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop && _phase == _RunPhase.running) {
-          await _saveCurrentScore();
-        }
-      },
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        backgroundColor: const Color(0xFF020408),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          surfaceTintColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            onPressed: () async {
-              if (_phase == _RunPhase.running) await _saveCurrentScore();
-              if (mounted) Navigator.of(context).pop();
-            },
-            enableFeedback: false,
-            color: _ink.withValues(alpha: 0.70),
-          ),
-          title: Text(
-            'Daily Run ${widget.runNumber}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 17,
-              letterSpacing: -0.2,
-            ),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(
-                sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                size: 20,
-              ),
-              color: _ink.withValues(alpha: 0.60),
-              enableFeedback: false,
-              onPressed: () async {
-                await sfx.toggle();
-                if (mounted) setState(() {});
-              },
-            ),
-          ],
-        ),
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-              stops: [0.0, 0.5, 1.0],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: SafeArea(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: AppSpacing.lg,
-                    right: AppSpacing.lg,
-                    top: AppSpacing.sm,
-                    bottom: bottomInset,
-                  ),
-                  child: Column(
-                    children: [
-                      _buildStatusRow(),
-                      const SizedBox(height: AppSpacing.md),
-                      TargetDisplayWidget(
-                        isPreStart: false,
-                        isRolling: false,
-                        target: _target,
-                        cardColor: _card,
-                        accentColor: _accent,
-                        inkColor: _ink,
-                        rollingTargetListenable: _rollingTargetNotifier,
-                        celebrateAnimation: _celebrateT,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Expanded(
-                        child: PracticeGameArea(
-                          showDice: true,
-                          isRolling: false,
-                          isPlaying: _isPlaying,
-                          busy: false,
-                          showMergedResults: true,
-                          mergePopKey: _mergePopKey,
-                          selectedIndices: _selected,
-                          accentColor: _accent,
-                          inkColor: _ink,
-                          shakeAnimation: const AlwaysStoppedAnimation(0.0),
-                          rollingDiceListenable: _rollingDiceNotifier,
-                          rollingTargetLocked: false,
-                          dice: _dice
-                              .map((d) => PracticeDieData(value: d.value, maskLabel: d.maskLabel))
-                              .toList(),
-                          canInteractGameplay: _isPlaying,
-                          allowedOps: DifficultyConfig.easy.allowedOps,
-                          pendingOp: _pendingOp,
-                          undoEnabled: canUndo,
-                          onToggleSelect: _handleToggleSelect,
-                          onApplyOp: _handleApplyOp,
-                          onUndo: _undo,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
-                    ],
-                  ),
-                ),
-                _buildPlusOneOverlay(),
-              ],
-            ),
-          ),
+  void _navigateToResult() {
+    if (!mounted) return;
+    final state = _controller.state;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => _RushDailyResultScreen(
+          runNumber: widget.runNumber,
+          score: state.score,
+          run1Score: widget.run1Score,
         ),
       ),
     );
   }
 
-  // ── Widgets ───────────────────────────────────────────────────────────────────
-
-  Widget _buildStatusRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Score — links, sekundär
-        SizedBox(
-          width: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Score',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.30),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              Text(
-                '$_score',
-                style: const TextStyle(
-                  fontSize: 28,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
-                  height: 1.1,
-                ),
-              ),
-            ],
-          ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgTop,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          color: Colors.white.withValues(alpha: 0.60),
+          onPressed: () => Navigator.of(context).maybePop(),
+          enableFeedback: false,
         ),
-
-        // Timer — zentriert, Hauptfokus
-        Expanded(
-          child: Center(
-            child: ScaleTransition(
-              scale: _pulseScale,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: _timerWarning
-                      ? const Color(0xFF000508)
-                      : Colors.white.withValues(alpha: 0.07),
-                  borderRadius: BorderRadius.circular(AppRadius.medium),
-                  border: Border.all(
-                    color: _timerWarning
-                        ? _timerColor().withValues(alpha: 0.85)
-                        : Colors.white.withValues(alpha: 0.18),
-                    width: _timerWarning ? 2.0 : 1.0,
-                  ),
-                  boxShadow: _timerWarning
-                      ? [
-                          BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
-                          BoxShadow(
-                            color: _timerColor().withValues(alpha: 0.22),
-                            blurRadius: 16,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  _formatRemaining(),
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: _timerColor(),
-                    letterSpacing: -0.5,
-                    shadows: _timerWarning
-                        ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
-                        : null,
-                  ),
-                ),
+        title: Text(
+          'Daily Speed · Run ${widget.runNumber}',
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: _green),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              size: 22,
+              color: Colors.white.withValues(alpha: 0.45),
+            ),
+            onPressed: () {
+              sfx.toggle();
+              setState(() {});
+            },
+            enableFeedback: false,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
+                stops: [0.0, 0.5, 1.0],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
           ),
-        ),
+          SafeArea(
+            child: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                final state = _controller.state;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      _buildTimerRow(state),
+                      const SizedBox(height: 16),
+                      _buildScoreRow(state),
+                      const SizedBox(height: 20),
+                      _buildTarget(state),
+                      const SizedBox(height: 24),
+                      Expanded(child: _buildDiceArea(state)),
+                      const SizedBox(height: 20),
+                      _buildOpButtons(state),
+                      const SizedBox(height: 14),
+                      _buildUndoButton(state),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _flashOpacity,
+              builder: (_, child) =>
+                  Container(color: _green.withValues(alpha: _flashOpacity.value)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-        // Run Info — rechts, sehr sekundär
-        SizedBox(
-          width: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'Run',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.30),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              Text(
-                '${widget.runNumber}/2',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
-                  height: 1.1,
-                ),
+  // ── Widgets ───────────────────────────────────────────────────────────────
+
+  Widget _buildTimerRow(RushState state) {
+    final t = state.timeRemaining;
+    final Color timerColor = t > 40
+        ? _green
+        : t > 15
+        ? const Color(0xFFFFB347)
+        : const Color(0xFFFF6B6B);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
+          decoration: BoxDecoration(
+            color: timerColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(50),
+            border: Border.all(
+              color: timerColor.withValues(alpha: t > 40 ? 0.25 : 0.55),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: timerColor.withValues(alpha: t > 40 ? 0.05 : 0.20),
+                blurRadius: 20,
+                spreadRadius: 2,
               ),
             ],
+          ),
+          child: Text(
+            '$t',
+            style: TextStyle(
+              fontSize: 52,
+              fontWeight: FontWeight.w900,
+              color: timerColor,
+              letterSpacing: -2,
+              height: 1,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPlusOneOverlay() {
+  Widget _buildScoreRow(RushState state) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          children: [
+            Text(
+              '${state.score}',
+              style: const TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: -1,
+                height: 1,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Score',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.30),
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
+        if (widget.runNumber == 2 && widget.run1Score >= 0) ...[
+          const SizedBox(width: 24),
+          Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08)),
+          const SizedBox(width: 24),
+          Column(
+            children: [
+              Text(
+                '${widget.run1Score}',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: _green,
+                  letterSpacing: -1,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Run 1',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.30),
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTarget(RushState state) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D0F1F),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _green.withValues(alpha: 0.30), width: 1.5),
+        boxShadow: [
+          BoxShadow(color: _green.withValues(alpha: 0.08), blurRadius: 20, spreadRadius: 1),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Target',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.35),
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${state.target}',
+            style: const TextStyle(
+              fontSize: 56,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: -2,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiceArea(RushState state) {
     return AnimatedBuilder(
-      animation: _plusOneCtrl,
-      builder: (context, _) {
-        if (_plusOneCtrl.value == 0.0) return const SizedBox.shrink();
-        return Positioned(
-          top: 150 + _plusOneOffset.value,
-          left: 0,
-          right: 0,
-          child: IgnorePointer(
-            child: Center(
-              child: Opacity(
-                opacity: _plusOneOpacity.value.clamp(0.0, 1.0),
-                child: const Text(
-                  '+1',
+      animation: _shakeAnim,
+      builder: (context, child) =>
+          Transform.translate(offset: Offset(_shakeAnim.value, 0), child: child),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (int i = 0; i < state.dice.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                _DailyDie(
+                  value: state.dice[i],
+                  isSelected: state.selectedIndices.contains(i),
+                  onTap: () => _controller.onToggleSelect(i),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOpButtons(RushState state) {
+    const ops = [UiOp.add, UiOp.sub, UiOp.mul, UiOp.div];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: ops
+          .map(
+            (op) => _DailyOpButton(
+              op: op,
+              isSelected: state.selectedOp == op,
+              onTap: () => _controller.onApplyOp(op),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildUndoButton(RushState state) {
+    final canUndo = state.canUndo && state.isRunning;
+    final remaining = RushController.maxUndoDepth - state.undoStackDepth;
+
+    return GestureDetector(
+      onTap: canUndo ? _controller.onUndo : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        height: 46,
+        decoration: BoxDecoration(
+          color: canUndo
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: canUndo
+                ? Colors.white.withValues(alpha: 0.20)
+                : Colors.white.withValues(alpha: 0.06),
+            width: 0.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.undo_rounded,
+              size: 18,
+              color: canUndo ? Colors.white.withValues(alpha: 0.75) : _muted,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Undo',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: canUndo ? Colors.white.withValues(alpha: 0.75) : _muted,
+              ),
+            ),
+            if (canUndo) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$remaining',
                   style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.accent,
-                    shadows: [Shadow(color: AppColors.accent, blurRadius: 14)],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white.withValues(alpha: 0.55),
                   ),
                 ),
               ),
-            ),
-          ),
-        );
-      },
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
 
-// ── Undo snapshot ──────────────────────────────────────────────────────────────
+// ── Dice & Op Buttons (Daily-Variante) ────────────────────────────────────────
 
-class _UndoSnapshot {
-  final List<DiceState> dice;
-  final int moves;
-  const _UndoSnapshot({required this.dice, required this.moves});
+class _DailyDie extends StatelessWidget {
+  static const Color _green = Color(0xFF4CAF82);
+
+  final int value;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _DailyDie({required this.value, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        width: 58,
+        height: 58,
+        decoration: BoxDecoration(
+          color: isSelected ? _green.withValues(alpha: 0.18) : const Color(0xFF0D0F1F),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected
+                ? _green.withValues(alpha: 0.85)
+                : Colors.white.withValues(alpha: 0.15),
+            width: isSelected ? 2.0 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: _green.withValues(alpha: 0.30), blurRadius: 12, spreadRadius: 1)]
+              : [],
+        ),
+        child: Center(
+          child: Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: isSelected ? _green : Colors.white,
+              height: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyOpButton extends StatelessWidget {
+  static const Color _green = Color(0xFF4CAF82);
+
+  final UiOp op;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _DailyOpButton({required this.op, required this.isSelected, required this.onTap});
+
+  String get _symbol {
+    switch (op) {
+      case UiOp.add:
+        return '+';
+      case UiOp.sub:
+        return '−';
+      case UiOp.mul:
+        return '×';
+      case UiOp.div:
+        return '÷';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        width: 68,
+        height: 56,
+        decoration: BoxDecoration(
+          color: isSelected ? _green.withValues(alpha: 0.18) : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? _green.withValues(alpha: 0.75)
+                : Colors.white.withValues(alpha: 0.12),
+            width: isSelected ? 1.5 : 0.5,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: _green.withValues(alpha: 0.25), blurRadius: 10)]
+              : [],
+        ),
+        child: Center(
+          child: Text(
+            _symbol,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: isSelected ? _green : Colors.white.withValues(alpha: 0.70),
+              height: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Daily Result Screen ───────────────────────────────────────────────────────
+
+class _RushDailyResultScreen extends StatelessWidget {
+  final int runNumber;
+  final int score;
+  final int run1Score;
+
+  const _RushDailyResultScreen({
+    required this.runNumber,
+    required this.score,
+    required this.run1Score,
+  });
+
+  static const Color _green = Color(0xFF4CAF82);
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isRun2 = runNumber == 2;
+    final bool isNewBest = isRun2 && score > run1Score;
+    final bool isCompleted = isRun2;
+
+    return Scaffold(
+      backgroundColor: AppColors.bgTop,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
+                stops: [0.0, 0.5, 1.0],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                children: [
+                  const SizedBox(height: 32),
+                  Text(
+                    isCompleted ? 'Daily Speed\nComplete!' : 'Run $runNumber\nComplete!',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: -0.8,
+                      height: 1.15,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Score Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0D0F1F),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: _green.withValues(alpha: 0.35), width: 1.5),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Run $runNumber Score',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$score',
+                          style: const TextStyle(
+                            fontSize: 80,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -4,
+                            height: 0.9,
+                          ),
+                        ),
+                        if (isNewBest) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _green.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: _green.withValues(alpha: 0.50), width: 0.5),
+                            ),
+                            child: const Text(
+                              '🏆  New Daily Best!',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: _green,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (isRun2 && run1Score >= 0) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Run 1 Score',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.45),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '$run1Score',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [_green.withValues(alpha: 0.20), _green.withValues(alpha: 0.09)],
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: _green.withValues(alpha: 0.65), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(color: _green.withValues(alpha: 0.22), blurRadius: 20),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Back to Home',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: _green,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

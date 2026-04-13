@@ -2,106 +2,84 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ──────────────────────────────────────────────────────────────────────────────
-// State model
-// ──────────────────────────────────────────────────────────────────────────────
+/// Zustand des heutigen Daily-Speed-Runs.
 class RushDailyState {
-  final int run1; // -1 = not played
-  final int run2; // -1 = not played
-  final int allTimeBest;
+  final int run1;
+  final int run2;
+  final bool run1Played;
+  final bool run2Played;
+  final String dateKey;
 
-  const RushDailyState({required this.run1, required this.run2, required this.allTimeBest});
+  const RushDailyState({
+    required this.run1,
+    required this.run2,
+    required this.run1Played,
+    required this.run2Played,
+    required this.dateKey,
+  });
 
-  bool get run1Played => run1 >= 0;
-  bool get run2Played => run2 >= 0;
-  bool get isCompleted => run1Played && run2Played;
-  bool get canStartRun1 => !run1Played;
   bool get canStartRun2 => run1Played && !run2Played;
+  bool get isCompleted => run1Played && run2Played;
 
-  /// Best of the two played runs (-1 if neither played).
+  /// -1 wenn noch kein Run gespielt.
   int get bestRunScore {
-    if (run1Played && run2Played) return run1 > run2 ? run1 : run2;
-    if (run1Played) return run1;
-    return -1;
+    if (!run1Played && !run2Played) return -1;
+    if (run1Played && !run2Played) return run1;
+    if (!run1Played && run2Played) return run2;
+    return run1 > run2 ? run1 : run2;
   }
-
-  bool get isNewAllTimeBest => bestRunScore > 0 && bestRunScore >= allTimeBest;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Storage
-// ──────────────────────────────────────────────────────────────────────────────
 class RushDailyStorage {
   static const _keyDate = 'rush_daily_date';
   static const _keyRun1 = 'rush_daily_run1';
   static const _keyRun2 = 'rush_daily_run2';
-  static const _keyHs = 'rush_daily_hs';
+  static const _keyRun1Played = 'rush_daily_run1_played';
+  static const _keyRun2Played = 'rush_daily_run2_played';
 
-  // ── Seed ────────────────────────────────────────────────────────────────────
-
-  /// Deterministic seed based on today's date.
-  /// Both runs share the same seed → identical puzzle sequence.
-  static int dailySeed() {
+  static String _todayDateKey() {
     final now = DateTime.now();
-    return now.year * 10000 + now.month * 100 + now.day;
+    final y = now.year.toString();
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return '${y}_${m}_$d';
   }
-
-  // ── Date helpers ────────────────────────────────────────────────────────────
-
-  static String _todayString() {
-    final now = DateTime.now();
-    return '${now.year}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
-  }
-
-  // ── Load ────────────────────────────────────────────────────────────────────
 
   Future<RushDailyState> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_keyDate) ?? '';
-    final today = _todayString();
+    final todayKey = _todayDateKey();
+    final savedDate = prefs.getString(_keyDate) ?? '';
 
-    if (saved != today) {
-      // New day → reset runs (keep all-time best)
-      await prefs.setString(_keyDate, today);
-      await prefs.setInt(_keyRun1, -1);
-      await prefs.setInt(_keyRun2, -1);
+    // Datum gewechselt → frischer Start
+    if (savedDate != todayKey) {
+      return RushDailyState(
+        run1: 0,
+        run2: 0,
+        run1Played: false,
+        run2Played: false,
+        dateKey: todayKey,
+      );
     }
 
     return RushDailyState(
-      run1: prefs.getInt(_keyRun1) ?? -1,
-      run2: prefs.getInt(_keyRun2) ?? -1,
-      allTimeBest: prefs.getInt(_keyHs) ?? 0,
+      run1: prefs.getInt(_keyRun1) ?? 0,
+      run2: prefs.getInt(_keyRun2) ?? 0,
+      run1Played: prefs.getBool(_keyRun1Played) ?? false,
+      run2Played: prefs.getBool(_keyRun2Played) ?? false,
+      dateKey: todayKey,
     );
   }
 
-  // ── Save ────────────────────────────────────────────────────────────────────
-
-  Future<RushDailyState> saveRun1(int score) async {
+  Future<void> saveRun1(int score) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyDate, _todayDateKey());
     await prefs.setInt(_keyRun1, score);
-    await _updateHs(prefs, score);
-    return RushDailyState(
-      run1: score,
-      run2: prefs.getInt(_keyRun2) ?? -1,
-      allTimeBest: prefs.getInt(_keyHs) ?? 0,
-    );
+    await prefs.setBool(_keyRun1Played, true);
   }
 
-  Future<RushDailyState> saveRun2(int score) async {
+  Future<void> saveRun2(int score) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyRun2, score);
-    await _updateHs(prefs, score);
-    return RushDailyState(
-      run1: prefs.getInt(_keyRun1) ?? -1,
-      run2: score,
-      allTimeBest: prefs.getInt(_keyHs) ?? 0,
-    );
-  }
-
-  Future<void> _updateHs(SharedPreferences prefs, int score) async {
-    final current = prefs.getInt(_keyHs) ?? 0;
-    if (score > current) await prefs.setInt(_keyHs, score);
+    await prefs.setBool(_keyRun2Played, true);
   }
 }

@@ -4,39 +4,31 @@ import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RushHighscoreStorage {
-  static const String _keyTotalRuns = 'rush_std_total_runs';
-  static const String _keyTotalPuzzles = 'rush_std_total_puzzles';
-
-  Future<int> load(RushDifficulty difficulty) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(difficulty.storageKey) ?? 0;
+  static String _todayKey(RushDifficulty difficulty) {
+    final now = DateTime.now();
+    final y = now.year.toString();
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return 'rush_best_${y}_${m}_${d}_${difficulty.name}';
   }
 
-  /// Speichert den Score nur wenn er besser ist.
-  /// Gibt true zurück wenn ein neuer Rekord gesetzt wurde.
-  Future<bool> saveIfBetter(RushDifficulty difficulty, int score) async {
+  /// Gibt den heutigen Tages-Highscore zurück. Null = noch kein Eintrag.
+  Future<int?> loadTodayBest(RushDifficulty difficulty) async {
     final prefs = await SharedPreferences.getInstance();
-    final current = prefs.getInt(difficulty.storageKey) ?? 0;
-    if (score > current) {
-      await prefs.setInt(difficulty.storageKey, score);
+    final val = prefs.getInt(_todayKey(difficulty));
+    return val == null || val < 0 ? null : val;
+  }
+
+  /// Speichert Score wenn besser als bisheriger Tagesbest.
+  /// Gibt true zurück wenn es ein neuer Tagesbest ist.
+  Future<bool> saveTodayBest(RushDifficulty difficulty, int score) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _todayKey(difficulty);
+    final existing = prefs.getInt(key) ?? -1;
+    if (score > existing) {
+      await prefs.setInt(key, score);
       return true;
     }
     return false;
-  }
-
-  /// Zählt einen abgeschlossenen Run + gelöste Puzzles.
-  Future<void> incrementStats(int puzzlesSolved) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyTotalRuns, (prefs.getInt(_keyTotalRuns) ?? 0) + 1);
-    await prefs.setInt(_keyTotalPuzzles, (prefs.getInt(_keyTotalPuzzles) ?? 0) + puzzlesSolved);
-  }
-
-  /// Lädt Total Runs und Total Puzzles Solved.
-  Future<({int totalRuns, int totalPuzzles})> loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    return (
-      totalRuns: prefs.getInt(_keyTotalRuns) ?? 0,
-      totalPuzzles: prefs.getInt(_keyTotalPuzzles) ?? 0,
-    );
   }
 }
