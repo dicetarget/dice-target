@@ -31,4 +31,31 @@ class RushHighscoreStorage {
     }
     return false;
   }
+
+  // ── Highscore-Modus (fixer Range 20–80, kein Difficulty-Key) ─────────────
+
+  static String _todayHighscoreKey() {
+    final now = DateTime.now();
+    final y = now.year.toString();
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return 'rush_highscore_${y}_${m}_$d';
+  }
+
+  Future<int?> loadTodayHighscore() async {
+    final prefs = await SharedPreferences.getInstance();
+    final val = prefs.getInt(_todayHighscoreKey());
+    return val == null || val < 0 ? null : val;
+  }
+
+  Future<bool> saveTodayHighscore(int score) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _todayHighscoreKey();
+    final existing = prefs.getInt(key) ?? -1;
+    if (score > existing) {
+      await prefs.setInt(key, score);
+      return true;
+    }
+    return false;
+  }
 }

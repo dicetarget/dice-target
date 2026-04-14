@@ -1,26 +1,73 @@
 // lib/features/rush/presentation/screens/rush_result_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
 
-class RushResultScreen extends StatelessWidget {
-  final int score;
+class RushResultScreen extends StatefulWidget {
   final RushDifficulty difficulty;
-  final int? todayBest;
-  final bool isNewBest;
+  final int score;
+  final int previousPb;
+  final int lastPuzzleTarget;
+  final List<int> lastPuzzleDice;
+  final bool isHighscoreMode;
 
   const RushResultScreen({
     super.key,
-    required this.score,
     required this.difficulty,
-    required this.todayBest,
-    required this.isNewBest,
+    required this.score,
+    required this.previousPb,
+    required this.lastPuzzleTarget,
+    required this.lastPuzzleDice,
+    this.isHighscoreMode = false,
   });
 
+  @override
+  State<RushResultScreen> createState() => _RushResultScreenState();
+}
+
+class _RushResultScreenState extends State<RushResultScreen> {
   static const Color _green = Color(0xFF4CAF82);
-  static const Color _card = Color(0xFF0D0F1F);
+
+  int _newPb = 0;
+  bool _isNewBest = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _newPb = widget.score > widget.previousPb ? widget.score : widget.previousPb;
+    _isNewBest = widget.score > widget.previousPb;
+    _saveIfNewBest();
+  }
+
+  Future<void> _saveIfNewBest() async {
+    if (!_isNewBest) return;
+    final storage = RushHighscoreStorage();
+    if (widget.isHighscoreMode) {
+      await storage.saveTodayHighscore(widget.score);
+    } else {
+      await storage.saveTodayBest(widget.difficulty, widget.score);
+    }
+  }
+
+  Future<void> _playAgain() async {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => RushScreen(
+          difficulty: widget.difficulty,
+          personalBest: _newPb,
+          isHighscoreMode: widget.isHighscoreMode,
+          forcedTargetMin: widget.isHighscoreMode ? 20 : null,
+          forcedTargetMax: widget.isHighscoreMode ? 80 : null,
+        ),
+      ),
+    );
+  }
+
+  String get _modeLabel => widget.isHighscoreMode ? 'Highscore' : widget.difficulty.label;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +75,6 @@ class RushResultScreen extends StatelessWidget {
       backgroundColor: AppColors.bgTop,
       body: Stack(
         children: [
-          // Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -45,17 +91,13 @@ class RushResultScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 32),
-                  // Header
                   _buildHeader(),
                   const SizedBox(height: 32),
-                  // Score Card
                   _buildScoreCard(),
-                  const SizedBox(height: 20),
-                  // PB Card
-                  if (todayBest != null) _buildPbCard(),
+                  const SizedBox(height: 16),
+                  _buildPbCard(),
                   const Spacer(),
-                  // Buttons
-                  _buildPlayAgainButton(context),
+                  _buildPlayAgainButton(),
                   const SizedBox(height: 12),
                   _buildHomeButton(context),
                   const SizedBox(height: 32),
@@ -71,20 +113,13 @@ class RushResultScreen extends StatelessWidget {
   Widget _buildHeader() {
     return Column(
       children: [
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFF6EE7B7), Color(0xFF4CAF82)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(bounds),
-          child: const Text(
-            'Speed Run',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 2.0,
-            ),
+        Text(
+          _modeLabel.toUpperCase(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: _green.withValues(alpha: 0.70),
+            letterSpacing: 2.0,
           ),
         ),
         const SizedBox(height: 8),
@@ -98,15 +133,6 @@ class RushResultScreen extends StatelessWidget {
             height: 1.1,
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          difficulty.label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.35),
-          ),
-        ),
       ],
     );
   }
@@ -116,15 +142,15 @@ class RushResultScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
-        color: _card,
+        color: const Color(0xFF0D0F1F),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _green.withValues(alpha: isNewBest ? 0.60 : 0.25),
-          width: isNewBest ? 2.0 : 1.0,
+          color: _green.withValues(alpha: _isNewBest ? 0.60 : 0.25),
+          width: _isNewBest ? 2.0 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: _green.withValues(alpha: isNewBest ? 0.18 : 0.06),
+            color: _green.withValues(alpha: _isNewBest ? 0.18 : 0.06),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -132,7 +158,7 @@ class RushResultScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (isNewBest)
+          if (_isNewBest)
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -157,7 +183,7 @@ class RushResultScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '$score',
+            '${widget.score}',
             style: const TextStyle(
               fontSize: 80,
               fontWeight: FontWeight.w900,
@@ -172,9 +198,6 @@ class RushResultScreen extends StatelessWidget {
   }
 
   Widget _buildPbCard() {
-    final best = todayBest!;
-    final isCurrent = score >= best;
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -184,31 +207,28 @@ class RushResultScreen extends StatelessWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(isCurrent ? '🏅' : '📊', style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              isCurrent ? 'This is your new daily best' : 'Today\'s best: $best puzzles',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.55),
-              ),
+          Text(
+            _isNewBest ? 'New daily best' : 'Today\'s best',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.45),
             ),
+          ),
+          Text(
+            '$_newPb',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPlayAgainButton(BuildContext context) {
+  Widget _buildPlayAgainButton() {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => RushScreen(difficulty: difficulty)));
-      },
+      onTap: _playAgain,
       child: Container(
         width: double.infinity,
         height: 58,
@@ -241,7 +261,6 @@ class RushResultScreen extends StatelessWidget {
         width: double.infinity,
         height: 48,
         decoration: BoxDecoration(
-          color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
         ),

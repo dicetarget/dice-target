@@ -1,9 +1,8 @@
 // lib/features/rush/presentation/screens/rush_start_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/features/rush/data/rush_daily_storage.dart';
+import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
-import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -17,18 +16,36 @@ class RushStartScreen extends StatefulWidget {
 class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProviderStateMixin {
   static const Color _green = Color(0xFF4CAF82);
   static const Color _muted = Color(0xFF4A5568);
+  static const Color _gold = Color(0xFFFFD700);
+
+  // Highscore-Modus: fixer Range 20–80
+  static const int _hsTargetMin = 20;
+  static const int _hsTargetMax = 80;
 
   late final TabController _tabCtrl;
-  RushDifficulty _selectedDifficulty = RushDifficulty.easy;
 
-  final RushDailyStorage _dailyStorage = RushDailyStorage();
-  RushDailyState? _dailyState;
+  // Highscore Tab
+  int? _todayHighscore;
+  bool _highscoreLoaded = false;
+  bool _isStartingHighscore = false;
+
+  // Standard Tab
+  RushDifficulty _selectedDifficulty = RushDifficulty.easy;
+  bool _isStartingStandard = false;
+
+  final RushHighscoreStorage _storage = RushHighscoreStorage();
 
   @override
   void initState() {
     super.initState();
+    // Tab 0 = Highscore, Tab 1 = Standard
     _tabCtrl = TabController(length: 2, vsync: this);
-    _loadDailyState();
+    _tabCtrl.addListener(() {
+      if (_tabCtrl.index == 0 && !_tabCtrl.indexIsChanging) {
+        _loadHighscore();
+      }
+    });
+    _loadHighscore();
   }
 
   @override
@@ -37,9 +54,53 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
     super.dispose();
   }
 
-  Future<void> _loadDailyState() async {
-    final s = await _dailyStorage.load();
-    if (mounted) setState(() => _dailyState = s);
+  Future<void> _loadHighscore() async {
+    final score = await _storage.loadTodayHighscore();
+    if (!mounted) return;
+    setState(() {
+      _todayHighscore = score;
+      _highscoreLoaded = true;
+    });
+  }
+
+  Future<void> _startHighscoreRun() async {
+    if (_isStartingHighscore) return;
+    setState(() => _isStartingHighscore = true);
+
+    final pb = _todayHighscore ?? 0;
+
+    if (!mounted) return;
+    setState(() => _isStartingHighscore = false);
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RushScreen(
+          difficulty: RushDifficulty.easy, // Placeholder, wird durch forced override
+          personalBest: pb,
+          isHighscoreMode: true,
+          forcedTargetMin: _hsTargetMin,
+          forcedTargetMax: _hsTargetMax,
+        ),
+      ),
+    );
+
+    if (mounted) await _loadHighscore();
+  }
+
+  Future<void> _startStandardRun() async {
+    if (_isStartingStandard) return;
+    setState(() => _isStartingStandard = true);
+
+    final pb = await _storage.loadTodayBest(_selectedDifficulty) ?? 0;
+
+    if (!mounted) return;
+    setState(() => _isStartingStandard = false);
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RushScreen(difficulty: _selectedDifficulty, personalBest: pb),
+      ),
+    );
   }
 
   @override
@@ -68,7 +129,7 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
                 Expanded(
                   child: TabBarView(
                     controller: _tabCtrl,
-                    children: [_buildStandardTab(), _buildDailyTab()],
+                    children: [_buildHighscoreTab(), _buildStandardTab()],
                   ),
                 ),
               ],
@@ -129,15 +190,246 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
           labelColor: _green,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.35),
           tabs: const [
+            Tab(text: 'Highscore'),
             Tab(text: 'Standard'),
-            Tab(text: 'Daily'),
           ],
         ),
       ),
     );
   }
 
-  // ── Standard Tab ─────────────────────────────────────────────────────────
+  // ── Highscore Tab ─────────────────────────────────────────────────────────
+
+  Widget _buildHighscoreTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hero-Card: heutiger Best
+          _buildHighscoreHeroCard(),
+          const SizedBox(height: 20),
+          // Info-Chips
+          _buildHighscoreInfoChips(),
+          const SizedBox(height: 28),
+          // Start Button
+          _buildHighscoreStartButton(),
+          const SizedBox(height: 16),
+          _buildHighscoreFooter(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHighscoreHeroCard() {
+    final hasScore = _todayHighscore != null && _todayHighscore! > 0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A1018),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: hasScore ? _green.withValues(alpha: 0.60) : _green.withValues(alpha: 0.22),
+          width: hasScore ? 2.0 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _green.withValues(alpha: hasScore ? 0.20 : 0.06),
+            blurRadius: hasScore ? 40 : 16,
+            spreadRadius: hasScore ? 4 : 1,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: _green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _green.withValues(alpha: 0.35), width: 0.5),
+                ),
+                child: const Text(
+                  'TARGET 20–80',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: _green,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              const Text('🏆', style: TextStyle(fontSize: 20)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          if (!_highscoreLoaded)
+            const SizedBox(
+              height: 60,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _green),
+                ),
+              ),
+            )
+          else if (hasScore) ...[
+            Text(
+              'Today\'s Best',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.40),
+                letterSpacing: 0.3,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${_todayHighscore}',
+                  style: const TextStyle(
+                    fontSize: 72,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -3,
+                    height: 0.9,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'puzzles',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _green.withValues(alpha: 0.80),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            Text(
+              'No score yet today',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.30),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Start your first run!',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.18),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHighscoreInfoChips() {
+    const info = ['90 seconds', 'Target 20–80'];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: info
+          .map(
+            (r) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
+              ),
+              child: Text(
+                r,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.40),
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildHighscoreStartButton() {
+    return GestureDetector(
+      onTap: _isStartingHighscore ? null : _startHighscoreRun,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        width: double.infinity,
+        height: 64,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.12)],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _green.withValues(alpha: 0.80), width: 2.0),
+          boxShadow: [
+            BoxShadow(color: _green.withValues(alpha: 0.40), blurRadius: 32, spreadRadius: 3),
+            BoxShadow(color: _green.withValues(alpha: 0.15), blurRadius: 8),
+          ],
+        ),
+        child: Center(
+          child: _isStartingHighscore
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2.5, color: _green),
+                )
+              : const Text(
+                  'Start Highscore Run',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: _green,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHighscoreFooter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.schedule_rounded, size: 12, color: Colors.white.withValues(alpha: 0.20)),
+        const SizedBox(width: 6),
+        Text(
+          'Score resets daily at midnight',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.20),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Standard Tab ─────────────────────────────────────────────────────────────
 
   Widget _buildStandardTab() {
     return SingleChildScrollView(
@@ -155,20 +447,20 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
           ),
           const SizedBox(height: 24),
           Text(
-            'Difficulty',
+            'DIFFICULTY',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.35),
-              letterSpacing: 1.2,
+              color: Colors.white.withValues(alpha: 0.30),
+              letterSpacing: 1.4,
             ),
           ),
           const SizedBox(height: 12),
-          ...RushDifficulty.values.map((d) => _buildDifficultyRow(d)),
-          const SizedBox(height: 28),
+          ...RushDifficulty.values.map(_buildDifficultyRow),
+          const SizedBox(height: 24),
           _buildRuleChips(),
           const SizedBox(height: 28),
-          _buildStartButton(),
+          _buildStandardStartButton(),
         ],
       ),
     );
@@ -222,7 +514,7 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
               Container(
                 width: 22,
                 height: 22,
-                decoration: BoxDecoration(color: _green, shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: _green, shape: BoxShape.circle),
                 child: const Icon(Icons.check, size: 14, color: Colors.black),
               ),
           ],
@@ -232,7 +524,7 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
   }
 
   Widget _buildRuleChips() {
-    const rules = ['Undo (max 4)', 'No Hint', 'No Skip', 'Instant Switch'];
+    const rules = ['Undo (max 4)', 'Skip (1×)', 'Hint (1×)', 'Instant Switch'];
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -259,196 +551,34 @@ class _RushStartScreenState extends State<RushStartScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildStartButton() {
+  Widget _buildStandardStartButton() {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => RushScreen(difficulty: _selectedDifficulty)));
-      },
-      child: Container(
+      onTap: _isStartingStandard ? null : _startStandardRun,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_green.withValues(alpha: 0.22), _green.withValues(alpha: 0.10)],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _green.withValues(alpha: 0.75), width: 2.0),
-          boxShadow: [
-            BoxShadow(color: _green.withValues(alpha: 0.32), blurRadius: 28, spreadRadius: 2),
-          ],
-        ),
-        child: const Center(
-          child: Text(
-            'Start Speed Run',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: _green),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Daily Tab ─────────────────────────────────────────────────────────────
-
-  Widget _buildDailyTab() {
-    if (_dailyState == null) {
-      return const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2, color: _green),
-        ),
-      );
-    }
-
-    final state = _dailyState!;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '2 min per run · Same puzzles for everyone · Best run counts',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.35),
-            ),
-          ),
-          const SizedBox(height: 24),
-          _buildDailyRunCard(runLabel: 'Run 1', score: state.run1, played: state.run1Played),
-          const SizedBox(height: 10),
-          _buildDailyRunCard(
-            runLabel: 'Run 2',
-            score: state.run2,
-            played: state.run2Played,
-            locked: !state.run1Played,
-          ),
-          const SizedBox(height: 24),
-          if (state.bestRunScore >= 0) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Today\'s Best',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white.withValues(alpha: 0.45),
-                    ),
-                  ),
-                  Text(
-                    '${state.bestRunScore}',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-          if (!state.isCompleted) _buildDailyStartButton(state),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyRunCard({
-    required String runLabel,
-    required int score,
-    required bool played,
-    bool locked = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: played ? _green.withValues(alpha: 0.40) : Colors.white.withValues(alpha: 0.08),
-          width: 0.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              runLabel,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          if (locked)
-            Icon(Icons.lock_outline_rounded, size: 18, color: _muted)
-          else if (played)
-            Text(
-              '$score puzzles',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _green),
-            )
-          else
-            Text(
-              'Not played',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.25),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyStartButton(RushDailyState state) {
-    final label = state.canStartRun2 ? 'Start Run 2' : 'Start Run 1';
-    final runNumber = state.canStartRun2 ? 2 : 1;
-    final run1Score = state.canStartRun2 ? state.run1 : -1;
-
-    return GestureDetector(
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => RushDailyScreen(runNumber: runNumber, run1Score: run1Score),
-          ),
-        );
-        if (mounted) await _loadDailyState();
-      },
-      child: Container(
-        width: double.infinity,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
             colors: [_green.withValues(alpha: 0.18), _green.withValues(alpha: 0.08)],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: _green.withValues(alpha: 0.55), width: 1.5),
-          boxShadow: [BoxShadow(color: _green.withValues(alpha: 0.12), blurRadius: 16)],
+          boxShadow: [BoxShadow(color: _green.withValues(alpha: 0.18), blurRadius: 20)],
         ),
         child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: _green),
-          ),
+          child: _isStartingStandard
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _green),
+                )
+              : const Text(
+                  'Start Speed Run',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: _green),
+                ),
         ),
       ),
     );
