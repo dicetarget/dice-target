@@ -28,18 +28,24 @@ class _RushResultScreenState extends State<RushResultScreen> {
 
   int _newPb = 0;
   bool _isNewBest = false;
+  int _todayBest = 0;
 
   @override
   void initState() {
     super.initState();
     _newPb = widget.score > widget.previousPb ? widget.score : widget.previousPb;
     _isNewBest = widget.score > widget.previousPb;
-    _saveIfNewBest();
+    _initScores();
   }
 
-  Future<void> _saveIfNewBest() async {
-    if (!_isNewBest) return;
-    await RushHighscoreStorage().saveGlobalBest(widget.score);
+  Future<void> _initScores() async {
+    final storage = RushHighscoreStorage();
+    if (_isNewBest) {
+      await storage.saveGlobalBest(widget.score);
+    }
+    await storage.saveTodayBest(widget.score);
+    final todayBest = await storage.loadTodayBest();
+    if (mounted) setState(() => _todayBest = todayBest);
   }
 
   Future<void> _playAgain() async {
@@ -96,7 +102,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
     return Column(
       children: [
         Text(
-          'SPEED RUN',
+          'RUSH',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -188,20 +194,50 @@ class _RushResultScreenState extends State<RushResultScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Text(
-            _isNewBest ? 'New all-time best' : 'All-time best',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.45),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Today\'s best',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.45),
+                ),
+              ),
+              Text(
+                '$_todayBest',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF00FF88),
+                ),
+              ),
+            ],
           ),
-          Text(
-            '$_newPb',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _isNewBest ? 'New all-time best' : 'All-time best',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.45),
+                ),
+              ),
+              Text(
+                '$_newPb',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
       ),
