@@ -14,8 +14,7 @@ class RushStartScreen extends StatefulWidget {
 
 class _RushStartScreenState extends State<RushStartScreen>
     with SingleTickerProviderStateMixin {
-  static const Color _green = Color(0xFF4CAF82);
-  static const Color _cyan = Color(0xFF3FE8FF);
+  static const Color _neon = Color(0xFF00FF88);
   static const Color _dark = Color(0xFF090B18);
 
   int? _globalBest;
@@ -89,12 +88,7 @@ class _RushStartScreenState extends State<RushStartScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildHeader(),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _buildBestCard(),
-                ),
-                const Spacer(),
+                Expanded(child: _buildCenter()),
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
                   child: _buildStartButton(),
@@ -124,7 +118,7 @@ class _RushStartScreenState extends State<RushStartScreen>
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
-              color: _green,
+              color: _neon,
               letterSpacing: -0.5,
             ),
           ),
@@ -133,78 +127,89 @@ class _RushStartScreenState extends State<RushStartScreen>
     );
   }
 
-  Widget _buildBestCard() {
+  Widget _buildCenter() {
     final hasBest = _globalBest != null && _globalBest! > 0;
     final displayValue = (!_loaded || !hasBest) ? '--' : '$_globalBest';
 
-    return Container(
-      width: double.infinity,
-      height: 280,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A1018),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: hasBest ? _cyan.withValues(alpha: 0.55) : _cyan.withValues(alpha: 0.15),
-          width: hasBest ? 2.0 : 1.0,
+    return Center(
+      child: SizedBox(
+        width: 280,
+        height: 280,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Radial glow behind the number
+            Container(
+              width: 280,
+              height: 280,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    _neon.withValues(alpha: 0.15),
+                    _neon.withValues(alpha: 0.0),
+                  ],
+                  stops: const [0.0, 1.0],
+                ),
+              ),
+            ),
+            // Content column on top of glow
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'RUSH BEST',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: _neon.withValues(alpha: 0.7),
+                    letterSpacing: 3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (!_loaded)
+                  SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: _neon.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    displayValue,
+                    style: TextStyle(
+                      fontSize: 120,
+                      fontWeight: FontWeight.w900,
+                      color: hasBest ? _neon : _neon.withValues(alpha: 0.18),
+                      letterSpacing: -4,
+                      height: 0.9,
+                      shadows: hasBest
+                          ? [
+                              Shadow(
+                                color: _neon.withValues(alpha: 0.5),
+                                blurRadius: 24,
+                              ),
+                            ]
+                          : null,
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Text(
+                  'puzzles solved',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _neon.withValues(alpha: 0.6),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: _cyan.withValues(alpha: hasBest ? 0.18 : 0.04),
-            blurRadius: hasBest ? 52 : 16,
-            spreadRadius: hasBest ? 6 : 1,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0D0F1F),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _cyan.withValues(alpha: 0.25), width: 0.5),
-            ),
-            child: const Text(
-              'RUSH BEST',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: _cyan,
-                letterSpacing: 1.4,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          if (!_loaded)
-            const SizedBox(
-              height: 96,
-              child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: _cyan),
-              ),
-            )
-          else
-            Text(
-              displayValue,
-              style: TextStyle(
-                fontSize: 100,
-                fontWeight: FontWeight.w900,
-                color: hasBest ? _cyan : _cyan.withValues(alpha: 0.18),
-                letterSpacing: -4,
-                height: 0.9,
-              ),
-            ),
-          const SizedBox(height: 12),
-          Text(
-            'puzzles solved',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: hasBest ? _cyan : _cyan.withValues(alpha: 0.18),
-              letterSpacing: 0.2,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -219,15 +224,18 @@ class _RushStartScreenState extends State<RushStartScreen>
             width: double.infinity,
             height: 64,
             decoration: BoxDecoration(
-              color: _cyan,
+              color: _neon,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: _cyan.withValues(alpha: _pulseAnim.value),
+                  color: _neon.withValues(alpha: _pulseAnim.value),
                   blurRadius: 32,
                   spreadRadius: 3,
                 ),
-                BoxShadow(color: _cyan.withValues(alpha: 0.15), blurRadius: 8),
+                BoxShadow(
+                  color: _neon.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                ),
               ],
             ),
             child: child,
