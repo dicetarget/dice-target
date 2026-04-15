@@ -182,10 +182,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.card,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: _green.withValues(alpha: 0.50),
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: _green.withValues(alpha: 0.50), width: 1.5),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
