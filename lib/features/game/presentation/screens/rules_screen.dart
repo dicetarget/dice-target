@@ -116,6 +116,16 @@ class RulesScreen extends StatelessWidget {
                         '• Perfect run requires optimal move count\n'
                         '• New daily every midnight',
                   ),
+                  const SizedBox(height: 12),
+                  _RulesSectionCard(
+                    icon: Icons.bolt_rounded,
+                    heading: 'Rush',
+                    body:
+                        '90 seconds to solve as many puzzles as possible.\n\n'
+                        '• Difficulty increases automatically as you progress\n'
+                        '• No hints — pure speed and skill\n'
+                        '• Your best score is saved automatically',
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
