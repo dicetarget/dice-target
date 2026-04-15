@@ -10,7 +10,6 @@ import 'package:dice/core/puzzle/puzzle.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/core/theme/app_radius.dart';
 import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_application_service.dart';
@@ -62,8 +61,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
   static const Color _accent = AppColors.accent;
-  static const Color _timerAmber = Color(0xFFFF9F00);
-  static const Color _timerRed = AppColors.failed;
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -97,7 +94,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // ── Animations ────────────────────────────────────────────────────────────────
   late final AnimationController _pulseCtrl;
-  late final Animation<double> _pulseScale;
   bool _pulseStarted = false;
   bool _warningSoundPlayed = false;
 
@@ -122,11 +118,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _pb = widget.personalBest;
 
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
-    _pulseScale = Tween<double>(
-      begin: 1.0,
-      end: 1.07,
-    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
-
     _plusOneCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
     _plusOneOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
@@ -397,15 +388,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
-  Color _timerColor() {
-    final s = _remaining.inSeconds;
-    if (s <= 10) return _timerRed;
-    if (s <= 20) return _timerAmber;
-    return Colors.white;
-  }
-
-  bool get _timerWarning => _remaining.inSeconds <= 20;
-
   // ── Build ─────────────────────────────────────────────────────────────────────
 
   @override
@@ -440,44 +422,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         ),
         centerTitle: true,
         actions: [
-          ScaleTransition(
-            scale: _pulseScale,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: _timerWarning
-                    ? const Color(0xFF000508)
-                    : Colors.white.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(AppRadius.medium),
-                border: Border.all(
-                  color: _timerWarning
-                      ? _timerColor().withValues(alpha: 0.85)
-                      : Colors.white.withValues(alpha: 0.18),
-                  width: _timerWarning ? 2.0 : 1.0,
-                ),
-                boxShadow: _timerWarning
-                    ? [
-                        BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
-                        BoxShadow(
-                          color: _timerColor().withValues(alpha: 0.22),
-                          blurRadius: 16,
-                          spreadRadius: 1,
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Text(
-                '${_remaining.inSeconds}s',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  color: _timerColor(),
-                  letterSpacing: -0.5,
-                  shadows: _timerWarning
-                      ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
-                      : null,
-                ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(
+              '${_remaining.inSeconds}s',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF00FF88),
               ),
             ),
           ),
