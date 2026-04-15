@@ -426,10 +426,14 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
             padding: const EdgeInsets.only(right: 8),
             child: Text(
               '${_remaining.inSeconds}s',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF00FF88),
+                color: _remaining.inSeconds > 20
+                    ? const Color(0xFF00FF88)
+                    : _remaining.inSeconds > 10
+                        ? const Color(0xFFFF9500)
+                        : const Color(0xFFFF3B30),
               ),
             ),
           ),
@@ -466,7 +470,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     _buildStatusRow(),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 4),
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -477,7 +481,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 4),
                     Expanded(
                       child: PracticeGameArea(
                         showDice: true,
