@@ -942,8 +942,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Speed: compact, quick entry — TOP
-                  const _DailySpeedCard(),
-                  const SizedBox(height: 16),
+                  // ignore: dead_code
+                  if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
                   // Puzzle: primary, main feature — BOTTOM
                   _buildDailyPuzzleSection(progress, daily.puzzles.length),
                   const SizedBox(height: 8),
