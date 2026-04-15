@@ -50,6 +50,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
     return Scaffold(
       backgroundColor: AppColors.bgTop,
       body: Stack(
@@ -66,25 +67,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
           ),
           SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildHeader(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildBestCard(),
-                        const SizedBox(height: 20),
-                        _buildStagesCard(),
-                        const SizedBox(height: 20),
-                        _buildInfoChips(),
-                        const SizedBox(height: 28),
-                        _buildStartButton(),
-                      ],
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                    child: _buildBestCard(),
                   ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
+                  child: _buildStartButton(),
                 ),
               ],
             ),
@@ -122,226 +116,78 @@ class _RushStartScreenState extends State<RushStartScreen> {
 
   Widget _buildBestCard() {
     final hasBest = _globalBest != null && _globalBest! > 0;
+    final displayValue = (!_loaded || !hasBest) ? '--' : '$_globalBest';
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: const Color(0xFF0A1018),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: hasBest ? _green.withValues(alpha: 0.60) : _green.withValues(alpha: 0.22),
+          color: hasBest ? _green.withValues(alpha: 0.60) : _green.withValues(alpha: 0.18),
           width: hasBest ? 2.0 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: _green.withValues(alpha: hasBest ? 0.20 : 0.06),
-            blurRadius: hasBest ? 40 : 16,
-            spreadRadius: hasBest ? 4 : 1,
+            color: _green.withValues(alpha: hasBest ? 0.22 : 0.05),
+            blurRadius: hasBest ? 52 : 16,
+            spreadRadius: hasBest ? 6 : 1,
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _green.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: _green.withValues(alpha: 0.35), width: 0.5),
-                ),
-                child: const Text(
-                  'ALL-TIME BEST',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: _green,
-                    letterSpacing: 1.2,
-                  ),
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            decoration: BoxDecoration(
+              color: _green.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _green.withValues(alpha: 0.28), width: 0.5),
+            ),
+            child: const Text(
+              'ALL-TIME BEST',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: _green,
+                letterSpacing: 1.4,
               ),
-              const Spacer(),
-              const Text('🏆', style: TextStyle(fontSize: 20)),
-            ],
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 28),
           if (!_loaded)
             const SizedBox(
-              height: 60,
+              height: 96,
               child: Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _green),
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: _green),
               ),
             )
-          else if (hasBest) ...[
+          else
             Text(
-              'Best',
+              displayValue,
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.40),
-                letterSpacing: 0.3,
+                fontSize: 100,
+                fontWeight: FontWeight.w900,
+                color: hasBest ? Colors.white : Colors.white.withValues(alpha: 0.18),
+                letterSpacing: -4,
+                height: 0.9,
               ),
             ),
-            const SizedBox(height: 6),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '$_globalBest',
-                  style: const TextStyle(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: -3,
-                    height: 0.9,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    'puzzles',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _green.withValues(alpha: 0.80),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ] else ...[
-            Text(
-              'No score yet',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.30),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Start your first run!',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.18),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStagesCard() {
-    const stages = [
-      (label: 'Stage 1', range: '20–40', detail: 'puzzles 1–5'),
-      (label: 'Stage 2', range: '30–60', detail: 'puzzles 6–12'),
-      (label: 'Stage 3', range: '50–90', detail: 'puzzle 13+'),
-    ];
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          const SizedBox(height: 16),
           Text(
-            'AUTO DIFFICULTY',
+            'puzzles solved',
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.30),
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...stages.map(
-            (s) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                children: [
-                  Container(
-                    width: 56,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _green.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: _green.withValues(alpha: 0.25), width: 0.5),
-                    ),
-                    child: Text(
-                      s.label,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: _green,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Target ${s.range}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '· ${s.detail}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withValues(alpha: 0.35),
-                    ),
-                  ),
-                ],
-              ),
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: hasBest
+                  ? Colors.white.withValues(alpha: 0.40)
+                  : Colors.white.withValues(alpha: 0.18),
+              letterSpacing: 0.2,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoChips() {
-    const info = ['90 seconds', 'Undo (max 4)', 'Auto difficulty'];
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: info
-          .map(
-            (r) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
-              ),
-              child: Text(
-                r,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.40),
-                ),
-              ),
-            ),
-          )
-          .toList(),
     );
   }
 
