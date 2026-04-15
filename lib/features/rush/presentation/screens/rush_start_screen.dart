@@ -12,7 +12,8 @@ class RushStartScreen extends StatefulWidget {
   State<RushStartScreen> createState() => _RushStartScreenState();
 }
 
-class _RushStartScreenState extends State<RushStartScreen> {
+class _RushStartScreenState extends State<RushStartScreen>
+    with SingleTickerProviderStateMixin {
   static const Color _green = Color(0xFF4CAF82);
   static const Color _cyan = Color(0xFF3FE8FF);
   static const Color _dark = Color(0xFF090B18);
@@ -21,12 +22,28 @@ class _RushStartScreenState extends State<RushStartScreen> {
   bool _loaded = false;
   bool _isStarting = false;
 
+  late final AnimationController _pulseCtrl;
+  late final Animation<double> _pulseAnim;
+
   final RushHighscoreStorage _storage = RushHighscoreStorage();
 
   @override
   void initState() {
     super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.2, end: 0.6).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
     _loadBest();
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadBest() async {
@@ -103,7 +120,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
           ),
           const SizedBox(width: 8),
           const Text(
-            'Speed Run',
+            'Rush',
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
@@ -144,12 +161,12 @@ class _RushStartScreenState extends State<RushStartScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
-              color: _cyan.withValues(alpha: 0.10),
+              color: const Color(0xFF0D0F1F),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: _cyan.withValues(alpha: 0.25), width: 0.5),
             ),
             child: const Text(
-              'ALL-TIME BEST',
+              'RUSH BEST',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -183,7 +200,7 @@ class _RushStartScreenState extends State<RushStartScreen> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: hasBest ? _cyan.withValues(alpha: 0.60) : _cyan.withValues(alpha: 0.18),
+              color: hasBest ? _cyan : _cyan.withValues(alpha: 0.18),
               letterSpacing: 0.2,
             ),
           ),
@@ -193,37 +210,46 @@ class _RushStartScreenState extends State<RushStartScreen> {
   }
 
   Widget _buildStartButton() {
-    return GestureDetector(
-      onTap: _isStarting ? null : _startRun,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        width: double.infinity,
-        height: 64,
-        decoration: BoxDecoration(
-          color: _cyan,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(color: _cyan.withValues(alpha: 0.35), blurRadius: 32, spreadRadius: 3),
-            BoxShadow(color: _cyan.withValues(alpha: 0.15), blurRadius: 8),
-          ],
-        ),
-        child: Center(
-          child: _isStarting
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: _dark),
-                )
-              : const Text(
-                  'Start Speed Run',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: _dark,
-                    letterSpacing: -0.3,
-                  ),
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: _isStarting ? null : _startRun,
+          child: Container(
+            width: double.infinity,
+            height: 64,
+            decoration: BoxDecoration(
+              color: _cyan,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: _cyan.withValues(alpha: _pulseAnim.value),
+                  blurRadius: 32,
+                  spreadRadius: 3,
                 ),
-        ),
+                BoxShadow(color: _cyan.withValues(alpha: 0.15), blurRadius: 8),
+              ],
+            ),
+            child: child,
+          ),
+        );
+      },
+      child: Center(
+        child: _isStarting
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: _dark),
+              )
+            : const Text(
+                'Start Rush',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: _dark,
+                  letterSpacing: -0.3,
+                ),
+              ),
       ),
     );
   }
