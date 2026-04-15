@@ -43,7 +43,7 @@ class RushDailyScreen extends StatefulWidget {
 enum _RunPhase { running, ended }
 
 class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderStateMixin {
-  static const Duration _runDuration = Duration(seconds: 120);
+  static const Duration _runDuration = Duration(seconds: 90);
   static const int _maxUndo = 4;
   static const int _targetMin = 15;
   static const int _targetMax = 55;
@@ -344,22 +344,14 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
     setState(() => _phase = _RunPhase.ended);
 
     final storage = RushDailyStorage();
-    if (widget.runNumber == 1) {
-      await storage.saveRun1(_score);
-    } else {
-      await storage.saveRun2(_score);
-    }
+    await storage.saveRun1(_score);
 
     sfx.dailyComplete();
     if (!mounted) return;
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => _RushDailyResultScreen(
-          runNumber: widget.runNumber,
-          score: _score,
-          run1Score: widget.run1Score,
-        ),
+        builder: (_) => _RushDailyResultScreen(score: _score),
       ),
     );
   }
@@ -392,9 +384,9 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false, // Kein Back-Button
-          title: Text(
-            'Daily Speed · Run ${widget.runNumber}',
-            style: const TextStyle(
+          title: const Text(
+            'Daily Speed Run',
+            style: TextStyle(
               color: _green,
               fontWeight: FontWeight.w900,
               fontSize: 17,
@@ -567,36 +559,7 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
           ),
         ),
 
-        // Run 1 Score rechts (nur bei Run 2)
-        SizedBox(
-          width: 80,
-          child: widget.runNumber == 2 && widget.run1Score >= 0
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Run 1',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.30),
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    Text(
-                      '${widget.run1Score}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: _green,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                        height: 1.1,
-                      ),
-                    ),
-                  ],
-                )
-              : const SizedBox.shrink(),
-        ),
+        const SizedBox(width: 80),
       ],
     );
   }
@@ -605,23 +568,14 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
 // ── Daily Result Screen ───────────────────────────────────────────────────────
 
 class _RushDailyResultScreen extends StatelessWidget {
-  final int runNumber;
   final int score;
-  final int run1Score;
 
-  const _RushDailyResultScreen({
-    required this.runNumber,
-    required this.score,
-    required this.run1Score,
-  });
+  const _RushDailyResultScreen({required this.score});
 
   static const Color _green = Color(0xFF4CAF82);
 
   @override
   Widget build(BuildContext context) {
-    final bool isRun2 = runNumber == 2;
-    final bool isNewBest = isRun2 && score > run1Score;
-
     return Scaffold(
       backgroundColor: AppColors.bgTop,
       body: Stack(
@@ -642,10 +596,10 @@ class _RushDailyResultScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 32),
-                  Text(
-                    isRun2 ? 'Daily Speed\nComplete!' : 'Run $runNumber\nComplete!',
+                  const Text(
+                    'Daily Speed\nComplete!',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -661,12 +615,12 @@ class _RushDailyResultScreen extends StatelessWidget {
                       color: const Color(0xFF0D0F1F),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: _green.withValues(alpha: isNewBest ? 0.60 : 0.35),
-                        width: isNewBest ? 2.0 : 1.5,
+                        color: _green.withValues(alpha: 0.35),
+                        width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _green.withValues(alpha: isNewBest ? 0.18 : 0.06),
+                          color: _green.withValues(alpha: 0.06),
                           blurRadius: 30,
                           spreadRadius: 2,
                         ),
@@ -675,7 +629,7 @@ class _RushDailyResultScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          'Run $runNumber Score',
+                          'Score',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -693,61 +647,9 @@ class _RushDailyResultScreen extends StatelessWidget {
                             height: 0.9,
                           ),
                         ),
-                        if (isNewBest) ...[
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: _green.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: _green.withValues(alpha: 0.50), width: 0.5),
-                            ),
-                            child: const Text(
-                              '🏆  New Daily Best!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: _green,
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
-                  if (isRun2 && run1Score >= 0) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.03),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Run 1 Score',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.45),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '$run1Score',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),

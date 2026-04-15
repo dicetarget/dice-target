@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 
 class RushDailyResultScreen extends StatefulWidget {
   final int run1Score;
-  final int run2Score;
   final int allTimeBest;
   final int lastPuzzleTarget;
   final List<int> lastPuzzleDice;
@@ -16,7 +15,6 @@ class RushDailyResultScreen extends StatefulWidget {
   const RushDailyResultScreen({
     super.key,
     required this.run1Score,
-    required this.run2Score,
     required this.allTimeBest,
     required this.lastPuzzleTarget,
     required this.lastPuzzleDice,
@@ -36,7 +34,6 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
 
   late final int _bestScore;
   late final bool _isNewRecord;
-  late final int _delta;
 
   String? _lastPuzzleSolution;
   bool _solutionComputed = false;
@@ -44,9 +41,8 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
   @override
   void initState() {
     super.initState();
-    _bestScore = widget.run1Score > widget.run2Score ? widget.run1Score : widget.run2Score;
+    _bestScore = widget.run1Score;
     _isNewRecord = _bestScore > widget.allTimeBest;
-    _delta = widget.run2Score - widget.run1Score;
     _updateCountdown();
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(_updateCountdown);
@@ -155,96 +151,8 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     );
   }
 
-  Widget _runCard(String label, int score, bool isBetter) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 22),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isBetter ? _green.withValues(alpha: 0.50) : AppColors.cardBr,
-          width: isBetter ? 1.5 : 1.0,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 0.8,
-              color: isBetter
-                  ? _green.withValues(alpha: 0.70)
-                  : Colors.white.withValues(alpha: 0.35),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '$score',
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.w900,
-              color: isBetter ? Colors.white : Colors.white.withValues(alpha: 0.50),
-              letterSpacing: -1.5,
-              height: 1.0,
-            ),
-          ),
-          if (isBetter) ...[
-            const SizedBox(height: 4),
-            Text(
-              'best',
-              style: TextStyle(
-                fontSize: 11,
-                color: _green.withValues(alpha: 0.65),
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeltaRow() {
-    final String label;
-    final Color color;
-    final IconData icon;
-
-    if (_delta > 0) {
-      label = '+$_delta in Run 2';
-      color = _green.withValues(alpha: 0.85);
-      icon = Icons.trending_up_rounded;
-    } else if (_delta < 0) {
-      label = '$_delta in Run 2';
-      color = Colors.white.withValues(alpha: 0.35);
-      icon = Icons.trending_down_rounded;
-    } else {
-      label = 'Same score both runs';
-      color = Colors.white.withValues(alpha: 0.35);
-      icon = Icons.trending_flat_rounded;
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 15, color: color),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final run1Better = widget.run1Score >= widget.run2Score;
-    final run2Better = widget.run2Score > widget.run1Score;
-
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -268,35 +176,43 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.07),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.cardBr),
-                    ),
-                    child: Text(
-                      'DAILY · 2 RUNS',
-                      style: TextStyle(
-                        fontSize: 11,
-                        letterSpacing: 1.4,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white.withValues(alpha: 0.45),
-                      ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: _green.withValues(alpha: 0.50),
+                      width: 1.5,
                     ),
                   ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Score',
+                        style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 0.8,
+                          color: _green.withValues(alpha: 0.70),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${widget.run1Score}',
+                        style: const TextStyle(
+                          fontSize: 64,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -1.5,
+                          height: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(child: _runCard('Run 1', widget.run1Score, run1Better)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _runCard('Run 2', widget.run2Score, run2Better)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildDeltaRow(),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20),

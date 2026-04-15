@@ -36,7 +36,7 @@ class RushController extends ChangeNotifier {
   // ── Konstanten ────────────────────────────────────────────────────────────
 
   static const int standardDuration = 90;
-  static const int dailyDuration = 120;
+  static const int dailyDuration = 90;
   static const int maxUndoDepth = 4;
 
   // ── Konfiguration ─────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ class RushController extends ChangeNotifier {
   /// Schwierigkeit (Standard-Mode). Für Daily-Mode null.
   final RushDifficulty? difficulty;
 
-  /// Laufdauer in Sekunden. Standard = 90, Daily = 120.
+  /// Laufdauer in Sekunden. Standard = 90, Daily = 90.
   final int runDuration;
 
   /// Überschreibt den Target-Range (Daily: 15–55). Null = Difficulty-Phase.
@@ -53,9 +53,6 @@ class RushController extends ChangeNotifier {
 
   /// Daily-Modus: Saves in RushDailyStorage statt RushHighscoreStorage.
   final bool isDailyMode;
-
-  /// Welcher der 2 Daily-Runs (1 oder 2). Nur relevant wenn isDailyMode=true.
-  final int dailyRunNumber;
 
   /// Fixer Seed für Daily-Mode (gleiche Puzzles für alle). Null = Zufalls-Seed.
   final int? seedOverride;
@@ -89,7 +86,6 @@ class RushController extends ChangeNotifier {
     this.forcedTargetMin,
     this.forcedTargetMax,
     this.isDailyMode = false,
-    this.dailyRunNumber = 1,
     this.seedOverride,
     PuzzleGenerator? generator,
     MoveApplicationService? moveService,
@@ -370,11 +366,7 @@ class RushController extends ChangeNotifier {
     int? todayBest;
 
     if (isDailyMode) {
-      if (dailyRunNumber == 1) {
-        await _dailyStorage.saveRun1(_state.score);
-      } else {
-        await _dailyStorage.saveRun2(_state.score);
-      }
+      await _dailyStorage.saveRun1(_state.score);
     } else {
       isNewBest = await _scoreStorage.saveTodayBest(difficulty!, _state.score);
       todayBest = await _scoreStorage.loadTodayBest(difficulty!);
