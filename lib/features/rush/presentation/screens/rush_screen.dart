@@ -359,7 +359,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       _selected.clear();
       _pendingOp = null;
     });
-    sfx.click();
+    sfx.undo();
   }
 
   // ── End run ───────────────────────────────────────────────────────────────────
