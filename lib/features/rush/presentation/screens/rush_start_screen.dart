@@ -18,6 +18,7 @@ class _RushStartScreenState extends State<RushStartScreen>
   static const Color _dark = Color(0xFF090B18);
 
   int? _globalBest;
+  int _todayBest = 0;
   bool _loaded = false;
   bool _isStarting = false;
 
@@ -47,9 +48,11 @@ class _RushStartScreenState extends State<RushStartScreen>
 
   Future<void> _loadBest() async {
     final best = await _storage.loadGlobalBest();
+    final todayBest = await _storage.loadTodayBest();
     if (!mounted) return;
     setState(() {
       _globalBest = best;
+      _todayBest = todayBest;
       _loaded = true;
     });
   }
@@ -128,79 +131,85 @@ class _RushStartScreenState extends State<RushStartScreen>
   }
 
   Widget _buildCenter() {
-    final hasBest = _globalBest != null && _globalBest! > 0;
-    final displayValue = (!_loaded || !hasBest) ? '--' : '$_globalBest';
+    final allTimeDisplay = (_globalBest == null || _globalBest! <= 0) ? '--' : '$_globalBest';
+    final todayDisplay = _todayBest == 0 ? '--' : '$_todayBest';
 
     return Center(
-      child: SizedBox(
-        width: 280,
-        height: 280,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Radial glow behind the number
-            Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    _neon.withValues(alpha: 0.15),
-                    _neon.withValues(alpha: 0.0),
-                  ],
-                  stops: const [0.0, 1.0],
-                ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Radial glow behind the numbers area
+          Container(
+            width: 320,
+            height: 280,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  _neon.withValues(alpha: 0.15),
+                  _neon.withValues(alpha: 0.0),
+                ],
+                stops: const [0.0, 1.0],
               ),
             ),
-            // Content column on top of glow
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (!_loaded)
-                  SizedBox(
-                    height: 120,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: _neon.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  )
-                else
-                  Text(
-                    displayValue,
-                    style: TextStyle(
-                      fontSize: 120,
-                      fontWeight: FontWeight.w900,
-                      color: hasBest ? _neon : _neon.withValues(alpha: 0.18),
-                      letterSpacing: -4,
-                      height: 0.9,
-                      shadows: hasBest
-                          ? [
-                              Shadow(
-                                color: _neon.withValues(alpha: 0.5),
-                                blurRadius: 24,
-                              ),
-                            ]
-                          : null,
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                Text(
-                  'puzzles solved',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: _neon.withValues(alpha: 0.6),
-                    letterSpacing: 0.2,
-                  ),
+          ),
+          if (!_loaded)
+            SizedBox(
+              height: 120,
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: _neon.withValues(alpha: 0.7),
                 ),
+              ),
+            )
+          else
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildStatColumn(allTimeDisplay, 'all-time best'),
+                Container(
+                  width: 1,
+                  height: 80,
+                  margin: const EdgeInsets.symmetric(horizontal: 28),
+                  color: _neon.withValues(alpha: 0.20),
+                ),
+                _buildStatColumn(todayDisplay, "today's best"),
               ],
             ),
-          ],
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildStatColumn(String value, String label) {
+    final hasValue = value != '--';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 72,
+            fontWeight: FontWeight.bold,
+            color: hasValue ? _neon : _neon.withValues(alpha: 0.18),
+            letterSpacing: -2,
+            height: 0.9,
+            shadows: hasValue
+                ? [Shadow(color: _neon.withValues(alpha: 0.5), blurRadius: 24)]
+                : null,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: _neon.withValues(alpha: 0.6),
+          ),
+        ),
+      ],
     );
   }
 
