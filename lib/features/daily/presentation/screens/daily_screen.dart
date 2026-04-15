@@ -723,14 +723,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final disableButton = progress.isCompleted || progress.gaveUp || _isStartingDaily;
     final runStars = controller.runStars();
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        minHeight: MediaQuery.of(context).size.height -
-            kToolbarHeight -
-            MediaQuery.of(context).padding.top -
-            32,
-      ),
-      child: Container(
+    return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28), // larger than Speed (16)
       decoration: BoxDecoration(
@@ -749,7 +742,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -818,7 +810,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 color: Colors.white.withValues(alpha: 0.60),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               children: [
                 const Text('🔥', style: TextStyle(fontSize: 22)),
@@ -833,7 +826,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
+            const SizedBox(height: 24),
             // CTA — PRIMARY: tallest button on screen
             GestureDetector(
               onTap: disableButton ? null : () async => _handleMainAction(progress),
@@ -899,7 +893,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           ],
         ],
       ),
-    ),
     );
   }
 
