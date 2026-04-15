@@ -752,7 +752,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Daily Puzzle',
+                      'Daily Challenge',
                       style: TextStyle(
                         fontSize: 24, // larger than Speed (16)
                         fontWeight: FontWeight.w900,
@@ -801,31 +801,31 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             _buildMergedStatsCard(),
           ] else ...[
             _ProgressSteps(solvedCount: progress.solvedCount, totalPuzzles: totalPuzzles),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               '${progress.solvedCount} of $totalPuzzles puzzles solved',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.35),
+                color: Colors.white.withValues(alpha: 0.60),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             Row(
               children: [
-                const Text('🔥', style: TextStyle(fontSize: 15)),
+                const Text('🔥', style: TextStyle(fontSize: 22)),
                 const SizedBox(width: 6),
                 Text(
                   '${controller.dailyStreak} day streak',
                   style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
             // CTA — PRIMARY: tallest button on screen
             GestureDetector(
               onTap: disableButton ? null : () async => _handleMainAction(progress),
@@ -884,7 +884,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.22),
+                color: Colors.white.withValues(alpha: 0.45),
                 height: 1.5,
               ),
             ),
@@ -938,16 +938,23 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Speed: compact, quick entry — TOP
-                  // ignore: dead_code
-                  if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
-                  // Puzzle: primary, main feature — BOTTOM
-                  _buildDailyPuzzleSection(progress, daily.puzzles.length),
-                  const SizedBox(height: 8),
-                ],
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height -
+                      kToolbarHeight -
+                      MediaQuery.of(context).padding.top,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Speed: compact, quick entry — TOP
+                    // ignore: dead_code
+                    if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
+                    // Puzzle: primary, main feature — BOTTOM
+                    _buildDailyPuzzleSection(progress, daily.puzzles.length),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           );
