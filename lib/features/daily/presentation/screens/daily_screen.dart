@@ -744,52 +744,23 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Daily Challenge',
-                      style: TextStyle(
-                        fontSize: 24, // larger than Speed (16)
-                        fontWeight: FontWeight.w900,
-                        color: DailyScreen._gold,
-                        letterSpacing: -0.5,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Solve in the fewest moves',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: DailyScreen._muted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (showResults)
-                Row(
-                  children: List.generate(3, (i) {
-                    final filled = i < runStars;
-                    return Text(
-                      filled ? '★' : '☆',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: filled ? DailyScreen._gold : DailyScreen._muted,
-                      ),
-                    );
-                  }),
-                ),
-            ],
-          ),
-          const SizedBox(height: 18), // more breathing room than Speed
+          if (showResults) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: List.generate(3, (i) {
+                final filled = i < runStars;
+                return Text(
+                  filled ? '★' : '☆',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: filled ? DailyScreen._gold : DailyScreen._muted,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 18),
+          ],
 
           if (showResults) ...[
             _buildRunSummaryCard(progress),
@@ -896,6 +867,71 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
+  // ── Weekly streak widget ──────────────────────────────────────────────────
+
+  Widget _buildWeeklyStreakWidget() {
+    final streak = controller.dailyStreak;
+    final todayIndex = DateTime.now().weekday - 1; // 0=Mon … 6=Sun
+    const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D0F1F),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Last 7 days',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: DailyScreen._gold.withValues(alpha: 0.5),
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(7, (i) {
+              final isFilled = i < streak.clamp(0, 7);
+              final isToday = i == todayIndex;
+              return Column(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isFilled
+                          ? DailyScreen._gold.withValues(alpha: 0.85)
+                          : Colors.white.withValues(alpha: 0.07),
+                      border: isToday
+                          ? Border.all(color: DailyScreen._gold, width: 2.0)
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    dayLabels[i],
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white.withValues(alpha: isToday ? 0.90 : 0.35),
+                      fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -949,6 +985,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   // Puzzle: primary, main feature — BOTTOM
                   _buildDailyPuzzleSection(progress, daily.puzzles.length),
                   const SizedBox(height: 8),
+                  const SizedBox(height: 16),
+                  _buildWeeklyStreakWidget(),
                 ],
               ),
             ),
