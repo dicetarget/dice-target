@@ -172,7 +172,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
-      label: 'Speed Run',
+      label: 'Rush',
       sublabel: '90 seconds · Endless puzzles',
       glowColor: _green,
       borderColor: _green.withValues(alpha: 0.90),

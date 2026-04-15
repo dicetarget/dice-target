@@ -81,10 +81,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   Duration _remaining = _runDuration;
   Timer? _timer;
 
-  // ── Start Hint ────────────────────────────────────────────────────────────
-  bool _showStartHint = true;
-  Timer? _startHintTimer;
-
   // ── Prefetch ──────────────────────────────────────────────────────────────────
   Future<Puzzle>? _prefetchFuture;
 
@@ -167,7 +163,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer?.cancel();
-    _startHintTimer?.cancel();
     _pulseCtrl.dispose();
     _plusOneCtrl.dispose();
     _celebrateCtrl.dispose();
@@ -223,12 +218,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _applyPuzzle(puzzle);
     sfx.rushStart();
     _startPrefetch();
-
-    _showStartHint = true;
-    _startHintTimer?.cancel();
-    _startHintTimer = Timer(const Duration(milliseconds: 1500), () {
-      if (mounted) setState(() => _showStartHint = false);
-    });
   }
 
   void _startPrefetch() {
@@ -441,7 +430,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           color: _ink.withValues(alpha: 0.70),
         ),
         title: const Text(
-          'Speed Run',
+          'Rush',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -451,6 +440,47 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         ),
         centerTitle: true,
         actions: [
+          ScaleTransition(
+            scale: _pulseScale,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: _timerWarning
+                    ? const Color(0xFF000508)
+                    : Colors.white.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
+                border: Border.all(
+                  color: _timerWarning
+                      ? _timerColor().withValues(alpha: 0.85)
+                      : Colors.white.withValues(alpha: 0.18),
+                  width: _timerWarning ? 2.0 : 1.0,
+                ),
+                boxShadow: _timerWarning
+                    ? [
+                        BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
+                        BoxShadow(
+                          color: _timerColor().withValues(alpha: 0.22),
+                          blurRadius: 16,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Text(
+                '${_remaining.inSeconds}s',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: _timerColor(),
+                  letterSpacing: -0.5,
+                  shadows: _timerWarning
+                      ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
+                      : null,
+                ),
+              ),
+            ),
+          ),
           IconButton(
             icon: Icon(sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded, size: 20),
             color: _ink.withValues(alpha: 0.60),
@@ -527,7 +557,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 ),
               ),
               _buildPlusOneOverlay(),
-              _buildStartHintOverlay(),
             ],
           ),
         ),
@@ -568,51 +597,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
             ],
           ),
         ),
-        Expanded(
-          child: Center(
-            child: ScaleTransition(
-              scale: _pulseScale,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: _timerWarning
-                      ? const Color(0xFF000508)
-                      : Colors.white.withValues(alpha: 0.07),
-                  borderRadius: BorderRadius.circular(AppRadius.medium),
-                  border: Border.all(
-                    color: _timerWarning
-                        ? _timerColor().withValues(alpha: 0.85)
-                        : Colors.white.withValues(alpha: 0.18),
-                    width: _timerWarning ? 2.0 : 1.0,
-                  ),
-                  boxShadow: _timerWarning
-                      ? [
-                          BoxShadow(color: _timerColor().withValues(alpha: 0.50), blurRadius: 6),
-                          BoxShadow(
-                            color: _timerColor().withValues(alpha: 0.22),
-                            blurRadius: 16,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  '${_remaining.inSeconds}s',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: _timerColor(),
-                    letterSpacing: -0.5,
-                    shadows: _timerWarning
-                        ? [Shadow(color: _timerColor().withValues(alpha: 0.65), blurRadius: 10)]
-                        : null,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        const Spacer(),
         SizedBox(
           width: 80,
           child: Column(
@@ -641,40 +626,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStartHintOverlay() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: IgnorePointer(
-        child: AnimatedOpacity(
-          opacity: _showStartHint ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 400),
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 80),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.55),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
-              ),
-              child: Text(
-                'Solve as many as you can',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.70),
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
