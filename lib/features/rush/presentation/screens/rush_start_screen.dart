@@ -14,6 +14,8 @@ class RushStartScreen extends StatefulWidget {
 
 class _RushStartScreenState extends State<RushStartScreen> {
   static const Color _green = Color(0xFF4CAF82);
+  static const Color _cyan = Color(0xFF3FE8FF);
+  static const Color _dark = Color(0xFF090B18);
 
   int? _globalBest;
   bool _loaded = false;
@@ -70,12 +72,12 @@ class _RushStartScreenState extends State<RushStartScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildHeader(),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                    child: _buildBestCard(),
-                  ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildBestCard(),
                 ),
+                const Spacer(),
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
                   child: _buildStartButton(),
@@ -120,16 +122,17 @@ class _RushStartScreenState extends State<RushStartScreen> {
 
     return Container(
       width: double.infinity,
+      height: 280,
       decoration: BoxDecoration(
         color: const Color(0xFF0A1018),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: hasBest ? _green.withValues(alpha: 0.60) : _green.withValues(alpha: 0.18),
+          color: hasBest ? _cyan.withValues(alpha: 0.55) : _cyan.withValues(alpha: 0.15),
           width: hasBest ? 2.0 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: _green.withValues(alpha: hasBest ? 0.22 : 0.05),
+            color: _cyan.withValues(alpha: hasBest ? 0.18 : 0.04),
             blurRadius: hasBest ? 52 : 16,
             spreadRadius: hasBest ? 6 : 1,
           ),
@@ -141,26 +144,26 @@ class _RushStartScreenState extends State<RushStartScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
-              color: _green.withValues(alpha: 0.12),
+              color: _cyan.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _green.withValues(alpha: 0.28), width: 0.5),
+              border: Border.all(color: _cyan.withValues(alpha: 0.25), width: 0.5),
             ),
             child: const Text(
               'ALL-TIME BEST',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: _green,
+                color: _cyan,
                 letterSpacing: 1.4,
               ),
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           if (!_loaded)
             const SizedBox(
               height: 96,
               child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: _green),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: _cyan),
               ),
             )
           else
@@ -169,20 +172,18 @@ class _RushStartScreenState extends State<RushStartScreen> {
               style: TextStyle(
                 fontSize: 100,
                 fontWeight: FontWeight.w900,
-                color: hasBest ? Colors.white : Colors.white.withValues(alpha: 0.18),
+                color: hasBest ? _cyan : _cyan.withValues(alpha: 0.18),
                 letterSpacing: -4,
                 height: 0.9,
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             'puzzles solved',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: hasBest
-                  ? Colors.white.withValues(alpha: 0.40)
-                  : Colors.white.withValues(alpha: 0.18),
+              color: hasBest ? _cyan.withValues(alpha: 0.60) : _cyan.withValues(alpha: 0.18),
               letterSpacing: 0.2,
             ),
           ),
@@ -199,16 +200,11 @@ class _RushStartScreenState extends State<RushStartScreen> {
         width: double.infinity,
         height: 64,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.12)],
-          ),
+          color: _cyan,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _green.withValues(alpha: 0.80), width: 2.0),
           boxShadow: [
-            BoxShadow(color: _green.withValues(alpha: 0.40), blurRadius: 32, spreadRadius: 3),
-            BoxShadow(color: _green.withValues(alpha: 0.15), blurRadius: 8),
+            BoxShadow(color: _cyan.withValues(alpha: 0.35), blurRadius: 32, spreadRadius: 3),
+            BoxShadow(color: _cyan.withValues(alpha: 0.15), blurRadius: 8),
           ],
         ),
         child: Center(
@@ -216,14 +212,14 @@ class _RushStartScreenState extends State<RushStartScreen> {
               ? const SizedBox(
                   width: 24,
                   height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: _green),
+                  child: CircularProgressIndicator(strokeWidth: 2.5, color: _dark),
                 )
               : const Text(
                   'Start Speed Run',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: _green,
+                    color: _dark,
                     letterSpacing: -0.3,
                   ),
                 ),
