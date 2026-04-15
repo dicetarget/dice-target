@@ -385,7 +385,7 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
           surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false, // Kein Back-Button
           title: const Text(
-            'Daily Speed Run',
+            'Rush Daily',
             style: TextStyle(
               color: _green,
               fontWeight: FontWeight.w900,
