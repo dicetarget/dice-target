@@ -109,33 +109,25 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeroCard(
-                  title: 'Free',
-                  subtitle: 'Unlimited puzzles · No pressure · Your pace',
-                ),
-                const SizedBox(height: 12),
-                _buildFormatCard([
-                  const _FreeFormatRow(
-                    icon: Icons.all_inclusive_rounded,
-                    text: 'Unlimited puzzles',
-                  ),
-                  const SizedBox(height: 10),
-                  const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
-                  const SizedBox(height: 10),
-                  const _FreeFormatRow(
-                    icon: Icons.lightbulb_outline_rounded,
-                    text: 'Show Solution available',
-                  ),
-                ]),
-              ],
-            ),
-          ),
+        _buildHeroCard(
+          title: 'Free',
+          subtitle: 'Unlimited puzzles · No pressure · Your pace',
         ),
+        const SizedBox(height: 12),
+        _buildFormatCard([
+          const _FreeFormatRow(
+            icon: Icons.all_inclusive_rounded,
+            text: 'Unlimited puzzles',
+          ),
+          const SizedBox(height: 10),
+          const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+          const SizedBox(height: 10),
+          const _FreeFormatRow(
+            icon: Icons.lightbulb_outline_rounded,
+            text: 'Show Solution available',
+          ),
+        ]),
+        const Spacer(),
         const SizedBox(height: 16),
         _ActionButton(label: 'Start Free Play', onTap: _startFree, neutral: _neutral),
         const SizedBox(height: 24),
@@ -149,35 +141,27 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeroCard(
-                  title: 'Training',
-                  subtitle: 'Focus on a difficulty · Sharpen your skills',
-                ),
-                const SizedBox(height: 12),
-                _buildDifficultyCard(),
-                const SizedBox(height: 12),
-                _buildFormatCard([
-                  const _FreeFormatRow(
-                    icon: Icons.tune_rounded,
-                    text: 'Focused target range per difficulty',
-                  ),
-                  const SizedBox(height: 10),
-                  const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
-                  const SizedBox(height: 10),
-                  const _FreeFormatRow(
-                    icon: Icons.lightbulb_outline_rounded,
-                    text: 'Show Solution available',
-                  ),
-                ]),
-              ],
-            ),
-          ),
+        _buildHeroCard(
+          title: 'Training',
+          subtitle: 'Focus on a difficulty · Sharpen your skills',
         ),
+        const SizedBox(height: 12),
+        _buildDifficultyCard(),
+        const SizedBox(height: 12),
+        _buildFormatCard([
+          const _FreeFormatRow(
+            icon: Icons.tune_rounded,
+            text: 'Focused target range per difficulty',
+          ),
+          const SizedBox(height: 10),
+          const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+          const SizedBox(height: 10),
+          const _FreeFormatRow(
+            icon: Icons.lightbulb_outline_rounded,
+            text: 'Show Solution available',
+          ),
+        ]),
+        const Spacer(),
         const SizedBox(height: 16),
         _ActionButton(label: 'Start Training', onTap: _startTraining, neutral: _neutral),
         const SizedBox(height: 24),
@@ -379,7 +363,7 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: en ? Colors.white : null,
+          color: en ? const Color(0xFFE8E8E8) : null,
           gradient: en
               ? null
               : const LinearGradient(
