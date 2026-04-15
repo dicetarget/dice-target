@@ -862,6 +862,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               ),
             ),
           ],
+          Divider(color: Colors.white.withValues(alpha: 0.08)),
+          const SizedBox(height: 20),
+          _buildWeeklyStreakWidget(),
         ],
       ),
     );
@@ -985,8 +988,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   // Puzzle: primary, main feature — BOTTOM
                   _buildDailyPuzzleSection(progress, daily.puzzles.length),
                   const SizedBox(height: 8),
-                  const SizedBox(height: 16),
-                  _buildWeeklyStreakWidget(),
                 ],
               ),
             ),
