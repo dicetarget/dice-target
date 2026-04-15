@@ -2,26 +2,21 @@
 
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
-import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
 
 class RushResultScreen extends StatefulWidget {
-  final RushDifficulty difficulty;
   final int score;
   final int previousPb;
   final int lastPuzzleTarget;
   final List<int> lastPuzzleDice;
-  final bool isHighscoreMode;
 
   const RushResultScreen({
     super.key,
-    required this.difficulty,
     required this.score,
     required this.previousPb,
     required this.lastPuzzleTarget,
     required this.lastPuzzleDice,
-    this.isHighscoreMode = false,
   });
 
   @override
@@ -44,30 +39,17 @@ class _RushResultScreenState extends State<RushResultScreen> {
 
   Future<void> _saveIfNewBest() async {
     if (!_isNewBest) return;
-    final storage = RushHighscoreStorage();
-    if (widget.isHighscoreMode) {
-      await storage.saveTodayHighscore(widget.score);
-    } else {
-      await storage.saveTodayBest(widget.difficulty, widget.score);
-    }
+    await RushHighscoreStorage().saveGlobalBest(widget.score);
   }
 
   Future<void> _playAgain() async {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => RushScreen(
-          difficulty: widget.difficulty,
-          personalBest: _newPb,
-          isHighscoreMode: widget.isHighscoreMode,
-          forcedTargetMin: widget.isHighscoreMode ? 20 : null,
-          forcedTargetMax: widget.isHighscoreMode ? 80 : null,
-        ),
+        builder: (_) => RushScreen(personalBest: _newPb),
       ),
     );
   }
-
-  String get _modeLabel => widget.isHighscoreMode ? 'Highscore' : widget.difficulty.label;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +96,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
     return Column(
       children: [
         Text(
-          _modeLabel.toUpperCase(),
+          'SPEED RUN',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -168,7 +150,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 border: Border.all(color: _green.withValues(alpha: 0.50), width: 0.5),
               ),
               child: const Text(
-                '🏆  New Daily Best!',
+                '🏆  New Best!',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: _green),
               ),
             ),
@@ -210,7 +192,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            _isNewBest ? 'New daily best' : 'Today\'s best',
+            _isNewBest ? 'New all-time best' : 'All-time best',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

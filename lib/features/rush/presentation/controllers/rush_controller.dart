@@ -13,7 +13,6 @@ import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/logic/move_application_service.dart';
 import 'package:dice/features/rush/data/rush_daily_storage.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
-import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:dice/features/rush/domain/rush_state.dart';
 import 'package:flutter/foundation.dart';
 
@@ -41,15 +40,8 @@ class RushController extends ChangeNotifier {
 
   // ── Konfiguration ─────────────────────────────────────────────────────────
 
-  /// Schwierigkeit (Standard-Mode). Für Daily-Mode null.
-  final RushDifficulty? difficulty;
-
-  /// Laufdauer in Sekunden. Standard = 90, Daily = 90.
+  /// Laufdauer in Sekunden.
   final int runDuration;
-
-  /// Überschreibt den Target-Range (Daily: 15–55). Null = Difficulty-Phase.
-  final int? forcedTargetMin;
-  final int? forcedTargetMax;
 
   /// Daily-Modus: Saves in RushDailyStorage statt RushHighscoreStorage.
   final bool isDailyMode;
@@ -81,10 +73,7 @@ class RushController extends ChangeNotifier {
   Stream<RushEvent> get events => _eventCtrl.stream;
 
   RushController({
-    this.difficulty,
     this.runDuration = standardDuration,
-    this.forcedTargetMin,
-    this.forcedTargetMax,
     this.isDailyMode = false,
     this.seedOverride,
     PuzzleGenerator? generator,
@@ -95,7 +84,7 @@ class RushController extends ChangeNotifier {
        _moveService = moveService ?? const MoveApplicationService(),
        _scoreStorage = scoreStorage ?? RushHighscoreStorage(),
        _dailyStorage = dailyStorage ?? RushDailyStorage(),
-       _state = RushState.initial(difficulty: difficulty, runDuration: runDuration) {
+       _state = RushState.initial(runDuration: runDuration) {
     _coordinator = PuzzleCoordinator(
       generator: _generator,
       mode: GameMode.rush,
@@ -120,16 +109,19 @@ class RushController extends ChangeNotifier {
     _undoStack.clear();
     _prefetchedPuzzle = null;
 
-    // Highscore laden (nur Standard-Mode)
-    final int? todayBest = isDailyMode ? null : await _scoreStorage.loadTodayBest(difficulty!);
+    // One-time migration: clear legacy per-difficulty keys.
+    if (!isDailyMode) await _scoreStorage.clearLegacyKeys();
 
-    // Seed: Daily = datum-basiert (gleich für alle), Standard = Zufall
+    // Global best (Standard-Mode only).
+    final int? todayBest = isDailyMode ? null : await _scoreStorage.loadGlobalBest();
+
+    // Seed: Daily = datum-basiert (gleich für alle), Standard = Zufall.
     final int seed =
         seedOverride ?? (isDailyMode ? _buildDailySeed() : Random().nextInt(0x7FFFFFFF));
 
     _coordinator.reconfigure(config: DifficultyConfig.easy, baseSeed: seed, startIndex: 0);
 
-    final (min, max) = _currentTargetRange(_state.timeRemaining);
+    final (min, max) = _stageRange(0);
     final puzzle = _coordinator.currentPuzzle(targetMin: min, targetMax: max);
     _prefetchedPuzzle = _coordinator.peekNext(targetMin: min, targetMax: max);
 
@@ -144,7 +136,6 @@ class RushController extends ChangeNotifier {
       selectedIndices: const {},
       undoStackDepth: 0,
       todayBest: todayBest,
-      difficulty: difficulty,
     );
 
     notifyListeners();
@@ -190,11 +181,9 @@ class RushController extends ChangeNotifier {
     }
 
     if (_state.selectedIndices.length >= 2) {
-      // Sofort anwenden
       _state = _state.copyWith(clearSelectedOp: true);
       _applyOpInternal(op);
     } else {
-      // Op merken, warten auf 2. Würfel
       _state = _state.copyWith(selectedOp: op);
       notifyListeners();
     }
@@ -239,7 +228,6 @@ class RushController extends ChangeNotifier {
 
     _pushUndo();
 
-    // Würfel anwenden
     final newDice = List<int>.from(_state.dice);
     for (final i in move.removeIndicesDesc) {
       newDice.removeAt(i);
@@ -248,7 +236,6 @@ class RushController extends ChangeNotifier {
 
     if (newDice.length == 1) {
       if (newDice[0] == _state.target) {
-        // Solved: kurz den finalen Zustand anzeigen, dann wechseln
         _state = _state.copyWith(
           dice: newDice,
           selectedIndices: const {},
@@ -258,7 +245,6 @@ class RushController extends ChangeNotifier {
         notifyListeners();
         _onSolved();
       } else {
-        // Falsches Ergebnis: sofort zurücksetzen, nicht zeigen
         _onInvalid();
       }
     } else {
@@ -280,18 +266,19 @@ class RushController extends ChangeNotifier {
     final newScore = _state.score + 1;
     _undoStack.clear();
 
-    final (min, max) = _currentTargetRange(_state.timeRemaining);
+    final (min, max) = _stageRange(newScore);
 
-    // Nächstes Puzzle instant aus Prefetch
+    // Prefetch invalid at stage boundaries — regenerate in that case.
+    final atStageBoundary = newScore == 5 || newScore == 12;
+
     Puzzle next;
-    if (_prefetchedPuzzle != null) {
+    if (_prefetchedPuzzle != null && !atStageBoundary) {
       _coordinator.advanceIndex();
       next = _prefetchedPuzzle!;
     } else {
       next = _coordinator.nextPuzzle(targetMin: min, targetMax: max);
     }
 
-    // Direkt das übernächste voraus-generieren
     _prefetchedPuzzle = _coordinator.peekNext(targetMin: min, targetMax: max);
 
     _state = _state.copyWith(
@@ -311,7 +298,6 @@ class RushController extends ChangeNotifier {
     _triggerShake();
     if (sfx.enabled) sfx.invalid();
 
-    // Würfel auf Puzzle-Start zurücksetzen
     _undoStack.clear();
     _state = _state.copyWith(
       dice: List<int>.from(_state.initialDice),
@@ -353,7 +339,6 @@ class RushController extends ChangeNotifier {
     _state = _state.copyWith(timeRemaining: remaining);
     notifyListeners();
 
-    // Warnsound bei 20s
     if (remaining == 20 && sfx.enabled) {
       sfx.rushWarning();
     }
@@ -363,20 +348,20 @@ class RushController extends ChangeNotifier {
     _timer?.cancel();
 
     bool isNewBest = false;
-    int? todayBest;
+    int? globalBest;
 
     if (isDailyMode) {
       await _dailyStorage.saveRun1(_state.score);
     } else {
-      isNewBest = await _scoreStorage.saveTodayBest(difficulty!, _state.score);
-      todayBest = await _scoreStorage.loadTodayBest(difficulty!);
+      isNewBest = await _scoreStorage.saveGlobalBest(_state.score);
+      globalBest = await _scoreStorage.loadGlobalBest();
     }
 
     _state = _state.copyWith(
       isRunning: false,
       isFinished: true,
       isNewBest: isNewBest,
-      todayBest: todayBest ?? _state.todayBest,
+      todayBest: globalBest ?? _state.todayBest,
     );
 
     notifyListeners();
@@ -387,11 +372,11 @@ class RushController extends ChangeNotifier {
 
   // ── Intern: Hilfsmethoden ────────────────────────────────────────────────
 
-  (int, int) _currentTargetRange(int timeRemaining) {
-    if (forcedTargetMin != null && forcedTargetMax != null) {
-      return (forcedTargetMin!, forcedTargetMax!);
-    }
-    return difficulty!.phaseRange(timeRemaining);
+  /// Stage-based target range driven by solved count.
+  (int, int) _stageRange(int solvedCount) {
+    if (solvedCount >= 12) return (50, 90);
+    if (solvedCount >= 5) return (30, 60);
+    return (20, 40);
   }
 
   int _buildDailySeed() {

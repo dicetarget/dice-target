@@ -1,61 +1,41 @@
 // lib/features/rush/data/rush_highscore_storage.dart
 
-import 'package:dice/features/rush/domain/rush_difficulty.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RushHighscoreStorage {
-  static String _todayKey(RushDifficulty difficulty) {
-    final now = DateTime.now();
-    final y = now.year.toString();
-    final m = now.month.toString().padLeft(2, '0');
-    final d = now.day.toString().padLeft(2, '0');
-    return 'rush_best_${y}_${m}_${d}_${difficulty.name}';
-  }
+  static const _keyGlobal = 'rush_hs_global';
 
-  /// Gibt den heutigen Tages-Highscore zurück. Null = noch kein Eintrag.
-  Future<int?> loadTodayBest(RushDifficulty difficulty) async {
+  /// Key prefixes used by the old per-difficulty and highscore-mode system.
+  static const _legacyPrefixes = ['rush_best_', 'rush_highscore_'];
+
+  /// All-time best solved count across all runs.
+  Future<int?> loadGlobalBest() async {
     final prefs = await SharedPreferences.getInstance();
-    final val = prefs.getInt(_todayKey(difficulty));
+    final val = prefs.getInt(_keyGlobal);
     return val == null || val < 0 ? null : val;
   }
 
-  /// Speichert Score wenn besser als bisheriger Tagesbest.
-  /// Gibt true zurück wenn es ein neuer Tagesbest ist.
-  Future<bool> saveTodayBest(RushDifficulty difficulty, int score) async {
+  /// Persists [score] if it beats the stored global best.
+  /// Returns true if a new record was set.
+  Future<bool> saveGlobalBest(int score) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = _todayKey(difficulty);
-    final existing = prefs.getInt(key) ?? -1;
+    final existing = prefs.getInt(_keyGlobal) ?? -1;
     if (score > existing) {
-      await prefs.setInt(key, score);
+      await prefs.setInt(_keyGlobal, score);
       return true;
     }
     return false;
   }
 
-  // ── Highscore-Modus (fixer Range 20–80, kein Difficulty-Key) ─────────────
-
-  static String _todayHighscoreKey() {
-    final now = DateTime.now();
-    final y = now.year.toString();
-    final m = now.month.toString().padLeft(2, '0');
-    final d = now.day.toString().padLeft(2, '0');
-    return 'rush_highscore_${y}_${m}_$d';
-  }
-
-  Future<int?> loadTodayHighscore() async {
+  /// One-time migration: removes all legacy per-difficulty and daily-highscore keys.
+  Future<void> clearLegacyKeys() async {
     final prefs = await SharedPreferences.getInstance();
-    final val = prefs.getInt(_todayHighscoreKey());
-    return val == null || val < 0 ? null : val;
-  }
-
-  Future<bool> saveTodayHighscore(int score) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = _todayHighscoreKey();
-    final existing = prefs.getInt(key) ?? -1;
-    if (score > existing) {
-      await prefs.setInt(key, score);
-      return true;
+    final toRemove = prefs
+        .getKeys()
+        .where((k) => _legacyPrefixes.any((p) => k.startsWith(p)))
+        .toList();
+    for (final key in toRemove) {
+      await prefs.remove(key);
     }
-    return false;
   }
 }

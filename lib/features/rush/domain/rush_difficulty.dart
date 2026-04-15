@@ -19,7 +19,6 @@ enum RushDifficulty {
     }
   }
 
-  /// Basis-Zielbereich pro Schwierigkeit.
   int get targetMin {
     switch (this) {
       case RushDifficulty.easy:
@@ -46,18 +45,13 @@ enum RushDifficulty {
     }
   }
 
-  /// Phasen-angepasster Range basierend auf verbleibender Zeit.
-  /// Early (>70s): untere 60% des Ranges → leichtere Targets
-  /// Mid  (20–70s): voller Range
-  /// Late (<20s):  obere 60% des Ranges → schwerere Targets
-  (int, int) phaseRange(int timeRemaining) {
-    final size = targetMax - targetMin;
-    if (timeRemaining > 70) {
-      return (targetMin, targetMin + (size * 0.6).round());
-    } else if (timeRemaining > 20) {
-      return (targetMin, targetMax);
-    } else {
-      return (targetMin + (size * 0.4).round(), targetMax);
-    }
+  /// Stage-based target range driven by solved count (replaces time-based phaseRange).
+  /// Stage 1 (20–40):  puzzles 1–5   (solvedCount 0–4)
+  /// Stage 2 (30–60):  puzzles 6–12  (solvedCount 5–11)
+  /// Stage 3 (50–90):  puzzle 13+    (solvedCount 12+)
+  static (int, int) stageRange(int solvedCount) {
+    if (solvedCount >= 12) return (50, 90);
+    if (solvedCount >= 5) return (30, 60);
+    return (20, 40);
   }
 }
