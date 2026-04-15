@@ -157,16 +157,6 @@ class _RushStartScreenState extends State<RushStartScreen>
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'RUSH BEST',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: _neon.withValues(alpha: 0.7),
-                    letterSpacing: 3,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 if (!_loaded)
                   SizedBox(
                     height: 120,
