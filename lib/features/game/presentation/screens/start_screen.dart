@@ -25,7 +25,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   static const Color _gold = Color(0xFFFFD700);
   static const Color _muted = Color(0xFF6B8CAE);
   static const Color _amber = Color(0xFFD4AC0D);
-  static const Color _amberLt = Color(0xFFFFF0A0);
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
 
@@ -224,17 +223,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
-      glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.30),
+      glowColor: Colors.white,
+      borderColor: Colors.white.withValues(alpha: 0.30),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.07), const Color(0xFF8B6914).withValues(alpha: 0.04)],
+        colors: [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)],
       ),
-      labelColor: _amberLt.withValues(alpha: 0.65),
-      sublabelColor: _amber.withValues(alpha: 0.35),
-      glowAlpha: 0.06,
-      glowBlur: 8,
+      labelColor: Colors.white,
+      sublabelColor: Colors.white.withValues(alpha: 0.60),
+      glowAlpha: 0.12,
+      glowBlur: 16,
       borderWidth: 0.5,
       labelSize: 20,
     );

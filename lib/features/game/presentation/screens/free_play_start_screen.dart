@@ -14,8 +14,8 @@ class FreePlayStartScreen extends StatefulWidget {
 }
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
-  // Neutral slate-blue — no color-meaning conflict with Daily (gold) or Speed Run (green)
-  static const Color _neutral = Color(0xFF6B8BAF);
+  // White/silver — no color-meaning conflict with Daily (gold) or Rush (green)
+  static const Color _neutral = Colors.white;
 
   _Tab _tab = _Tab.free;
   PracticeDifficulty _selectedDifficulty = PracticeDifficulty.easy;
@@ -379,21 +379,21 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: en
-                ? [neutral.withValues(alpha: 0.18), neutral.withValues(alpha: 0.08)]
-                : [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)],
-          ),
+          color: en ? Colors.white : null,
+          gradient: en
+              ? null
+              : const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0x0DFFFFFF), Color(0x05FFFFFF)],
+                ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: en ? neutral.withValues(alpha: 0.45) : Colors.white.withValues(alpha: 0.10),
+            color: en ? Colors.white.withValues(alpha: 0.30) : Colors.white.withValues(alpha: 0.10),
             width: 1.5,
           ),
-          // No strong glow — desaturated
           boxShadow: en
-              ? [BoxShadow(color: neutral.withValues(alpha: 0.10), blurRadius: 12, spreadRadius: 0)]
+              ? [BoxShadow(color: Colors.white.withValues(alpha: 0.30), blurRadius: 12, spreadRadius: 0)]
               : null,
         ),
         child: Center(
@@ -402,7 +402,7 @@ class _ActionButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: en ? Colors.white : Colors.white30,
+              color: en ? const Color(0xFF090B18) : Colors.white30,
               letterSpacing: -0.2,
             ),
           ),
@@ -422,7 +422,7 @@ class _FreeFormatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.30)), // neutral icon
+        Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.70)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
