@@ -261,7 +261,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
     final efficiencyLabel = progress.gaveUp
         ? '—'
-        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves — could be solved faster');
+        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
     final efficiencyColor = progress.gaveUp
         ? DailyScreen._muted
         : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
@@ -723,7 +723,14 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final disableButton = progress.isCompleted || progress.gaveUp || _isStartingDaily;
     final runStars = controller.runStars();
 
-    return Container(
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height -
+            kToolbarHeight -
+            MediaQuery.of(context).padding.top -
+            32,
+      ),
+      child: Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28), // larger than Speed (16)
       decoration: BoxDecoration(
@@ -742,6 +749,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -825,7 +833,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const Spacer(),
             // CTA — PRIMARY: tallest button on screen
             GestureDetector(
               onTap: disableButton ? null : () async => _handleMainAction(progress),
@@ -891,6 +899,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           ],
         ],
       ),
+    ),
     );
   }
 
@@ -938,23 +947,16 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height -
-                      kToolbarHeight -
-                      MediaQuery.of(context).padding.top,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Speed: compact, quick entry — TOP
-                    // ignore: dead_code
-                    if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
-                    // Puzzle: primary, main feature — BOTTOM
-                    _buildDailyPuzzleSection(progress, daily.puzzles.length),
-                    const SizedBox(height: 8),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Speed: compact, quick entry — TOP
+                  // ignore: dead_code
+                  if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
+                  // Puzzle: primary, main feature — BOTTOM
+                  _buildDailyPuzzleSection(progress, daily.puzzles.length),
+                  const SizedBox(height: 8),
+                ],
               ),
             ),
           );
