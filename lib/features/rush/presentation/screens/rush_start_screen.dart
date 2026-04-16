@@ -91,7 +91,11 @@ class _RushStartScreenState extends State<RushStartScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildHeader(),
-                Expanded(child: _buildCenter()),
+                const Spacer(),
+                _buildStats(),
+                const SizedBox(height: 32),
+                _buildStages(),
+                const Spacer(),
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
                   child: _buildStartButton(),
@@ -108,6 +112,7 @@ class _RushStartScreenState extends State<RushStartScreen>
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -116,21 +121,35 @@ class _RushStartScreenState extends State<RushStartScreen>
             padding: EdgeInsets.zero,
           ),
           const SizedBox(width: 8),
-          const Text(
-            'Rush',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: _neon,
-              letterSpacing: -0.5,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Rush',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: _neon,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '90 seconds. How many can you solve?',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: _neon.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCenter() {
+  Widget _buildStats() {
     final allTimeDisplay = (_globalBest == null || _globalBest! <= 0) ? '--' : '$_globalBest';
     final todayDisplay = _todayBest == 0 ? '--' : '$_todayBest';
 
@@ -141,7 +160,7 @@ class _RushStartScreenState extends State<RushStartScreen>
           // Radial glow behind the numbers area
           Container(
             width: 320,
-            height: 280,
+            height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
@@ -210,6 +229,21 @@ class _RushStartScreenState extends State<RushStartScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStages() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        'Difficulty increases automatically',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          color: _neon.withValues(alpha: 0.35),
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
