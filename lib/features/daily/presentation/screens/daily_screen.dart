@@ -1,6 +1,7 @@
 // lib/features/daily/presentation/screens/daily_screen.dart
 import 'dart:async';
 
+import 'package:dice/core/analytics/analytics_service.dart';
 import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/difficulty_config.dart';
 import 'package:dice/core/puzzle/game_mode.dart';
@@ -613,7 +614,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_dailyStateKey);
 
-    if (!allowReplay) sfx.startDaily();
+    if (!allowReplay) {
+      sfx.startDaily();
+      unawaited(analytics.logDailyStart());
+    }
     controller.startRunTimer();
 
     try {

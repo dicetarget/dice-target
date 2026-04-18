@@ -107,12 +107,33 @@ class PuzzleGenerator {
     required int? targetMin,
     required int? targetMax,
   }) {
-    final random = Random(seed);
+    // Training-Modus: Range gesetzt → Solvability garantieren
+    final bool guaranteeTraining = targetMin != null && targetMax != null && !keepTarget;
 
+    if (guaranteeTraining) {
+      for (var attempt = 0; attempt < _maxGuaranteedAttempts; attempt++) {
+        final candidateSeed = PuzzleSeed.mix(seed, attempt);
+        final random = Random(candidateSeed);
+        final dice = _diceGenerator.generateDice(random);
+        final target = _randomTargetInRange(random, min: targetMin, max: targetMax);
+        final result = _solverService.check(diceValues: dice, target: target);
+        if (!result.solvable) continue;
+        return Puzzle(
+          target: target,
+          dice: dice,
+          seed: candidateSeed,
+          isGuaranteedSolvable: true,
+          puzzleIndex: puzzleIndex,
+        );
+      }
+      // Fallback: letzter Kandidat auch wenn unlösbar (sollte nie passieren)
+    }
+
+    // Free Play: kein Guarantee — original Logik
+    final random = Random(seed);
     final dice = keepTarget
         ? _diceGenerator.generateDiceKeepTarget(random)
         : _diceGenerator.generateDice(random);
-
     final target = keepTarget && fixedTarget != null
         ? fixedTarget
         : _randomTarget(config, random, targetMin: targetMin, targetMax: targetMax);

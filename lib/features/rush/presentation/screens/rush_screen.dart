@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:dice/core/analytics/analytics_service.dart';
 import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/difficulty_config.dart';
 import 'package:dice/core/game_rules.dart';
@@ -149,6 +150,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
     _loadPuzzle();
     _startTimer();
+    unawaited(analytics.logRushStart());
   }
 
   @override
@@ -369,6 +371,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _pulseCtrl.stop();
     setState(() => _phase = _RunPhase.ended);
     sfx.dailyComplete();
+    unawaited(analytics.logRushComplete(score: _score));
     if (!mounted) return;
 
     final lastTarget = _target;

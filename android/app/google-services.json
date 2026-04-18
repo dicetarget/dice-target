@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177363872103",
+    "project_id": "dice-target",
+    "storage_bucket": "dice-target.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177363872103:android:e5a26e5df7abcffb9927c2",
+        "android_client_info": {
+          "package_name": "com.kwokkinlau.dicetarget"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaBGrr1aLfLS1ea8DrfxyljigmdZ8IF3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

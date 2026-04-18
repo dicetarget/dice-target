@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dice/core/analytics/analytics_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/daily_repository.dart';
@@ -224,6 +227,8 @@ class DailyController extends ChangeNotifier {
     lifetimeTotalPuzzlesSolved += total;
 
     await registerDailyCompleted();
+
+    unawaited(analytics.logDailyComplete(stars: stars));
 
     notifyListeners();
   }
