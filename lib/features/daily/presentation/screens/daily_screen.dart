@@ -745,31 +745,147 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (showResults) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: List.generate(3, (i) {
-                final filled = i < runStars;
-                return Text(
-                  filled ? '★' : '☆',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: filled ? DailyScreen._gold : DailyScreen._muted,
+            // ── 1. Run Result Card (Sterne + Moves + Time) ──────────────
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: _cardDecoration(radius: 18),
+              child: Row(
+                children: [
+                  // Sterne links
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Rating',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: List.generate(3, (i) {
+                          final filled = i < runStars;
+                          return Text(
+                            filled ? '★' : '☆',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: filled ? DailyScreen._gold : DailyScreen._muted,
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
                   ),
-                );
-              }),
+                  const SizedBox(width: 20),
+                  Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
+                  const SizedBox(width: 20),
+                  // Moves + Time rechts
+                  Expanded(
+                    child: Builder(builder: (_) {
+                      final totalDiff = controller.runTotalDiff();
+                      final totalTime = progress.totalTimeSeconds;
+                      final formattedTime = controller.formatTime(totalTime);
+                      final efficiencyLabel = progress.gaveUp
+                          ? '—'
+                          : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
+                      final efficiencyColor = progress.gaveUp
+                          ? DailyScreen._muted
+                          : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _SummaryCell(
+                              label: 'Moves',
+                              value: efficiencyLabel,
+                              valueColor: efficiencyColor,
+                            ),
+                          ),
+                          Expanded(
+                            child: _SummaryCell(label: 'Time', value: formattedTime),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 18),
-          ],
-
-          if (showResults) ...[
-            _buildRunSummaryCard(progress),
             const SizedBox(height: 12),
+
+            // ── 2. Results ───────────────────────────────────────────────
             _buildResultsCard(progress, totalPuzzles),
+            const SizedBox(height: 16),
+
+            // ── 3. Streak + Last 7 days ──────────────────────────────────
+            _buildWeeklyStreakWidget(),
+            const SizedBox(height: 12),
+
+            // ── 4. Lifetime Stats (2×2 Grid) ─────────────────────────────
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: _cardDecoration(),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _StatCell(
+                          label: 'Total Runs',
+                          value: '${controller.lifetimeTotalRuns}',
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                      Expanded(
+                        child: _StatCell(
+                          label: 'Best',
+                          value: _starsLabel(controller.lifetimeBestRating),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Divider(
+                    color: Colors.white.withValues(alpha: 0.06),
+                    height: 1,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _StatCell(
+                          label: 'Puzzles Solved',
+                          value: '${controller.lifetimeTotalPuzzlesSolved}',
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                      Expanded(
+                        child: _StatCell(
+                          label: 'Streak',
+                          value: '🔥 ${controller.dailyStreak}',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 14),
+
+            // ── 5. Countdown ─────────────────────────────────────────────
             _buildCompactCountdownRow(),
-            const SizedBox(height: 14),
-            _buildMergedStatsCard(),
           ] else ...[
             _ProgressSteps(solvedCount: progress.solvedCount, totalPuzzles: totalPuzzles),
             const SizedBox(height: 12),
@@ -861,10 +977,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                 height: 1.5,
               ),
             ),
+            Divider(color: Colors.white.withValues(alpha: 0.08)),
+            const SizedBox(height: 20),
+            _buildWeeklyStreakWidget(),
           ],
-          Divider(color: Colors.white.withValues(alpha: 0.08)),
-          const SizedBox(height: 20),
-          _buildWeeklyStreakWidget(),
         ],
       ),
     );
@@ -890,23 +1006,24 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           Text(
             'Last 7 days',
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: DailyScreen._gold.withValues(alpha: 0.5),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: DailyScreen._gold.withValues(alpha: 0.75),
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(7, (i) {
-              final isFilled = i < streak.clamp(0, 7);
+              final daysAgo = todayIndex - i;
+              final isFilled = daysAgo >= 0 && daysAgo < streak.clamp(0, 7);
               final isToday = i == todayIndex;
               return Column(
                 children: [
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isFilled
@@ -956,6 +1073,18 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              color: Colors.white70,
+            ),
+            onPressed: () async {
+              await sfx.toggle();
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: AnimatedBuilder(
         animation: controller,

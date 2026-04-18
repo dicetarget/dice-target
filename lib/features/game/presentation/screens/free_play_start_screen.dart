@@ -1,5 +1,6 @@
 // lib/features/game/presentation/screens/free_play_start_screen.dart
 
+import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     await Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const PracticeScreen(initialTrainingMode: false)));
+    if (mounted) setState(() {});
   }
 
   Future<void> _startTraining() async {
@@ -35,6 +37,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             PracticeScreen(initialTrainingMode: true, initialDifficulty: _selectedDifficulty),
       ),
     );
+    if (mounted) setState(() {});
   }
 
   @override
@@ -58,6 +61,18 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              color: Colors.white70,
+            ),
+            onPressed: () async {
+              await sfx.toggle();
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(

@@ -394,7 +394,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool get _isRolling => _phase == RoundPhase.rolling;
   bool get _isPlaying => _phase == RoundPhase.playing;
 
-  bool get _soundEnabled => _gameState.soundEnabled;
+  bool get _soundEnabled => sfx.enabled;
   UiOp? get _selectedOp => _gameState.selectedOp;
 
   bool get _canInteractGameplay {
@@ -1424,15 +1424,10 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void _toggleSound() {
-    final next = !_gameState.soundEnabled;
-
-    setState(() {
-      _gameState = _gameState.copyWith(soundEnabled: next);
+    sfx.toggle().then((_) {
+      if (mounted) setState(() {});
+      if (sfx.enabled) sfx.click();
     });
-
-    if (next) {
-      sfx.click();
-    }
   }
 
   void _toggleMerged() {
@@ -1749,7 +1744,23 @@ class _PracticeScreenState extends State<PracticeScreen>
                     enableFeedback: false,
                     color: AppColors.ink.withValues(alpha: 0.70),
                   ),
-            actions: const [],
+            actions: [
+              StatefulBuilder(
+                builder: (context, setIcon) => IconButton(
+                  icon: Icon(
+                    sfx.enabled
+                        ? Icons.volume_up_rounded
+                        : Icons.volume_off_rounded,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () async {
+                    await sfx.toggle();
+                    if (mounted) setState(() {});
+                    setIcon(() {});
+                  },
+                ),
+              ),
+            ],
           ),
           body: Stack(
             children: [
@@ -1776,7 +1787,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                           cardColor: _card,
                           accentColor: _accent,
                           inkColor: _ink,
-                          soundOn: _gameState.soundEnabled,
+                          soundOn: sfx.enabled,
                           onToggleSound: _toggleSound,
                           showMerged: _showMergedResults,
                           onToggleMerged: _toggleMerged,
