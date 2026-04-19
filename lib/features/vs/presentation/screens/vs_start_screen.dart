@@ -24,7 +24,7 @@ class VsStartScreen extends StatefulWidget {
 }
 
 class _VsStartScreenState extends State<VsStartScreen> {
-  static const Color _orange = Color(0xFFFF6B00);
+  static const Color _orange = Color(0xFF7B35E8);
 
   @override
   Widget build(BuildContext context) {

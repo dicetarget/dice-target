@@ -23,7 +23,7 @@ class VsResultScreen extends StatefulWidget {
 }
 
 class _VsResultScreenState extends State<VsResultScreen> {
-  static const Color _orange = Color(0xFFFF6B00);
+  static const Color _orange = Color(0xFF7B35E8);
 
   late VsWinner _winner;
   late bool _iWon;

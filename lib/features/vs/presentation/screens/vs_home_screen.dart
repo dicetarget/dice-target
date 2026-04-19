@@ -17,8 +17,8 @@ class VsHomeScreen extends StatefulWidget {
 }
 
 class _VsHomeScreenState extends State<VsHomeScreen> {
-  static const Color _orange = Color(0xFFFF6B00);
-  static const Color _orangeLt = Color(0xFFFFE0CC);
+  static const Color _orange = Color(0xFF7B35E8);
+  static const Color _orangeLt = Color(0xFFE8D5FF);
 
   VsPlayer? _player;
   List<String> _friends = [];

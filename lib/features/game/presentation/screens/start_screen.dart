@@ -28,8 +28,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   static const Color _amber = Color(0xFFD4AC0D);
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _orange = Color(0xFFFF6B00);
-  static const Color _orangeLt = Color(0xFFFFE0CC);
+  static const Color _orange = Color(0xFF7B35E8);
+  static const Color _orangeLt = Color(0xFFE8D5FF);
 
   late final AnimationController _controller;
   late final Animation<double> _fade;

@@ -11,7 +11,7 @@ class VsFriendAddScreen extends StatefulWidget {
 }
 
 class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
-  static const Color _orange = Color(0xFFFF6B00);
+  static const Color _orange = Color(0xFF7B35E8);
 
   final _controller = TextEditingController();
   final _firestore = VsFirestoreService();

@@ -73,7 +73,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
-  static const Color _orange = Color(0xFFFF6B00);
+  static const Color _orange = Color(0xFF7B35E8);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -666,7 +666,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
                     color: _orange,
-                    shadows: const [Shadow(color: Color(0xFFFF6B00), blurRadius: 14)],
+                    shadows: const [Shadow(color: Color(0xFF7B35E8), blurRadius: 14)],
                   ),
                 ),
               ),
