@@ -1,0 +1,115 @@
+class VsChallengeModel {
+  final String id;
+  final String challengerId;
+  final String opponentId;
+  final int seed;
+  final int challengerPuzzles;
+  final int challengerTimeMs;
+  final int challengerMoves;
+  final int? opponentPuzzles;
+  final int? opponentTimeMs;
+  final int? opponentMoves;
+  final String status;
+  final DateTime createdAt;
+  final DateTime expiresAt;
+
+  const VsChallengeModel({
+    required this.id,
+    required this.challengerId,
+    required this.opponentId,
+    required this.seed,
+    required this.challengerPuzzles,
+    required this.challengerTimeMs,
+    required this.challengerMoves,
+    this.opponentPuzzles,
+    this.opponentTimeMs,
+    this.opponentMoves,
+    required this.status,
+    required this.createdAt,
+    required this.expiresAt,
+  });
+
+  static VsChallengeModel create({
+    required String challengerId,
+    required String opponentId,
+    required int seed,
+    required int challengerPuzzles,
+    required int challengerTimeMs,
+    required int challengerMoves,
+  }) {
+    final now = DateTime.now();
+    return VsChallengeModel(
+      id: now.millisecondsSinceEpoch.toString(),
+      challengerId: challengerId,
+      opponentId: opponentId,
+      seed: seed,
+      challengerPuzzles: challengerPuzzles,
+      challengerTimeMs: challengerTimeMs,
+      challengerMoves: challengerMoves,
+      opponentPuzzles: null,
+      opponentTimeMs: null,
+      opponentMoves: null,
+      status: 'pending',
+      createdAt: now,
+      expiresAt: now.add(const Duration(days: 7)),
+    );
+  }
+
+  bool get isPending => status == 'pending';
+  bool get isCompleted => status == 'completed';
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
+
+  VsChallengeModel withOpponentResult({
+    required int puzzles,
+    required int timeMs,
+    required int moves,
+  }) {
+    return VsChallengeModel(
+      id: id,
+      challengerId: challengerId,
+      opponentId: opponentId,
+      seed: seed,
+      challengerPuzzles: challengerPuzzles,
+      challengerTimeMs: challengerTimeMs,
+      challengerMoves: challengerMoves,
+      opponentPuzzles: puzzles,
+      opponentTimeMs: timeMs,
+      opponentMoves: moves,
+      status: 'completed',
+      createdAt: createdAt,
+      expiresAt: expiresAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'challengerId': challengerId,
+        'opponentId': opponentId,
+        'seed': seed,
+        'challengerPuzzles': challengerPuzzles,
+        'challengerTimeMs': challengerTimeMs,
+        'challengerMoves': challengerMoves,
+        'opponentPuzzles': opponentPuzzles,
+        'opponentTimeMs': opponentTimeMs,
+        'opponentMoves': opponentMoves,
+        'status': status,
+        'createdAt': createdAt.toIso8601String(),
+        'expiresAt': expiresAt.toIso8601String(),
+      };
+
+  factory VsChallengeModel.fromMap(Map<String, dynamic> map) => VsChallengeModel(
+        id: map['id'] as String,
+        challengerId: map['challengerId'] as String,
+        opponentId: map['opponentId'] as String,
+        seed: map['seed'] as int,
+        challengerPuzzles: map['challengerPuzzles'] as int,
+        challengerTimeMs: map['challengerTimeMs'] as int,
+        challengerMoves: map['challengerMoves'] as int,
+        opponentPuzzles: map['opponentPuzzles'] as int?,
+        opponentTimeMs: map['opponentTimeMs'] as int?,
+        opponentMoves: map['opponentMoves'] as int?,
+        status: map['status'] as String,
+        createdAt: DateTime.parse(map['createdAt'] as String),
+        expiresAt: DateTime.parse(map['expiresAt'] as String),
+      );
+}
