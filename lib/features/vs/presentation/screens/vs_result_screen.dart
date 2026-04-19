@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/features/vs/data/vs_link_encoder.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_winner_logic.dart';
 
@@ -238,11 +237,10 @@ class _VsResultScreenState extends State<VsResultScreen> {
   }
 
   Future<void> _shareChallenge() async {
-    final link = VsLinkEncoder.encode(widget.challenger);
-    await Clipboard.setData(ClipboardData(text: link));
+    await Clipboard.setData(const ClipboardData(text: 'VS Mode coming soon!'));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Challenge link copied!')),
+      const SnackBar(content: Text('VS Mode — Firebase coming soon!')),
     );
   }
 
