@@ -10,6 +10,7 @@ import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
 import 'package:dice/features/game/presentation/screens/free_play_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
+import 'package:dice/features/vs/presentation/screens/vs_start_screen.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   static const Color _amber = Color(0xFFD4AC0D);
   static const Color _green = Color(0xFF00E5A0);
   static const Color _greenLt = Color(0xFFD0FFF0);
+  static const Color _orange = Color(0xFFFF6B00);
+  static const Color _orangeLt = Color(0xFFFFE0CC);
 
   late final AnimationController _controller;
   late final Animation<double> _fade;
@@ -123,6 +126,10 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         _buildDailyButton(),
                         const SizedBox(height: 14),
 
+                        // ── VS Mode ────────────────────────────────────
+                        _buildVsButton(),
+                        const SizedBox(height: 14),
+
                         // ── Free Play — schwächstes Element ───────────
                         _buildFreePlayButton(),
 
@@ -212,6 +219,33 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       borderWidth: 1.0,
       labelSize: 22,
       isLoading: _isOpeningDaily,
+    );
+  }
+
+  Widget _buildVsButton() {
+    return _NeonButton(
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const VsStartScreen(
+            mode: VsStartMode.challenger,
+          ),
+        ),
+      ),
+      label: 'VS',
+      sublabel: 'Challenge a friend',
+      glowColor: _orange,
+      borderColor: _orange.withValues(alpha: 0.70),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_orange.withValues(alpha: 0.18), _orange.withValues(alpha: 0.08)],
+      ),
+      labelColor: _orangeLt,
+      sublabelColor: _orange.withValues(alpha: 0.70),
+      glowAlpha: 0.25,
+      glowBlur: 20,
+      borderWidth: 1.5,
+      labelSize: 24,
     );
   }
 
