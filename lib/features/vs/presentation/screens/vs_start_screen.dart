@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/data/vs_link_encoder.dart';
+import 'package:dice/features/vs/presentation/screens/vs_screen.dart';
 
 enum VsStartMode { challenger, opponent }
 
@@ -69,7 +70,13 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const Spacer(),
         _buildPrimaryButton('Start Challenge', () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsScreen(
+                seed: DateTime.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
         }),
         const SizedBox(height: 12),
         _buildHomeButton(),
