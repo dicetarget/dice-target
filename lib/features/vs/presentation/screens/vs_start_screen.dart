@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/features/vs/domain/vs_challenge.dart';
+import 'package:dice/features/vs/domain/vs_challenge_model.dart';
 import 'package:dice/features/vs/presentation/screens/vs_screen.dart';
 
 enum VsStartMode { challenger, opponent }
 
 class VsStartScreen extends StatefulWidget {
   final VsStartMode mode;
-  final VsChallenge? incomingChallenge;
+  final VsChallengeModel? incomingChallenge;
   final String? friendId;
   final String? myId;
 
@@ -73,10 +73,13 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const Spacer(),
         _buildPrimaryButton('Start Challenge', () {
+          final seed = DateTime.now().millisecondsSinceEpoch;
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => VsScreen(
-                seed: DateTime.now().millisecondsSinceEpoch,
+                seed: seed,
+                myId: widget.myId,
+                friendId: widget.friendId,
               ),
             ),
           );
@@ -97,7 +100,17 @@ class _VsStartScreenState extends State<VsStartScreen> {
         _buildChallengerStatsCard(),
         const Spacer(),
         _buildPrimaryButton('Accept Challenge', () {
-          Navigator.of(context).pop();
+          if (widget.incomingChallenge == null) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsScreen(
+                seed: widget.incomingChallenge!.seed,
+                myId: widget.myId,
+                friendId: widget.friendId,
+                incomingChallenge: widget.incomingChallenge,
+              ),
+            ),
+          );
         }),
         const SizedBox(height: 12),
         _buildHomeButton(),

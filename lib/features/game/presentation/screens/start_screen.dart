@@ -10,7 +10,7 @@ import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
 import 'package:dice/features/game/presentation/screens/free_play_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
-import 'package:dice/features/vs/presentation/screens/vs_start_screen.dart';
+import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -226,9 +226,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => const VsStartScreen(
-            mode: VsStartMode.challenger,
-          ),
+          builder: (_) => const VsHomeScreen(),
         ),
       ),
       label: 'VS',

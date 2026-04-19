@@ -8,12 +8,14 @@ class VsResultScreen extends StatefulWidget {
   final VsChallenge challenger;
   final VsChallenge opponent;
   final bool isChallenger;
+  final bool pendingOpponent;
 
   const VsResultScreen({
     super.key,
     required this.challenger,
     required this.opponent,
     required this.isChallenger,
+    this.pendingOpponent = false,
   });
 
   @override
@@ -69,7 +71,20 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   const SizedBox(height: 32),
                   _buildComparisonCard(),
                   const SizedBox(height: 24),
-                  if (widget.isChallenger) _buildShareButton(),
+                  if (widget.isChallenger && !widget.pendingOpponent) _buildShareButton(),
+                  if (widget.pendingOpponent)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        'Waiting for opponent to play...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.40),
+                        ),
+                      ),
+                    ),
                   const Spacer(),
                   _buildHomeButton(),
                   const SizedBox(height: 32),
@@ -83,7 +98,11 @@ class _VsResultScreenState extends State<VsResultScreen> {
   }
 
   Widget _buildHeader() {
-    final title = _isDraw ? 'Draw!' : (_iWon ? 'You won!' : 'They won!');
+    final title = widget.pendingOpponent
+        ? 'Waiting...'
+        : _isDraw
+            ? 'Draw!'
+            : (_iWon ? 'You won!' : 'They won!');
     return Column(
       children: [
         Text(

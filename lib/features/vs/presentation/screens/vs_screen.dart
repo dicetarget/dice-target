@@ -20,7 +20,9 @@ import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
 import 'package:dice/features/game/presentation/widgets/practice_game_area.dart';
 import 'package:dice/features/game/presentation/widgets/target_display_widget.dart';
 import 'package:dice/features/rush/domain/rush_difficulty.dart';
+import 'package:dice/features/vs/data/vs_firestore_service.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
+import 'package:dice/features/vs/domain/vs_challenge_model.dart';
 import 'package:dice/features/vs/presentation/screens/vs_result_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -47,8 +49,17 @@ class _UndoSnapshot {
 // ──────────────────────────────────────────────────────────────────────────────
 class VsScreen extends StatefulWidget {
   final int seed;
+  final String? myId;
+  final String? friendId;
+  final VsChallengeModel? incomingChallenge;
 
-  const VsScreen({super.key, required this.seed});
+  const VsScreen({
+    super.key,
+    required this.seed,
+    this.myId,
+    this.friendId,
+    this.incomingChallenge,
+  });
 
   @override
   State<VsScreen> createState() => _VsScreenState();
@@ -66,6 +77,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
+  final _firestore = VsFirestoreService();
   final RoundEvaluator _roundEvaluator = const RoundEvaluator();
   final MoveApplicationService _moveService = const MoveApplicationService();
   late final PuzzleCoordinator _coordinator;
@@ -377,22 +389,64 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     unawaited(analytics.logRushComplete(score: _score));
     if (!mounted) return;
 
-    final challenger = VsChallenge(
-      seed: widget.seed,
-      puzzlesSolved: _score,
-      timeUsedMs: _timeUsedMs,
-      movesUsed: _totalMoves,
-      createdAt: DateTime.now(),
-    );
+    final isChallenger = widget.incomingChallenge == null;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => VsResultScreen(
-          challenger: challenger,
-          opponent: challenger,
-          isChallenger: true,
+    if (isChallenger) {
+      final challenge = VsChallengeModel.create(
+        challengerId: widget.myId ?? 'unknown',
+        opponentId: widget.friendId ?? 'unknown',
+        seed: widget.seed,
+        challengerPuzzles: _score,
+        challengerTimeMs: _timeUsedMs,
+        challengerMoves: _totalMoves,
+      );
+      unawaited(_firestore.createChallenge(challenge));
+
+      final challengeAsOld = _toVsChallenge(challenge.challengerPuzzles,
+          challenge.challengerTimeMs, challenge.challengerMoves);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => VsResultScreen(
+            challenger: challengeAsOld,
+            opponent: challengeAsOld,
+            isChallenger: true,
+            pendingOpponent: true,
+          ),
         ),
-      ),
+      );
+    } else {
+      unawaited(_firestore.updateChallengeWithOpponentResult(
+        challengeId: widget.incomingChallenge!.id,
+        puzzles: _score,
+        timeMs: _timeUsedMs,
+        moves: _totalMoves,
+      ));
+
+      final incoming = widget.incomingChallenge!;
+      final challengerOld = _toVsChallenge(incoming.challengerPuzzles,
+          incoming.challengerTimeMs, incoming.challengerMoves);
+      final opponentOld = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => VsResultScreen(
+            challenger: challengerOld,
+            opponent: opponentOld,
+            isChallenger: false,
+            pendingOpponent: false,
+          ),
+        ),
+      );
+    }
+  }
+
+  VsChallenge _toVsChallenge(int puzzles, int timeMs, int moves) {
+    return VsChallenge(
+      seed: widget.seed,
+      puzzlesSolved: puzzles,
+      timeUsedMs: timeMs,
+      movesUsed: moves,
+      createdAt: DateTime.now(),
     );
   }
 
