@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/features/vs/data/vs_link_encoder.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_winner_logic.dart';
 
@@ -67,6 +69,8 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   _buildHeader(),
                   const SizedBox(height: 32),
                   _buildComparisonCard(),
+                  const SizedBox(height: 24),
+                  if (widget.isChallenger) _buildShareButton(),
                   const Spacer(),
                   _buildHomeButton(),
                   const SizedBox(height: 32),
@@ -228,6 +232,54 @@ class _VsResultScreenState extends State<VsResultScreen> {
           fontSize: 16,
           fontWeight: FontWeight.w800,
           color: isWinner ? _orange : Colors.white.withValues(alpha: 0.80),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareChallenge() async {
+    final link = VsLinkEncoder.encode(widget.challenger);
+    await Clipboard.setData(ClipboardData(text: link));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Challenge link copied!')),
+    );
+  }
+
+  Widget _buildShareButton() {
+    return GestureDetector(
+      onTap: _shareChallenge,
+      child: Container(
+        width: double.infinity,
+        height: 58,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              _orange.withValues(alpha: 0.22),
+              _orange.withValues(alpha: 0.10),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _orange.withValues(alpha: 0.70), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: _orange.withValues(alpha: 0.30),
+              blurRadius: 24,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: const Center(
+          child: Text(
+            '🔗  Share Challenge',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              color: _orange,
+            ),
+          ),
         ),
       ),
     );

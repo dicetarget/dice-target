@@ -568,7 +568,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Seed',
+                'Stage',
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.30),
@@ -577,7 +577,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 ),
               ),
               Text(
-                '${widget.seed}',
+                _score >= 12 ? '3' : _score >= 5 ? '2' : '1',
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.white.withValues(alpha: 0.45),
