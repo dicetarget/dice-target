@@ -8,11 +8,15 @@ enum VsStartMode { challenger, opponent }
 class VsStartScreen extends StatefulWidget {
   final VsStartMode mode;
   final VsChallenge? incomingChallenge;
+  final String? friendId;
+  final String? myId;
 
   const VsStartScreen({
     super.key,
     required this.mode,
     this.incomingChallenge,
+    this.friendId,
+    this.myId,
   });
 
   @override
