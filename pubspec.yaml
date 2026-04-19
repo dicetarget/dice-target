@@ -18,6 +18,9 @@ dependencies:
 
   # Persistent settings
   shared_preferences: ^2.2.3
+  # VS Mode
+  cloud_firestore: ^5.0.0
+  uuid: ^4.5.2
 
   # Confetti animation
   confetti: ^0.8.0
