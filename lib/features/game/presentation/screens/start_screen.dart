@@ -21,15 +21,12 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> with SingleTickerProviderStateMixin {
-  static const Color _cyan = Color(0xFF3FE8FF);
-  static const Color _cyanLt = Color(0xFFE0FEFF);
+  static const Color _cyan = Color(0xFF00E5FF);
+  static const Color _teal = Color(0xFF00C896);
+  static const Color _violet = Color(0xFF7C4DFF);
   static const Color _gold = Color(0xFFFFD700);
   static const Color _muted = Color(0xFF6B8CAE);
   static const Color _amber = Color(0xFFD4AC0D);
-  static const Color _green = Color(0xFF00E5A0);
-  static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _orange = Color(0xFF7B35E8);
-  static const Color _orangeLt = Color(0xFFE8D5FF);
 
   late final AnimationController _controller;
   late final Animation<double> _fade;
@@ -176,22 +173,22 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   // ── Speed Run — stärkster Glow, stärkster Border, größte Schrift ──────────
   Widget _buildSpeedRunButton() {
     return _NeonButton(
-      onPressed: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
+      onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const RushStartScreen())),
       label: 'Rush',
       sublabel: '90 seconds · Endless puzzles',
-      glowColor: _green,
-      borderColor: _green.withValues(alpha: 0.90),
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.90),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.12)],
+        colors: [_cyan.withValues(alpha: 0.08), _cyan.withValues(alpha: 0.03)],
       ),
-      labelColor: _greenLt,
-      sublabelColor: _green.withValues(alpha: 0.70),
-      glowAlpha: 0.45,
-      glowBlur: 28,
-      borderWidth: 2.0,
+      labelColor: Colors.white,
+      sublabelColor: _cyan.withValues(alpha: 0.85),
+      glowAlpha: 0.30,
+      glowBlur: 22,
+      borderWidth: 1.5,
       labelSize: 28,
     );
   }
@@ -202,21 +199,18 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
       sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.38), // reduced from 0.55
+      glowColor: _teal,
+      borderColor: _teal.withValues(alpha: 0.75),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          _cyan.withValues(alpha: 0.08), // reduced from 0.12
-          _cyan.withValues(alpha: 0.03), // reduced from 0.05
-        ],
+        colors: [_teal.withValues(alpha: 0.08), _teal.withValues(alpha: 0.03)],
       ),
-      labelColor: _cyanLt,
-      sublabelColor: _cyan.withValues(alpha: 0.40), // reduced from 0.50
-      glowAlpha: 0.10, // reduced from 0.18
-      glowBlur: 10, // reduced from 14
-      borderWidth: 1.0,
+      labelColor: Colors.white,
+      sublabelColor: _teal.withValues(alpha: 0.85),
+      glowAlpha: 0.25,
+      glowBlur: 18,
+      borderWidth: 1.5,
       labelSize: 22,
       isLoading: _isOpeningDaily,
     );
@@ -225,23 +219,20 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildVsButton() {
     return _NeonButton(
       onPressed: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const VsHomeScreen(),
-        ),
-      ),
+          MaterialPageRoute(builder: (_) => const VsHomeScreen())),
       label: 'VS',
       sublabel: 'Challenge a friend',
-      glowColor: _orange,
-      borderColor: _orange.withValues(alpha: 0.70),
+      glowColor: _violet,
+      borderColor: _violet.withValues(alpha: 0.85),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_orange.withValues(alpha: 0.18), _orange.withValues(alpha: 0.08)],
+        colors: [_violet.withValues(alpha: 0.08), _violet.withValues(alpha: 0.03)],
       ),
-      labelColor: _orangeLt,
-      sublabelColor: _orange.withValues(alpha: 0.70),
+      labelColor: Colors.white,
+      sublabelColor: _violet.withValues(alpha: 0.85),
       glowAlpha: 0.25,
-      glowBlur: 20,
+      glowBlur: 18,
       borderWidth: 1.5,
       labelSize: 24,
     );
@@ -250,22 +241,24 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   // ── Free Play — schwächstes Element ──────────────────────────────────────
   Widget _buildFreePlayButton() {
     return _NeonButton(
-      onPressed: () => Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
+      onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Unlimited puzzles',
       glowColor: Colors.white,
-      borderColor: Colors.white.withValues(alpha: 0.30),
+      borderColor: Colors.white.withValues(alpha: 0.25),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Colors.white.withValues(alpha: 0.05), Colors.white.withValues(alpha: 0.02)],
+        colors: [
+          Colors.white.withValues(alpha: 0.05),
+          Colors.white.withValues(alpha: 0.02),
+        ],
       ),
       labelColor: Colors.white,
-      sublabelColor: Colors.white.withValues(alpha: 0.60),
-      glowAlpha: 0.12,
-      glowBlur: 16,
+      sublabelColor: Colors.white.withValues(alpha: 0.55),
+      glowAlpha: 0.10,
+      glowBlur: 12,
       borderWidth: 0.5,
       labelSize: 20,
     );
