@@ -178,17 +178,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       label: 'Rush',
       sublabel: '90 seconds · Endless puzzles',
       glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.90),
+      borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.08), _cyan.withValues(alpha: 0.03)],
+        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _cyan.withValues(alpha: 0.85),
-      glowAlpha: 0.30,
-      glowBlur: 22,
-      borderWidth: 1.5,
+      sublabelColor: _cyan.withValues(alpha: 0.90),
+      glowAlpha: 0.45,
+      glowBlur: 30,
+      borderWidth: 2.0,
       labelSize: 28,
     );
   }
