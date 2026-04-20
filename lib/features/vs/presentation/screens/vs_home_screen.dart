@@ -7,6 +7,7 @@ import 'package:dice/features/vs/data/vs_player_storage.dart';
 import 'package:dice/features/vs/data/vs_firestore_service.dart';
 import 'package:dice/features/vs/presentation/screens/vs_friend_add_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_result_screen.dart';
+import 'package:dice/features/vs/presentation/screens/vs_onboarding_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_start_screen.dart';
 
 class VsHomeScreen extends StatefulWidget {
@@ -36,6 +37,13 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
 
   Future<void> _load() async {
     _player = await _storage.loadOrCreate();
+    if (_player!.displayName.isEmpty) {
+      if (!mounted) return;
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const VsOnboardingScreen()),
+      );
+      return;
+    }
     await _firestore.savePlayer(_player!);
     _friends = await _firestore.loadFriends(_player!.id);
     _challenges = await _firestore.loadChallenges(_player!.id);
@@ -148,7 +156,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your ID',
+                  'Your Name',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -158,7 +166,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _player!.id,
+                  _player!.displayName,
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
