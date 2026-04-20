@@ -22,11 +22,9 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> with SingleTickerProviderStateMixin {
   static const Color _cyan = Color(0xFF00E5FF);
-  static const Color _teal = Color(0xFF00C896);
-  static const Color _violet = Color(0xFF7C4DFF);
+  static const Color _amber = Color(0xFFFFB300);
   static const Color _gold = Color(0xFFFFD700);
   static const Color _muted = Color(0xFF6B8CAE);
-  static const Color _amber = Color(0xFFD4AC0D);
 
   late final AnimationController _controller;
   late final Animation<double> _fade;
@@ -199,15 +197,15 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
       sublabel: _isOpeningDaily ? '' : '5 puzzles · Fewest moves wins',
-      glowColor: _teal,
-      borderColor: _teal.withValues(alpha: 0.75),
+      glowColor: _amber,
+      borderColor: _amber.withValues(alpha: 0.75),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_teal.withValues(alpha: 0.04), _teal.withValues(alpha: 0.01)],
+        colors: [_amber.withValues(alpha: 0.04), _amber.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _teal.withValues(alpha: 0.85),
+      sublabelColor: _amber.withValues(alpha: 0.85),
       glowAlpha: 0.25,
       glowBlur: 18,
       borderWidth: 1.5,
@@ -222,17 +220,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           MaterialPageRoute(builder: (_) => const VsHomeScreen())),
       label: 'VS',
       sublabel: 'Play against a friend',
-      glowColor: _violet,
-      borderColor: _violet.withValues(alpha: 0.85),
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.60),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_violet.withValues(alpha: 0.04), _violet.withValues(alpha: 0.01)],
+        colors: [_cyan.withValues(alpha: 0.04), _cyan.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _violet.withValues(alpha: 0.85),
-      glowAlpha: 0.25,
-      glowBlur: 18,
+      sublabelColor: _cyan.withValues(alpha: 0.70),
+      glowAlpha: 0.18,
+      glowBlur: 16,
       borderWidth: 1.5,
       labelSize: 24,
     );
@@ -245,20 +243,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Play without limits',
-      glowColor: Colors.white,
-      borderColor: Colors.white.withValues(alpha: 0.25),
+      glowColor: _amber,
+      borderColor: _amber.withValues(alpha: 0.30),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          Colors.white.withValues(alpha: 0.05),
-          Colors.white.withValues(alpha: 0.02),
-        ],
+        colors: [_amber.withValues(alpha: 0.03), _amber.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: Colors.white.withValues(alpha: 0.55),
-      glowAlpha: 0.10,
-      glowBlur: 12,
+      sublabelColor: Colors.white.withValues(alpha: 0.45),
+      glowAlpha: 0.08,
+      glowBlur: 10,
       borderWidth: 0.5,
       labelSize: 20,
     );
