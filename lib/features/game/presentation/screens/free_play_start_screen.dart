@@ -16,7 +16,7 @@ class FreePlayStartScreen extends StatefulWidget {
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   // White/silver — no color-meaning conflict with Daily (gold) or Rush (green)
-  static const Color _neutral = Colors.white;
+  static const Color _neutral = Color(0xFFFFB300);
 
   _Tab _tab = _Tab.free;
   PracticeDifficulty _selectedDifficulty = PracticeDifficulty.easy;
@@ -130,16 +130,18 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         ),
         const SizedBox(height: 12),
         _buildFormatCard([
-          const _FreeFormatRow(
+          _FreeFormatRow(
             icon: Icons.all_inclusive_rounded,
             text: 'Unlimited puzzles',
+            neutral: _neutral,
           ),
           const SizedBox(height: 10),
-          const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+          _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer', neutral: _neutral),
           const SizedBox(height: 10),
-          const _FreeFormatRow(
+          _FreeFormatRow(
             icon: Icons.lightbulb_outline_rounded,
             text: 'Show Solution available',
+            neutral: _neutral,
           ),
         ]),
         const Spacer(),
@@ -164,16 +166,18 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         _buildDifficultyCard(),
         const SizedBox(height: 12),
         _buildFormatCard([
-          const _FreeFormatRow(
+          _FreeFormatRow(
             icon: Icons.tune_rounded,
             text: 'Focused target range per difficulty',
+            neutral: _neutral,
           ),
           const SizedBox(height: 10),
-          const _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer'),
+          _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer', neutral: _neutral),
           const SizedBox(height: 10),
-          const _FreeFormatRow(
+          _FreeFormatRow(
             icon: Icons.lightbulb_outline_rounded,
             text: 'Show Solution available',
+            neutral: _neutral,
           ),
         ]),
         const Spacer(),
@@ -378,21 +382,20 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: en ? const Color(0xFFE8E8E8) : null,
-          gradient: en
-              ? null
-              : const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x0DFFFFFF), Color(0x05FFFFFF)],
-                ),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: en
+                ? [neutral.withValues(alpha: 0.18), neutral.withValues(alpha: 0.08)]
+                : [const Color(0x0DFFFFFF), const Color(0x05FFFFFF)],
+          ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: en ? Colors.white.withValues(alpha: 0.30) : Colors.white.withValues(alpha: 0.10),
+            color: en ? neutral.withValues(alpha: 0.75) : Colors.white.withValues(alpha: 0.10),
             width: 1.5,
           ),
           boxShadow: en
-              ? [BoxShadow(color: Colors.white.withValues(alpha: 0.30), blurRadius: 12, spreadRadius: 0)]
+              ? [BoxShadow(color: neutral.withValues(alpha: 0.25), blurRadius: 20, spreadRadius: 1)]
               : null,
         ),
         child: Center(
@@ -401,7 +404,7 @@ class _ActionButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: en ? const Color(0xFF090B18) : Colors.white30,
+              color: en ? neutral : Colors.white30,
               letterSpacing: -0.2,
             ),
           ),
@@ -414,14 +417,15 @@ class _ActionButton extends StatelessWidget {
 class _FreeFormatRow extends StatelessWidget {
   final IconData icon;
   final String text;
+  final Color neutral;
 
-  const _FreeFormatRow({required this.icon, required this.text});
+  const _FreeFormatRow({required this.icon, required this.text, required this.neutral});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.white.withValues(alpha: 0.70)),
+        Icon(icon, size: 18, color: neutral.withValues(alpha: 0.80)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
