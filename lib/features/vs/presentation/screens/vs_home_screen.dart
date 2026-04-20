@@ -110,7 +110,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                             onPressed: () async {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => VsFriendAddScreen(myId: _player!.id),
+                                  builder: (_) => VsFriendAddScreen(
+                                myId: _player!.id,
+                                myDisplayName: _player!.displayName,
+                              ),
                                 ),
                               );
                               _refresh();

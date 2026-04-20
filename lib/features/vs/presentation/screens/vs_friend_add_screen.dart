@@ -3,8 +3,13 @@ import 'package:dice/features/vs/data/vs_firestore_service.dart';
 
 class VsFriendAddScreen extends StatefulWidget {
   final String myId;
+  final String myDisplayName;
 
-  const VsFriendAddScreen({super.key, required this.myId});
+  const VsFriendAddScreen({
+    super.key,
+    required this.myId,
+    required this.myDisplayName,
+  });
 
   @override
   State<VsFriendAddScreen> createState() => _VsFriendAddScreenState();
@@ -25,15 +30,20 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
   }
 
   Future<void> _addFriend() async {
-    final input = _controller.text.trim().toUpperCase();
+    final input = _controller.text.trim();
 
-    if (!RegExp(r'^DICE-\d{4}$').hasMatch(input)) {
-      setState(() => _error = 'Invalid ID. Format: DICE-XXXX');
+    if (input.isEmpty) {
+      setState(() => _error = 'Please enter a name');
       return;
     }
 
-    if (input == widget.myId) {
-      setState(() => _error = "That's your own ID!");
+    if (input.length < 2) {
+      setState(() => _error = 'Name must be at least 2 characters');
+      return;
+    }
+
+    if (input == widget.myDisplayName) {
+      setState(() => _error = "That's your own name!");
       return;
     }
 
@@ -51,7 +61,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
       return;
     }
 
-    await _firestore.addFriend(widget.myId, input);
+    await _firestore.addFriend(widget.myId, found.id);
     if (!mounted) return;
     Navigator.of(context).pop();
   }
@@ -109,7 +119,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ask them to share their DICE-XXXX ID with you.',
+                  'Ask your friend for their display name.',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -120,7 +130,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
                 const SizedBox(height: 24),
                 TextField(
                   controller: _controller,
-                  textCapitalization: TextCapitalization.characters,
+                  textCapitalization: TextCapitalization.words,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
@@ -128,7 +138,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
                     letterSpacing: 1.5,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'DICE-XXXX',
+                    hintText: "Friend's name",
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.20),
                       fontSize: 22,
