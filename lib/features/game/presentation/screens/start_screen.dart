@@ -204,7 +204,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_teal.withValues(alpha: 0.08), _teal.withValues(alpha: 0.03)],
+        colors: [_teal.withValues(alpha: 0.04), _teal.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
       sublabelColor: _teal.withValues(alpha: 0.85),
@@ -227,7 +227,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_violet.withValues(alpha: 0.08), _violet.withValues(alpha: 0.03)],
+        colors: [_violet.withValues(alpha: 0.04), _violet.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
       sublabelColor: _violet.withValues(alpha: 0.85),

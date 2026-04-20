@@ -14,7 +14,7 @@ class RushStartScreen extends StatefulWidget {
 
 class _RushStartScreenState extends State<RushStartScreen>
     with SingleTickerProviderStateMixin {
-  static const Color _neon = Color(0xFF00FF88);
+  static const Color _neon = Color(0xFF00E5FF);
   static const Color _dark = Color(0xFF090B18);
 
   int? _globalBest;
