@@ -257,17 +257,24 @@ class _RushStartScreenState extends State<RushStartScreen>
             width: double.infinity,
             height: 64,
             decoration: BoxDecoration(
-              color: _neon,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  _neon.withValues(alpha: 0.18),
+                  _neon.withValues(alpha: 0.08),
+                ],
+              ),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _neon.withValues(alpha: 0.90),
+                width: 2.0,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: _neon.withValues(alpha: _pulseAnim.value),
                   blurRadius: 32,
                   spreadRadius: 3,
-                ),
-                BoxShadow(
-                  color: _neon.withValues(alpha: 0.15),
-                  blurRadius: 8,
                 ),
               ],
             ),
@@ -277,17 +284,17 @@ class _RushStartScreenState extends State<RushStartScreen>
       },
       child: Center(
         child: _isStarting
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: _dark),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: _neon),
               )
-            : const Text(
+            : Text(
                 'Start Rush',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: _dark,
+                  color: _neon,
                   letterSpacing: -0.3,
                 ),
               ),
