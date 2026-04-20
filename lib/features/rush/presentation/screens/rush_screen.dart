@@ -417,7 +417,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         title: const Text(
           'Rush',
           style: TextStyle(
-            color: Colors.white,
+            color: Color(0xFF00E5FF),
             fontWeight: FontWeight.w900,
             fontSize: 17,
             letterSpacing: -0.2,
