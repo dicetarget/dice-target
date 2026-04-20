@@ -14,8 +14,11 @@ class VsFirestoreService {
     await _players.doc(player.id).set(player.toMap());
   }
 
-  Future<VsPlayer?> findPlayer(String id) async {
-    final snap = await _players.where('id', isEqualTo: id).limit(1).get();
+  Future<VsPlayer?> findPlayer(String displayName) async {
+    final snap = await _players
+        .where('displayName', isEqualTo: displayName)
+        .limit(1)
+        .get();
     if (snap.docs.isEmpty) return null;
     return VsPlayer.fromMap(snap.docs.first.data() as Map<String, dynamic>);
   }
