@@ -176,7 +176,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const RushStartScreen())),
       label: 'Rush',
-      sublabel: '90 seconds · Endless puzzles',
+      sublabel: '90 seconds · Solve as many as you can',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
@@ -198,7 +198,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
-      sublabel: _isOpeningDaily ? '' : 'Solve with the fewest moves',
+      sublabel: _isOpeningDaily ? '' : '5 puzzles · Fewest moves wins',
       glowColor: _teal,
       borderColor: _teal.withValues(alpha: 0.75),
       bgGradient: LinearGradient(
@@ -221,7 +221,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const VsHomeScreen())),
       label: 'VS',
-      sublabel: 'Challenge a friend',
+      sublabel: 'Play against a friend',
       glowColor: _violet,
       borderColor: _violet.withValues(alpha: 0.85),
       bgGradient: LinearGradient(
@@ -244,7 +244,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
-      sublabel: 'Unlimited puzzles',
+      sublabel: 'Play without limits',
       glowColor: Colors.white,
       borderColor: Colors.white.withValues(alpha: 0.25),
       bgGradient: LinearGradient(
