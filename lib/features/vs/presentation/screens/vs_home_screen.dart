@@ -143,33 +143,54 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         _buildChallengesList(),
                         const SizedBox(height: 32),
                         if (_friends.isEmpty) ...[
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _orange,
-                                foregroundColor: const Color(0xFF020408),
-                                textStyle: const TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              onPressed: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => VsFriendAddScreen(
-                                      myId: _player!.id,
-                                      myDisplayName: _player!.displayName,
-                                    ),
+                          GestureDetector(
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => VsFriendAddScreen(
+                                    myId: _player!.id,
+                                    myDisplayName: _player!.displayName,
                                   ),
-                                );
-                                _refresh();
-                              },
-                              child: const Text('Add Friend'),
+                                ),
+                              );
+                              _refresh();
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    _orange.withValues(alpha: 0.18),
+                                    _orange.withValues(alpha: 0.08),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: _orange.withValues(alpha: 0.90),
+                                  width: 2.0,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _orange.withValues(alpha: 0.35),
+                                    blurRadius: 28,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'Add Friend',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: _orange,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
