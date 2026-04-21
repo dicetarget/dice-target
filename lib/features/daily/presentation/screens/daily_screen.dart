@@ -1103,7 +1103,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(
-                          'Daily Challenge',
+                          'Daily',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
@@ -1131,7 +1131,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   Padding(
                     padding: const EdgeInsets.only(left: 48),
                     child: Text(
-                      '5 puzzles · Fewest moves wins',
+                      '5 puzzles · Fewer moves = more stars',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
