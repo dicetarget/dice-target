@@ -145,11 +145,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildHeroCard(
-          title: 'Free',
-          subtitle: 'Unlimited puzzles · No pressure · Your pace',
-        ),
-        const SizedBox(height: 12),
         _buildFormatCard([
           _FreeFormatRow(
             icon: Icons.all_inclusive_rounded,
@@ -179,11 +174,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildHeroCard(
-          title: 'Training',
-          subtitle: 'Focus on a difficulty · Sharpen your skills',
-        ),
-        const SizedBox(height: 12),
         _buildDifficultyCard(),
         const SizedBox(height: 12),
         _buildFormatCard([
@@ -206,46 +196,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         _ActionButton(label: 'Start Training', onTap: _startTraining, neutral: _neutral),
         const SizedBox(height: 24),
       ],
-    );
-  }
-
-  // ── Shared cards ───────────────────────────────────────────────────────────
-
-  Widget _buildHeroCard({required String title, required String subtitle}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)), // neutral, no glow
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-              color: Colors.white, // white, not amber
-              letterSpacing: -1.0,
-              height: 1.0,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.40),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
