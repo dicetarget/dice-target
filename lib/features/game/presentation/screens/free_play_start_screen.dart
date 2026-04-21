@@ -157,7 +157,8 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           _FreeFormatRow(
             icon: Icons.lightbulb_outline_rounded,
             text: 'Show Solution available',
-            neutral: _neutral,
+            neutral: _neutral.withValues(alpha: 0.35),
+            muted: true,
           ),
         ]),
         const Spacer(),
@@ -189,6 +190,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             icon: Icons.lightbulb_outline_rounded,
             text: 'Show Solution available',
             neutral: _neutral,
+            muted: true,
           ),
         ]),
         const Spacer(),
@@ -389,19 +391,29 @@ class _FreeFormatRow extends StatelessWidget {
   final IconData icon;
   final String text;
   final Color neutral;
+  final bool muted;
 
-  const _FreeFormatRow({required this.icon, required this.text, required this.neutral});
+  const _FreeFormatRow({
+    required this.icon,
+    required this.text,
+    required this.neutral,
+    this.muted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: neutral.withValues(alpha: 0.80)),
+        Icon(icon, size: 18, color: neutral.withValues(alpha: muted ? 0.35 : 0.80)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: muted ? Colors.white.withValues(alpha: 0.30) : Colors.white,
+            ),
           ),
         ),
       ],

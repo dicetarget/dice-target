@@ -1131,7 +1131,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   Padding(
                     padding: const EdgeInsets.only(left: 48),
                     child: Text(
-                      '5 puzzles · Fewer moves = more stars',
+                      '5 puzzles · Fewest moves wins',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
