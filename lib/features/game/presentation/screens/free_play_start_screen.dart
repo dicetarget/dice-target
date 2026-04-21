@@ -43,44 +43,65 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.bgTop,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Free Play',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-            letterSpacing: -0.3,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-              color: Colors.white70,
-            ),
-            onPressed: () async {
-              await sfx.toggle();
-              setState(() {});
-            },
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    color: Colors.white.withValues(alpha: 0.60),
+                    enableFeedback: false,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Free Play',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -1.0,
+                        height: 1.0,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                      color: Colors.white70,
+                      size: 22,
+                    ),
+                    enableFeedback: false,
+                    onPressed: () async {
+                      await sfx.toggle();
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.only(left: 48),
+                child: Text(
+                  'Play without limits',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.45),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               _buildTabSwitcher(),
               const SizedBox(height: 20),
               Expanded(child: _tab == _Tab.free ? _buildFreeContent() : _buildTrainingContent()),
