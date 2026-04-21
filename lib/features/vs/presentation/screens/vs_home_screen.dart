@@ -57,27 +57,6 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF020408),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: Colors.white.withValues(alpha: 0.70),
-          enableFeedback: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'VS Mode',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 17,
-            letterSpacing: -0.2,
-          ),
-        ),
-        centerTitle: true,
-      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -99,7 +78,36 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                              color: Colors.white.withValues(alpha: 0.70),
+                              enableFeedback: false,
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                        const Text(
+                          'VS',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -1.0,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Play against a friend',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.45),
+                          ),
+                        ),
+                        const SizedBox(height: 28),
                         _buildPlayerCard(),
                         const SizedBox(height: 24),
                         _buildSectionHeader(
@@ -127,6 +135,38 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         const SizedBox(height: 12),
                         _buildChallengesList(),
                         const SizedBox(height: 32),
+                        if (_friends.isEmpty) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _orange,
+                                foregroundColor: const Color(0xFF020408),
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              onPressed: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => VsFriendAddScreen(
+                                      myId: _player!.id,
+                                      myDisplayName: _player!.displayName,
+                                    ),
+                                  ),
+                                );
+                                _refresh();
+                              },
+                              child: const Text('Add Friend'),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ],
                     ),
                   ),
@@ -200,13 +240,26 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
 
   Widget _buildFriendsList() {
     if (_friends.isEmpty) {
-      return Text(
-        'No friends yet. Add a friend to challenge them.',
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.white.withValues(alpha: 0.35),
-          height: 1.5,
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'No friends yet',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Add friends to start playing',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.30),
+            ),
+          ),
+        ],
       );
     }
     return Column(
