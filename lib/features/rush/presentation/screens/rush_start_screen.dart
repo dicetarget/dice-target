@@ -126,7 +126,7 @@ class _RushStartScreenState extends State<RushStartScreen>
               const Text(
                 'Rush',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 32,
                   fontWeight: FontWeight.w900,
                   color: _neon,
                   letterSpacing: -0.5,
@@ -134,7 +134,7 @@ class _RushStartScreenState extends State<RushStartScreen>
               ),
               const SizedBox(height: 2),
               Text(
-                '90 seconds. How many can you solve?',
+                '90 seconds · Solve as many as you can',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

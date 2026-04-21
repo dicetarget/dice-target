@@ -78,33 +78,40 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: 20),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             IconButton(
                               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                              color: Colors.white.withValues(alpha: 0.70),
+                              color: Colors.white.withValues(alpha: 0.60),
                               enableFeedback: false,
+                              padding: EdgeInsets.zero,
                               onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'VS',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -1.0,
+                                height: 1.0,
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 28),
-                        const Text(
-                          'VS',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: -1.0,
-                          ),
-                        ),
                         const SizedBox(height: 6),
-                        Text(
-                          'Play against a friend',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.45),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 48),
+                          child: Text(
+                            'Play against a friend',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.45),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 28),

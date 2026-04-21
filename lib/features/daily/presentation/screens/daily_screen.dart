@@ -1061,35 +1061,8 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: DailyScreen._bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Daily Challenge',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-            letterSpacing: -0.3,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-              color: Colors.white70,
-            ),
-            onPressed: () async {
-              await sfx.toggle();
-              setState(() {});
-            },
-          ),
-        ],
-      ),
       body: AnimatedBuilder(
         animation: controller,
         builder: (context, _) {
@@ -1111,10 +1084,62 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
 
           return SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Header ──
+                  const SizedBox(height: 20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                        color: Colors.white.withValues(alpha: 0.60),
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        padding: EdgeInsets.zero,
+                        enableFeedback: false,
+                      ),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Daily Challenge',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -1.0,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                          color: Colors.white70,
+                          size: 22,
+                        ),
+                        onPressed: () async {
+                          await sfx.toggle();
+                          setState(() {});
+                        },
+                        enableFeedback: false,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 48),
+                    child: Text(
+                      '5 puzzles · Fewest moves wins',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: DailyScreen._gold.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   // Speed: compact, quick entry — TOP
                   // ignore: dead_code
                   if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],
