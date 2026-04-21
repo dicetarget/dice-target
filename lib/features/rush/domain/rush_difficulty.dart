@@ -45,13 +45,13 @@ enum RushDifficulty {
     }
   }
 
-  /// Stage-based target range driven by solved count (replaces time-based phaseRange).
-  /// Stage 1 (20–40):  puzzles 1–5   (solvedCount 0–4)
-  /// Stage 2 (30–60):  puzzles 6–12  (solvedCount 5–11)
-  /// Stage 3 (50–90):  puzzle 13+    (solvedCount 12+)
+  /// Stage-based target range driven by solved count.
+  /// Stage 1 (10–40):  solvedCount 0–3
+  /// Stage 2 (30–70):  solvedCount 4–9
+  /// Stage 3 (50–100): solvedCount 10+
   static (int, int) stageRange(int solvedCount) {
-    if (solvedCount >= 12) return (50, 90);
-    if (solvedCount >= 5) return (30, 60);
-    return (20, 40);
+    if (solvedCount >= 10) return (50, 100);
+    if (solvedCount >= 4) return (30, 70);
+    return (10, 40);
   }
 }
