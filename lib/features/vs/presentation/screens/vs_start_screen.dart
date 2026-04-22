@@ -10,6 +10,8 @@ class VsStartScreen extends StatefulWidget {
   final VsChallengeModel? incomingChallenge;
   final String? friendId;
   final String? myId;
+  final String? myDisplayName;
+  final String? friendName;
 
   const VsStartScreen({
     super.key,
@@ -17,6 +19,8 @@ class VsStartScreen extends StatefulWidget {
     this.incomingChallenge,
     this.friendId,
     this.myId,
+    this.myDisplayName,
+    this.friendName,
   });
 
   @override
@@ -80,6 +84,8 @@ class _VsStartScreenState extends State<VsStartScreen> {
                 seed: seed,
                 myId: widget.myId,
                 friendId: widget.friendId,
+                myDisplayName: widget.myDisplayName,
+                friendName: widget.friendName,
               ),
             ),
           );
@@ -107,6 +113,8 @@ class _VsStartScreenState extends State<VsStartScreen> {
                 seed: widget.incomingChallenge!.seed,
                 myId: widget.myId,
                 friendId: widget.friendId,
+                myDisplayName: widget.myDisplayName,
+                friendName: widget.friendName,
                 incomingChallenge: widget.incomingChallenge,
               ),
             ),

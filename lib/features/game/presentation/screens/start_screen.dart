@@ -171,8 +171,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   // ── Speed Run — stärkster Glow, stärkster Border, größte Schrift ──────────
   Widget _buildSpeedRunButton() {
     return _NeonButton(
-      onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const RushStartScreen())),
+      onPressed: () =>
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
       label: 'Rush',
       sublabel: '90 seconds · Solve as many as you can',
       glowColor: _cyan,
@@ -216,8 +216,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
 
   Widget _buildVsButton() {
     return _NeonButton(
-      onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const VsHomeScreen())),
+      onPressed: () =>
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
       label: 'VS',
       sublabel: 'Play against a friend',
       glowColor: _cyan,
@@ -239,8 +239,9 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   // ── Free Play — schwächstes Element ──────────────────────────────────────
   Widget _buildFreePlayButton() {
     return _NeonButton(
-      onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
+      onPressed: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Play without limits',
       glowColor: _amber,

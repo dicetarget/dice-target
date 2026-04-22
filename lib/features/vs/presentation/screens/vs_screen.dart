@@ -51,6 +51,8 @@ class VsScreen extends StatefulWidget {
   final int seed;
   final String? myId;
   final String? friendId;
+  final String? myDisplayName;
+  final String? friendName;
   final VsChallengeModel? incomingChallenge;
 
   const VsScreen({
@@ -58,6 +60,8 @@ class VsScreen extends StatefulWidget {
     required this.seed,
     this.myId,
     this.friendId,
+    this.myDisplayName,
+    this.friendName,
     this.incomingChallenge,
   });
 
@@ -395,8 +399,8 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       final challenge = VsChallengeModel.create(
         challengerId: widget.myId ?? 'unknown',
         opponentId: widget.friendId ?? 'unknown',
-        challengerName: widget.myId ?? '',
-        opponentName: widget.friendId ?? '',
+        challengerName: widget.myDisplayName ?? widget.myId ?? '',
+        opponentName: widget.friendName ?? widget.friendId ?? '',
         seed: widget.seed,
         challengerPuzzles: _score,
         challengerTimeMs: _timeUsedMs,
