@@ -24,6 +24,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   VsPlayer? _player;
   Map<String, String> _friends = {};
   List<VsChallengeModel> _challenges = [];
+  Map<String, String> _pendingRequests = {};
   bool _loading = true;
 
   final _storage = VsPlayerStorage();
@@ -46,6 +47,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     }
     await _firestore.savePlayer(_player!);
     _friends = await _firestore.loadFriends(_player!.id);
+    _pendingRequests = await _firestore.loadPendingRequests(_player!.id);
     _challenges = await _firestore.loadChallenges(_player!.id);
     if (mounted) setState(() => _loading = false);
   }
@@ -117,6 +119,12 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         const SizedBox(height: 28),
                         _buildPlayerCard(),
                         const SizedBox(height: 24),
+                        if (_pendingRequests.isNotEmpty) ...[
+                          _buildSectionHeader('Friend Requests'),
+                          const SizedBox(height: 12),
+                          _buildPendingRequestsList(),
+                          const SizedBox(height: 24),
+                        ],
                         _buildSectionHeader(
                           'Friends',
                           trailing: IconButton(
@@ -346,6 +354,15 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _removeFriend(friendId),
+            child: Icon(
+              Icons.person_remove_rounded,
+              size: 20,
+              color: Colors.white.withValues(alpha: 0.25),
+            ),
+          ),
         ],
       ),
     );
@@ -442,35 +459,63 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     }
 
     if (!iAmChallenger) {
-      return GestureDetector(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => VsStartScreen(
-              mode: VsStartMode.opponent,
-              friendId: c.challengerId,
-              myId: _player!.id,
-              myDisplayName: _player!.displayName,
-              friendName: c.challengerName,
-              incomingChallenge: c,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () => _declineChallenge(c),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                'Decline',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withValues(alpha: 0.45),
+                ),
+              ),
             ),
           ),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: _orange.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
-          ),
-          child: const Text(
-            'Play',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: _orange,
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => VsStartScreen(
+                  mode: VsStartMode.opponent,
+                  friendId: c.challengerId,
+                  myId: _player!.id,
+                  myDisplayName: _player!.displayName,
+                  friendName: c.challengerName,
+                  incomingChallenge: c,
+                ),
+              ),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: _orange.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
+              ),
+              child: const Text(
+                'Play',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: _orange,
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       );
     }
 
@@ -482,6 +527,29 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: Colors.white.withValues(alpha: 0.30),
       ),
     );
+  }
+
+  Future<void> _acceptRequest(String friendId) async {
+    await _firestore.acceptFriend(_player!.id, friendId);
+    await _load();
+  }
+
+  Future<void> _declineRequest(String friendId) async {
+    await _firestore.declineFriend(_player!.id, friendId);
+    if (!mounted) return;
+    setState(() => _pendingRequests.remove(friendId));
+  }
+
+  Future<void> _removeFriend(String friendId) async {
+    await _firestore.removeFriend(_player!.id, friendId);
+    if (!mounted) return;
+    setState(() => _friends.remove(friendId));
+  }
+
+  Future<void> _declineChallenge(VsChallengeModel c) async {
+    await _firestore.deleteChallenge(c.id);
+    if (!mounted) return;
+    setState(() => _challenges.removeWhere((ch) => ch.id == c.id));
   }
 
   void _openResult(VsChallengeModel c, bool iAmChallenger) {
@@ -506,6 +574,101 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           opponent: opponent,
           isChallenger: iAmChallenger,
         ),
+      ),
+    );
+  }
+
+  Widget _buildPendingRequestsList() {
+    return Column(
+      children: _pendingRequests.entries
+          .map((e) => _buildPendingRequestChip(e.key, e.value))
+          .toList(),
+    );
+  }
+
+  Widget _buildPendingRequestChip(String friendId, String friendName) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _orange.withValues(alpha: 0.25),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  friendName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'wants to be friends',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _declineRequest(friendId),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                'Decline',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withValues(alpha: 0.45),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _acceptRequest(friendId),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: _orange.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: _orange.withValues(alpha: 0.50),
+                  width: 1.0,
+                ),
+              ),
+              child: const Text(
+                'Accept',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: _orange,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -29,13 +29,20 @@ class VsFirestoreService {
     await _friendships.doc(friendshipId).set({
       'playerA': myId,
       'playerB': friendId,
+      'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
   Future<Map<String, String>> loadFriends(String myId) async {
-    final asA = await _friendships.where('playerA', isEqualTo: myId).get();
-    final asB = await _friendships.where('playerB', isEqualTo: myId).get();
+    final asA = await _friendships
+        .where('playerA', isEqualTo: myId)
+        .where('status', isEqualTo: 'accepted')
+        .get();
+    final asB = await _friendships
+        .where('playerB', isEqualTo: myId)
+        .where('status', isEqualTo: 'accepted')
+        .get();
     final friendIds = <String>[];
     for (final doc in asA.docs) {
       final data = doc.data() as Map<String, dynamic>;
@@ -93,5 +100,48 @@ class VsFirestoreService {
       'opponentMoves': moves,
       'status': 'completed',
     });
+  }
+
+  Future<void> deleteChallenge(String challengeId) async {
+    await _challenges.doc(challengeId).delete();
+  }
+
+  Future<Map<String, String>> loadPendingRequests(String myId) async {
+    final snap = await _friendships
+        .where('playerB', isEqualTo: myId)
+        .where('status', isEqualTo: 'pending')
+        .get();
+    final result = <String, String>{};
+    for (final doc in snap.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final senderId = data['playerA'] as String;
+      final playerSnap = await _players.doc(senderId).get();
+      if (playerSnap.exists) {
+        final playerData = playerSnap.data() as Map<String, dynamic>;
+        final name = (playerData['displayName'] as String?) ?? '';
+        result[senderId] = name.isNotEmpty ? name : senderId;
+      } else {
+        result[senderId] = senderId;
+      }
+    }
+    return result;
+  }
+
+  Future<void> acceptFriend(String myId, String friendId) async {
+    final ids = [myId, friendId]..sort();
+    final friendshipId = '${ids[0]}_${ids[1]}';
+    await _friendships.doc(friendshipId).update({'status': 'accepted'});
+  }
+
+  Future<void> declineFriend(String myId, String friendId) async {
+    final ids = [myId, friendId]..sort();
+    final friendshipId = '${ids[0]}_${ids[1]}';
+    await _friendships.doc(friendshipId).delete();
+  }
+
+  Future<void> removeFriend(String myId, String friendId) async {
+    final ids = [myId, friendId]..sort();
+    final friendshipId = '${ids[0]}_${ids[1]}';
+    await _friendships.doc(friendshipId).delete();
   }
 }
