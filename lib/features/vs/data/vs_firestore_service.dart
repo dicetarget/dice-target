@@ -33,20 +33,30 @@ class VsFirestoreService {
     });
   }
 
-  Future<List<String>> loadFriends(String myId) async {
+  Future<Map<String, String>> loadFriends(String myId) async {
     final asA = await _friendships.where('playerA', isEqualTo: myId).get();
     final asB = await _friendships.where('playerB', isEqualTo: myId).get();
-
-    final friends = <String>[];
+    final friendIds = <String>[];
     for (final doc in asA.docs) {
       final data = doc.data() as Map<String, dynamic>;
-      friends.add(data['playerB'] as String);
+      friendIds.add(data['playerB'] as String);
     }
     for (final doc in asB.docs) {
       final data = doc.data() as Map<String, dynamic>;
-      friends.add(data['playerA'] as String);
+      friendIds.add(data['playerA'] as String);
     }
-    return friends;
+    final result = <String, String>{};
+    for (final id in friendIds) {
+      final snap = await _players.doc(id).get();
+      if (snap.exists) {
+        final data = snap.data() as Map<String, dynamic>;
+        final name = (data['displayName'] as String?) ?? '';
+        result[id] = name.isNotEmpty ? name : id;
+      } else {
+        result[id] = id;
+      }
+    }
+    return result;
   }
 
   Future<void> createChallenge(VsChallengeModel challenge) async {

@@ -22,7 +22,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   static const Color _orangeLt = Color(0xFFE0FEFF);
 
   VsPlayer? _player;
-  List<String> _friends = [];
+  Map<String, String> _friends = {};
   List<VsChallengeModel> _challenges = [];
   bool _loading = true;
 
@@ -291,11 +291,11 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       );
     }
     return Column(
-      children: _friends.map((friend) => _buildFriendChip(friend)).toList(),
+      children: _friends.entries.map((e) => _buildFriendChip(e.key, e.value)).toList(),
     );
   }
 
-  Widget _buildFriendChip(String friendId) {
+  Widget _buildFriendChip(String friendId, String friendName) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -308,7 +308,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         children: [
           Expanded(
             child: Text(
-              friendId,
+              friendName,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -366,7 +366,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
 
   Widget _buildChallengeCard(VsChallengeModel c) {
     final iAmChallenger = c.challengerId == _player!.id;
-    final opponentId = iAmChallenger ? c.opponentId : c.challengerId;
+    final opponentName = iAmChallenger ? c.opponentName : c.challengerName;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -388,7 +388,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'vs $opponentId',
+                  'vs ${opponentName.isNotEmpty ? opponentName : (iAmChallenger ? c.opponentId : c.challengerId)}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

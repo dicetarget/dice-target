@@ -395,6 +395,8 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       final challenge = VsChallengeModel.create(
         challengerId: widget.myId ?? 'unknown',
         opponentId: widget.friendId ?? 'unknown',
+        challengerName: widget.myId ?? '',
+        opponentName: widget.friendId ?? '',
         seed: widget.seed,
         challengerPuzzles: _score,
         challengerTimeMs: _timeUsedMs,

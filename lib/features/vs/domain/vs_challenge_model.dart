@@ -2,6 +2,8 @@ class VsChallengeModel {
   final String id;
   final String challengerId;
   final String opponentId;
+  final String challengerName;
+  final String opponentName;
   final int seed;
   final int challengerPuzzles;
   final int challengerTimeMs;
@@ -17,6 +19,8 @@ class VsChallengeModel {
     required this.id,
     required this.challengerId,
     required this.opponentId,
+    required this.challengerName,
+    required this.opponentName,
     required this.seed,
     required this.challengerPuzzles,
     required this.challengerTimeMs,
@@ -32,6 +36,8 @@ class VsChallengeModel {
   static VsChallengeModel create({
     required String challengerId,
     required String opponentId,
+    required String challengerName,
+    required String opponentName,
     required int seed,
     required int challengerPuzzles,
     required int challengerTimeMs,
@@ -42,6 +48,8 @@ class VsChallengeModel {
       id: now.millisecondsSinceEpoch.toString(),
       challengerId: challengerId,
       opponentId: opponentId,
+      challengerName: challengerName,
+      opponentName: opponentName,
       seed: seed,
       challengerPuzzles: challengerPuzzles,
       challengerTimeMs: challengerTimeMs,
@@ -68,6 +76,8 @@ class VsChallengeModel {
       id: id,
       challengerId: challengerId,
       opponentId: opponentId,
+      challengerName: challengerName,
+      opponentName: opponentName,
       seed: seed,
       challengerPuzzles: challengerPuzzles,
       challengerTimeMs: challengerTimeMs,
@@ -85,6 +95,8 @@ class VsChallengeModel {
         'id': id,
         'challengerId': challengerId,
         'opponentId': opponentId,
+        'challengerName': challengerName,
+        'opponentName': opponentName,
         'seed': seed,
         'challengerPuzzles': challengerPuzzles,
         'challengerTimeMs': challengerTimeMs,
@@ -101,6 +113,8 @@ class VsChallengeModel {
         id: map['id'] as String,
         challengerId: map['challengerId'] as String,
         opponentId: map['opponentId'] as String,
+        challengerName: (map['challengerName'] as String?) ?? '',
+        opponentName: (map['opponentName'] as String?) ?? '',
         seed: map['seed'] as int,
         challengerPuzzles: map['challengerPuzzles'] as int,
         challengerTimeMs: map['challengerTimeMs'] as int,
