@@ -165,11 +165,14 @@ class _VsResultScreenState extends State<VsResultScreen> {
             isWinner: myIsWinner,
           ),
           const SizedBox(height: 8),
-          _buildTableRow(
-            label: 'Opponent',
-            challenge: theirChallenge,
-            isWinner: theirIsWinner,
-          ),
+          if (widget.pendingOpponent)
+            _buildPendingRow()
+          else
+            _buildTableRow(
+              label: 'Opponent',
+              challenge: theirChallenge,
+              isWinner: theirIsWinner,
+            ),
         ],
       ),
     );
@@ -237,6 +240,37 @@ class _VsResultScreenState extends State<VsResultScreen> {
         _buildValueCell('${challenge.puzzlesSolved}', isWinner),
         _buildValueCell(timeStr, isWinner),
         _buildValueCell('${challenge.movesUsed}', isWinner),
+      ],
+    );
+  }
+
+  Widget _buildPendingRow() {
+    return Row(
+      children: [
+        SizedBox(
+          width: 90,
+          child: Text(
+            'Opponent',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.white.withValues(alpha: 0.65),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Text(
+            'Waiting...',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.30),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
       ],
     );
   }
