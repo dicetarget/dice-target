@@ -11,6 +11,8 @@ class VsChallengeModel {
   final int? opponentPuzzles;
   final int? opponentTimeMs;
   final int? opponentMoves;
+  final bool challengerPlayed;
+  final bool opponentPlayed;
   final String status;
   final DateTime createdAt;
   final DateTime expiresAt;
@@ -28,6 +30,8 @@ class VsChallengeModel {
     this.opponentPuzzles,
     this.opponentTimeMs,
     this.opponentMoves,
+    this.challengerPlayed = false,
+    this.opponentPlayed = false,
     required this.status,
     required this.createdAt,
     required this.expiresAt,
@@ -39,9 +43,6 @@ class VsChallengeModel {
     required String challengerName,
     required String opponentName,
     required int seed,
-    required int challengerPuzzles,
-    required int challengerTimeMs,
-    required int challengerMoves,
   }) {
     final now = DateTime.now();
     return VsChallengeModel(
@@ -51,13 +52,15 @@ class VsChallengeModel {
       challengerName: challengerName,
       opponentName: opponentName,
       seed: seed,
-      challengerPuzzles: challengerPuzzles,
-      challengerTimeMs: challengerTimeMs,
-      challengerMoves: challengerMoves,
+      challengerPuzzles: 0,
+      challengerTimeMs: 0,
+      challengerMoves: 0,
       opponentPuzzles: null,
       opponentTimeMs: null,
       opponentMoves: null,
-      status: 'pending',
+      challengerPlayed: false,
+      opponentPlayed: false,
+      status: 'created',
       createdAt: now,
       expiresAt: now.add(const Duration(days: 7)),
     );
@@ -65,6 +68,7 @@ class VsChallengeModel {
 
   bool get isPending => status == 'pending';
   bool get isCompleted => status == 'completed';
+  bool get isCreated => status == 'created';
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 
   VsChallengeModel withOpponentResult({
@@ -85,7 +89,35 @@ class VsChallengeModel {
       opponentPuzzles: puzzles,
       opponentTimeMs: timeMs,
       opponentMoves: moves,
+      challengerPlayed: challengerPlayed,
+      opponentPlayed: true,
       status: 'completed',
+      createdAt: createdAt,
+      expiresAt: expiresAt,
+    );
+  }
+
+  VsChallengeModel withChallengerResult({
+    required int puzzles,
+    required int timeMs,
+    required int moves,
+  }) {
+    return VsChallengeModel(
+      id: id,
+      challengerId: challengerId,
+      opponentId: opponentId,
+      challengerName: challengerName,
+      opponentName: opponentName,
+      seed: seed,
+      challengerPuzzles: puzzles,
+      challengerTimeMs: timeMs,
+      challengerMoves: moves,
+      opponentPuzzles: opponentPuzzles,
+      opponentTimeMs: opponentTimeMs,
+      opponentMoves: opponentMoves,
+      challengerPlayed: true,
+      opponentPlayed: opponentPlayed,
+      status: 'pending',
       createdAt: createdAt,
       expiresAt: expiresAt,
     );
@@ -104,6 +136,8 @@ class VsChallengeModel {
         'opponentPuzzles': opponentPuzzles,
         'opponentTimeMs': opponentTimeMs,
         'opponentMoves': opponentMoves,
+        'challengerPlayed': challengerPlayed,
+        'opponentPlayed': opponentPlayed,
         'status': status,
         'createdAt': createdAt.toIso8601String(),
         'expiresAt': expiresAt.toIso8601String(),
@@ -122,6 +156,8 @@ class VsChallengeModel {
         opponentPuzzles: map['opponentPuzzles'] as int?,
         opponentTimeMs: map['opponentTimeMs'] as int?,
         opponentMoves: map['opponentMoves'] as int?,
+        challengerPlayed: (map['challengerPlayed'] as bool?) ?? false,
+        opponentPlayed: (map['opponentPlayed'] as bool?) ?? false,
         status: map['status'] as String,
         createdAt: DateTime.parse(map['createdAt'] as String),
         expiresAt: DateTime.parse(map['expiresAt'] as String),

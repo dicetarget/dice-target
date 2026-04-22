@@ -27,8 +27,9 @@ class VsFirestoreService {
     final ids = [myId, friendId]..sort();
     final friendshipId = '${ids[0]}_${ids[1]}';
     await _friendships.doc(friendshipId).set({
-      'playerA': myId,
-      'playerB': friendId,
+      'playerA': ids[0],
+      'playerB': ids[1],
+      'requestedBy': myId,
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -88,6 +89,21 @@ class VsFirestoreService {
     return results;
   }
 
+  Future<void> updateChallengeWithChallengerResult({
+    required String challengeId,
+    required int puzzles,
+    required int timeMs,
+    required int moves,
+  }) async {
+    await _challenges.doc(challengeId).update({
+      'challengerPuzzles': puzzles,
+      'challengerTimeMs': timeMs,
+      'challengerMoves': moves,
+      'challengerPlayed': true,
+      'status': 'pending',
+    });
+  }
+
   Future<void> updateChallengeWithOpponentResult({
     required String challengeId,
     required int puzzles,
@@ -107,14 +123,20 @@ class VsFirestoreService {
   }
 
   Future<Map<String, String>> loadPendingRequests(String myId) async {
-    final snap = await _friendships
+    final asA = await _friendships
+        .where('playerA', isEqualTo: myId)
+        .where('status', isEqualTo: 'pending')
+        .get();
+    final asB = await _friendships
         .where('playerB', isEqualTo: myId)
         .where('status', isEqualTo: 'pending')
         .get();
     final result = <String, String>{};
-    for (final doc in snap.docs) {
+    for (final doc in [...asA.docs, ...asB.docs]) {
       final data = doc.data() as Map<String, dynamic>;
-      final senderId = data['playerA'] as String;
+      final requestedBy = data['requestedBy'] as String;
+      if (requestedBy == myId) continue;
+      final senderId = requestedBy;
       final playerSnap = await _players.doc(senderId).get();
       if (playerSnap.exists) {
         final playerData = playerSnap.data() as Map<String, dynamic>;

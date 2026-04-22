@@ -396,20 +396,15 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     final isChallenger = widget.incomingChallenge == null;
 
     if (isChallenger) {
-      final challenge = VsChallengeModel.create(
-        challengerId: widget.myId ?? 'unknown',
-        opponentId: widget.friendId ?? 'unknown',
-        challengerName: widget.myDisplayName ?? widget.myId ?? '',
-        opponentName: widget.friendName ?? widget.friendId ?? '',
-        seed: widget.seed,
-        challengerPuzzles: _score,
-        challengerTimeMs: _timeUsedMs,
-        challengerMoves: _totalMoves,
-      );
-      unawaited(_firestore.createChallenge(challenge));
-
-      final challengeAsOld = _toVsChallenge(challenge.challengerPuzzles,
-          challenge.challengerTimeMs, challenge.challengerMoves);
+      final challengeId = widget.incomingChallenge?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString();
+      unawaited(_firestore.updateChallengeWithChallengerResult(
+        challengeId: challengeId,
+        puzzles: _score,
+        timeMs: _timeUsedMs,
+        moves: _totalMoves,
+      ));
+      final challengeAsOld = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => VsResultScreen(
