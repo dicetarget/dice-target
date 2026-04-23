@@ -77,15 +77,16 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const Spacer(),
         _buildPrimaryButton('Start Challenge', () {
-          final seed = DateTime.now().millisecondsSinceEpoch;
+          if (widget.incomingChallenge == null) return;
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => VsScreen(
-                seed: seed,
+                seed: widget.incomingChallenge!.seed,
                 myId: widget.myId,
                 friendId: widget.friendId,
                 myDisplayName: widget.myDisplayName,
                 friendName: widget.friendName,
+                incomingChallenge: widget.incomingChallenge,
               ),
             ),
           );
