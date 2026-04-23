@@ -2,24 +2,31 @@ import 'package:dice/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'core/audio/sfx_singleton.dart';
 import 'features/game/presentation/screens/start_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
-  try {
-    await sfx.init();
-  } catch (_) {}
+
   runApp(const DiceApp());
+
+  Future.microtask(() async {
+    try {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    } catch (_) {}
+  });
+
+  Future.microtask(() async {
+    try {
+      await sfx.init();
+    } catch (_) {}
+  });
 }
 
 class DiceApp extends StatelessWidget {
@@ -46,7 +53,6 @@ class DiceApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(enableFeedback: false)),
         outlinedButtonTheme: OutlinedButtonThemeData(style: ButtonStyle(enableFeedback: false)),
         textButtonTheme: TextButtonThemeData(style: ButtonStyle(enableFeedback: false)),
-        // ── Dark Neon SnackBar ──────────────────────────────────────────────
         snackBarTheme: SnackBarThemeData(
           backgroundColor: const Color(0xFF0D1F35),
           contentTextStyle: const TextStyle(

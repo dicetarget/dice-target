@@ -297,7 +297,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
 
   Widget _buildHomeButton() {
     return GestureDetector(
-      onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+      onTap: () => Navigator.of(context).popUntil(
+        (route) => route.settings.name == '/vs' || route.isFirst,
+      ),
       child: Container(
         width: double.infinity,
         height: 48,
@@ -310,7 +312,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         child: Center(
           child: Text(
-            'Home',
+            'Back to VS',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/vs_challenge_model.dart';
 import '../domain/vs_player.dart';
+import 'vs_head_to_head_service.dart';
 
 class VsFirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -9,6 +10,7 @@ class VsFirestoreService {
   CollectionReference get _players => _db.collection('players');
   CollectionReference get _friendships => _db.collection('friendships');
   CollectionReference get _challenges => _db.collection('challenges');
+  final _h2h = VsHeadToHeadService();
 
   Future<void> savePlayer(VsPlayer player) async {
     await _players.doc(player.id).set(player.toMap());
@@ -82,8 +84,16 @@ class VsFirestoreService {
 
     for (final doc in [...asChallenger.docs, ...asOpponent.docs]) {
       if (!seen.add(doc.id)) continue;
-      final model =
-          VsChallengeModel.fromMap(doc.data() as Map<String, dynamic>);
+      final data = doc.data() as Map<String, dynamic>;
+
+      // Filter: wenn ich bereits gelöscht habe, nicht anzeigen
+      final isChallenger = data['challengerId'] == myId;
+      final deletedByMe = isChallenger
+          ? (data['deletedByChallenger'] as bool? ?? false)
+          : (data['deletedByOpponent'] as bool? ?? false);
+      if (deletedByMe) continue;
+
+      final model = VsChallengeModel.fromMap(data);
       if (!model.isExpired) results.add(model);
     }
     return results;
@@ -116,16 +126,54 @@ class VsFirestoreService {
     required int timeMs,
     required int moves,
   }) async {
+    final snap = await _challenges.doc(challengeId).get();
+    if (!snap.exists) return;
+    final data = snap.data() as Map<String, dynamic>;
+
+    final challengerId = data['challengerId'] as String;
+    final opponentId = data['opponentId'] as String;
+    final challengerMoves = (data['challengerMoves'] as int?) ?? 0;
+    final challengerPuzzles = (data['challengerPuzzles'] as int?) ?? 0;
+    final opponentPuzzles = puzzles;
+
+    String winnerId = '';
+    if (challengerPuzzles > opponentPuzzles) {
+      winnerId = challengerId;
+    } else if (opponentPuzzles > challengerPuzzles) {
+      winnerId = opponentId;
+    } else {
+      if (challengerMoves < moves) {
+        winnerId = challengerId;
+      } else if (moves < challengerMoves) {
+        winnerId = opponentId;
+      }
+    }
+
     await _challenges.doc(challengeId).update({
       'opponentPuzzles': puzzles,
       'opponentTimeMs': timeMs,
       'opponentMoves': moves,
       'status': 'completed',
     });
+
+    await _h2h.update(
+      userAId: challengerId,
+      userBId: opponentId,
+      winnerId: winnerId,
+      userAMoves: challengerMoves,
+      userBMoves: moves,
+    );
   }
 
-  Future<void> deleteChallenge(String challengeId) async {
-    await _challenges.doc(challengeId).delete();
+  Future<void> deleteChallenge(String challengeId, String myId) async {
+    final snap = await _challenges.doc(challengeId).get();
+    if (!snap.exists) return;
+    final data = snap.data() as Map<String, dynamic>;
+    final challengerId = data['challengerId'] as String;
+
+    // Nur ich markiere mein eigenes "deleted" Flag
+    final field = myId == challengerId ? 'deletedByChallenger' : 'deletedByOpponent';
+    await _challenges.doc(challengeId).update({field: true});
   }
 
   Future<void> acceptChallenge(String challengeId) async {

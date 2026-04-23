@@ -9,6 +9,7 @@ import 'package:dice/features/vs/presentation/screens/vs_friend_add_screen.dart'
 import 'package:dice/features/vs/presentation/screens/vs_result_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_onboarding_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_start_screen.dart';
+import 'package:dice/features/vs/presentation/widgets/vs_head_to_head_card.dart';
 
 class VsHomeScreen extends StatefulWidget {
   const VsHomeScreen({super.key});
@@ -303,6 +304,52 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     );
   }
 
+  void _showFriendProfile(String friendId, String friendName) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0D0F1F),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              friendName,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            VsHeadToHeadCard(
+              myId: _player!.id,
+              friendId: friendId,
+              myName: _player!.displayName,
+              friendName: friendName,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildFriendChip(String friendId, String friendName) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -315,13 +362,16 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              friendName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.5,
+            child: GestureDetector(
+              onTap: () => _showFriendProfile(friendId, friendName),
+              child: Text(
+                friendName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           ),
@@ -660,7 +710,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
 
 
   Future<void> _deleteChallenge(VsChallengeModel c) async {
-    await _firestore.deleteChallenge(c.id);
+    await _firestore.deleteChallenge(c.id, _player!.id);
     if (!mounted) return;
     setState(() => _challenges.removeWhere((ch) => ch.id == c.id));
   }
