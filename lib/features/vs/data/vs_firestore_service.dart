@@ -89,6 +89,12 @@ class VsFirestoreService {
     return results;
   }
 
+  Future<VsChallengeModel?> loadChallenge(String challengeId) async {
+    final snap = await _challenges.doc(challengeId).get();
+    if (!snap.exists) return null;
+    return VsChallengeModel.fromMap(snap.data() as Map<String, dynamic>);
+  }
+
   Future<void> updateChallengeWithChallengerResult({
     required String challengeId,
     required int puzzles,

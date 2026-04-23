@@ -199,7 +199,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         if (_remaining <= Duration.zero) {
           _remaining = Duration.zero;
           _timer?.cancel();
-          _endRun();
+          unawaited(_endRun());
         }
       });
     });
@@ -429,13 +429,13 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     );
     if (confirm == true) {
       _timer?.cancel();
-      _endRun();
+      unawaited(_endRun());
     }
   }
 
   // ── End run ───────────────────────────────────────────────────────────────────
 
-  void _endRun() {
+  Future<void> _endRun() async {
     if (_phase == _RunPhase.ended) return;
     _pulseCtrl.stop();
     _timeUsedMs = (_runDuration - _remaining).inMilliseconds;
@@ -455,20 +455,21 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     }
 
     if (isChallenger) {
-      unawaited(_firestore.updateChallengeWithChallengerResult(
+      await _firestore.updateChallengeWithChallengerResult(
         challengeId: widget.incomingChallenge!.id,
         puzzles: _score,
         timeMs: _timeUsedMs,
         moves: _totalMoves,
-      ));
+      );
+      // Aktuellen Stand aus Firestore lesen
+      final fresh = await _firestore.loadChallenge(widget.incomingChallenge!.id);
+      if (!mounted) return;
       final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
-      final opponentPlayed = widget.incomingChallenge!.opponentPlayed;
-      if (opponentPlayed) {
-        final incoming = widget.incomingChallenge!;
+      if (fresh != null && fresh.opponentPlayed) {
         final opponentResult = _toVsChallenge(
-          incoming.opponentPuzzles ?? 0,
-          incoming.opponentTimeMs ?? 0,
-          incoming.opponentMoves ?? 0,
+          fresh.opponentPuzzles ?? 0,
+          fresh.opponentTimeMs ?? 0,
+          fresh.opponentMoves ?? 0,
         );
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
