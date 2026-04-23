@@ -32,17 +32,23 @@ class _VsResultScreenState extends State<VsResultScreen> {
   @override
   void initState() {
     super.initState();
-    _winner = VsWinnerLogic.determine(
-      challengerPuzzles: widget.challenger.puzzlesSolved,
-      challengerTimeMs: widget.challenger.timeUsedMs,
-      challengerMoves: widget.challenger.movesUsed,
-      opponentPuzzles: widget.opponent.puzzlesSolved,
-      opponentTimeMs: widget.opponent.timeUsedMs,
-      opponentMoves: widget.opponent.movesUsed,
-    );
-    _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
-        (!widget.isChallenger && _winner == VsWinner.opponent);
-    _isDraw = _winner == VsWinner.draw;
+    if (widget.pendingOpponent) {
+      _winner = VsWinner.draw;
+      _iWon = false;
+      _isDraw = false;
+    } else {
+      _winner = VsWinnerLogic.determine(
+        challengerPuzzles: widget.challenger.puzzlesSolved,
+        challengerTimeMs: widget.challenger.timeUsedMs,
+        challengerMoves: widget.challenger.movesUsed,
+        opponentPuzzles: widget.opponent.puzzlesSolved,
+        opponentTimeMs: widget.opponent.timeUsedMs,
+        opponentMoves: widget.opponent.movesUsed,
+      );
+      _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
+          (!widget.isChallenger && _winner == VsWinner.opponent);
+      _isDraw = _winner == VsWinner.draw;
+    }
   }
 
   @override
@@ -102,7 +108,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
         ? 'Waiting...'
         : _isDraw
             ? 'Draw!'
-            : (_iWon ? 'You won!' : 'They won!');
+            : (_iWon ? 'You won!' : 'You lost!');
     return Column(
       children: [
         Text(
