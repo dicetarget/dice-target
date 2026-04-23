@@ -327,6 +327,20 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           ),
           GestureDetector(
             onTap: () async {
+              final alreadyOpen = await _firestore.hasOpenChallenge(
+                _player!.id,
+                friendId,
+              );
+              if (!mounted) return;
+              if (alreadyOpen) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('You already have an open challenge with this friend.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                return;
+              }
               final seed = DateTime.now().millisecondsSinceEpoch;
               final challenge = VsChallengeModel.create(
                 challengerId: _player!.id,

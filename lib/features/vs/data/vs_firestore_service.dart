@@ -176,4 +176,21 @@ class VsFirestoreService {
     final friendshipId = '${ids[0]}_${ids[1]}';
     await _friendships.doc(friendshipId).delete();
   }
+
+  Future<bool> hasOpenChallenge(String myId, String friendId) async {
+    final asChallenger = await _challenges
+        .where('challengerId', isEqualTo: myId)
+        .where('opponentId', isEqualTo: friendId)
+        .get();
+    final asOpponent = await _challenges
+        .where('challengerId', isEqualTo: friendId)
+        .where('opponentId', isEqualTo: myId)
+        .get();
+    final all = [...asChallenger.docs, ...asOpponent.docs];
+    return all.any((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final status = data['status'] as String? ?? '';
+      return status == 'invited' || status == 'accepted' || status == 'pending';
+    });
+  }
 }
