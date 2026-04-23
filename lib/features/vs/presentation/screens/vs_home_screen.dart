@@ -439,7 +439,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  c.isCompleted ? 'Completed' : 'Pending',
+                  _buildChallengeSubtitle(c, iAmChallenger),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -457,30 +457,58 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     );
   }
 
+  String _buildChallengeSubtitle(VsChallengeModel c, bool iAmChallenger) {
+    final day = c.createdAt.day.toString().padLeft(2, '0');
+    final month = c.createdAt.month.toString().padLeft(2, '0');
+    final hour = c.createdAt.hour.toString().padLeft(2, '0');
+    final minute = c.createdAt.minute.toString().padLeft(2, '0');
+    final dateStr = '$day.$month  $hour:$minute';
+    if (c.isCompleted) {
+      final myPuzzles = iAmChallenger ? c.challengerPuzzles : (c.opponentPuzzles ?? 0);
+      final theirPuzzles = iAmChallenger ? (c.opponentPuzzles ?? 0) : c.challengerPuzzles;
+      return '$myPuzzles : $theirPuzzles  ·  $dateStr';
+    }
+    return dateStr;
+  }
+
   Widget _buildChallengeAction(VsChallengeModel c, bool iAmChallenger) {
     // Completed → View Result
     if (c.isCompleted) {
-      return GestureDetector(
-        onTap: () => _openResult(c, iAmChallenger),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.18),
-              width: 0.5,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () => _openResult(c, iAmChallenger),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                'View Result',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withValues(alpha: 0.70),
+                ),
+              ),
             ),
           ),
-          child: Text(
-            'View Result',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.70),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _deleteChallenge(c),
+            child: Icon(
+              Icons.delete_outline_rounded,
+              size: 20,
+              color: Colors.white.withValues(alpha: 0.25),
             ),
           ),
-        ),
+        ],
       );
     }
 
@@ -630,6 +658,12 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     setState(() => _friends.remove(friendId));
   }
 
+
+  Future<void> _deleteChallenge(VsChallengeModel c) async {
+    await _firestore.deleteChallenge(c.id);
+    if (!mounted) return;
+    setState(() => _challenges.removeWhere((ch) => ch.id == c.id));
+  }
 
   void _openResult(VsChallengeModel c, bool iAmChallenger) {
     final challenger = VsChallenge(
