@@ -54,6 +54,7 @@ class VsScreen extends StatefulWidget {
   final String? myDisplayName;
   final String? friendName;
   final VsChallengeModel? incomingChallenge;
+  final String vsMode;
 
   const VsScreen({
     super.key,
@@ -63,6 +64,7 @@ class VsScreen extends StatefulWidget {
     this.myDisplayName,
     this.friendName,
     this.incomingChallenge,
+    this.vsMode = 'rush',
   });
 
   @override
@@ -74,6 +76,9 @@ enum _RunPhase { running, ended }
 class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   static const Duration _runDuration = Duration(seconds: 90);
   static const int _maxUndo = 4;
+  static const int _speedRunPuzzles = 3;
+  int _puzzlesRemaining = _speedRunPuzzles;
+  final Stopwatch _stopwatch = Stopwatch();
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
@@ -167,6 +172,11 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
     _loadPuzzle();
     _startTimer();
+    if (widget.vsMode == 'speedrun') {
+      _timer?.cancel();
+      _stopwatch.start();
+      _remaining = Duration.zero; // unused in speedrun
+    }
     unawaited(analytics.logRushStart());
   }
 
@@ -184,6 +194,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   // ── Timer ─────────────────────────────────────────────────────────────────────
 
   void _startTimer() {
+    if (widget.vsMode == 'speedrun') return;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
@@ -362,6 +373,18 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     sfx.win();
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
+    if (widget.vsMode == 'speedrun') {
+      _puzzlesRemaining--;
+      if (_puzzlesRemaining <= 0) {
+        _stopwatch.stop();
+        Future.delayed(const Duration(milliseconds: 520), () {
+          if (!mounted) return;
+          _timer?.cancel();
+          unawaited(_endRun());
+        });
+        return;
+      }
+    }
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
       _advanceToNextPuzzle();
@@ -439,7 +462,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     if (_phase == _RunPhase.ended) return;
 
     _pulseCtrl.stop();
-    _timeUsedMs = (_runDuration - _remaining).inMilliseconds;
+    _timeUsedMs = widget.vsMode == 'speedrun'
+        ? _stopwatch.elapsedMilliseconds
+        : (_runDuration - _remaining).inMilliseconds;
     setState(() => _phase = _RunPhase.ended);
     sfx.dailyComplete();
     unawaited(analytics.logRushComplete(score: _score));
@@ -480,6 +505,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               opponent: opponentResult,
               isChallenger: true,
               pendingOpponent: false,
+              vsMode: widget.vsMode,
             ),
           ),
         );
@@ -491,6 +517,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               opponent: myResult,
               isChallenger: true,
               pendingOpponent: true,
+              vsMode: widget.vsMode,
             ),
           ),
         );
@@ -518,6 +545,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               opponent: myResult,
               isChallenger: false,
               pendingOpponent: false,
+              vsMode: widget.vsMode,
             ),
           ),
         );
@@ -529,6 +557,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               opponent: myResult,
               isChallenger: false,
               pendingOpponent: true,
+              vsMode: widget.vsMode,
             ),
           ),
         );
@@ -572,21 +601,23 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         ),
         centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Text(
-              '${_remaining.inSeconds}s',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: _remaining.inSeconds > 20
-                    ? const Color(0xFF00FF88)
-                    : _remaining.inSeconds > 10
-                        ? const Color(0xFFFF9500)
-                        : const Color(0xFFFF3B30),
-              ),
-            ),
-          ),
+          widget.vsMode == 'speedrun'
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    '${_remaining.inSeconds}s',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: _remaining.inSeconds > 20
+                          ? const Color(0xFF00FF88)
+                          : _remaining.inSeconds > 10
+                              ? const Color(0xFFFF9500)
+                              : const Color(0xFFFF3B30),
+                    ),
+                  ),
+                ),
           IconButton(
             icon: Icon(
               sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
@@ -708,7 +739,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Score',
+                widget.vsMode == 'speedrun' ? 'Puzzles' : 'Score',
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.30),
@@ -717,7 +748,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 ),
               ),
               Text(
-                '$_score',
+                widget.vsMode == 'speedrun'
+                    ? '$_score / $_speedRunPuzzles'
+                    : '$_score',
                 style: const TextStyle(
                   fontSize: 28,
                   color: Colors.white,

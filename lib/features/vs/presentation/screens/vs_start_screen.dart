@@ -12,6 +12,7 @@ class VsStartScreen extends StatefulWidget {
   final String? myId;
   final String? myDisplayName;
   final String? friendName;
+  final String vsMode; // 'rush' or 'speedrun'
 
   const VsStartScreen({
     super.key,
@@ -21,6 +22,7 @@ class VsStartScreen extends StatefulWidget {
     this.myId,
     this.myDisplayName,
     this.friendName,
+    this.vsMode = 'rush',
   });
 
   @override
@@ -66,7 +68,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
         _buildHeader('Challenge a Friend'),
         const SizedBox(height: 16),
         Text(
-          'Same puzzles. Same seed.\n90 seconds each.',
+          widget.vsMode == 'rush'
+              ? '90 seconds. Same seed.\nSolve as many as you can.'
+              : '3 puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -77,7 +81,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Solve more puzzles to win — fewest moves breaks ties.',
+          widget.vsMode == 'rush'
+              ? 'More puzzles wins — fewest moves breaks ties.'
+              : 'No time limit. Pure speed.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,
@@ -118,7 +124,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
         _buildChallengerStatsCard(),
         const SizedBox(height: 16),
         Text(
-          'Same puzzles. Same seed.\n90 seconds each.',
+          widget.vsMode == 'rush'
+              ? '90 seconds. Same seed.\nSolve as many as you can.'
+              : '3 puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -129,7 +137,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Solve more puzzles to win — fewest moves breaks ties.',
+          widget.vsMode == 'rush'
+              ? 'More puzzles wins — fewest moves breaks ties.'
+              : 'No time limit. Pure speed.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,

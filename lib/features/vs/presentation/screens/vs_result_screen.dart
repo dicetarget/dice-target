@@ -9,6 +9,7 @@ class VsResultScreen extends StatefulWidget {
   final VsChallenge opponent;
   final bool isChallenger;
   final bool pendingOpponent;
+  final String vsMode;
 
   const VsResultScreen({
     super.key,
@@ -16,6 +17,7 @@ class VsResultScreen extends StatefulWidget {
     required this.opponent,
     required this.isChallenger,
     this.pendingOpponent = false,
+    this.vsMode = 'rush',
   });
 
   @override
@@ -36,6 +38,26 @@ class _VsResultScreenState extends State<VsResultScreen> {
       _winner = VsWinner.draw;
       _iWon = false;
       _isDraw = false;
+    } else if (widget.vsMode == 'speedrun') {
+        final myTime = widget.isChallenger
+            ? widget.challenger.timeUsedMs
+            : widget.opponent.timeUsedMs;
+        final theirTime = widget.isChallenger
+            ? widget.opponent.timeUsedMs
+            : widget.challenger.timeUsedMs;
+        if (myTime < theirTime) {
+          _winner = widget.isChallenger ? VsWinner.challenger : VsWinner.opponent;
+          _iWon = true;
+          _isDraw = false;
+        } else if (theirTime < myTime) {
+          _winner = widget.isChallenger ? VsWinner.opponent : VsWinner.challenger;
+          _iWon = false;
+          _isDraw = false;
+        } else {
+          _winner = VsWinner.draw;
+          _iWon = false;
+          _isDraw = true;
+        }
     } else {
       _winner = VsWinnerLogic.determine(
         challengerPuzzles: widget.challenger.puzzlesSolved,

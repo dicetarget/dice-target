@@ -350,6 +350,66 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     );
   }
 
+  Widget _buildChallengeButton({
+    required String label,
+    required String friendId,
+    required String friendName,
+    required String vsMode,
+  }) {
+    return GestureDetector(
+      onTap: () async {
+        final alreadyOpen = await _firestore.hasOpenChallenge(
+          _player!.id,
+          friendId,
+        );
+        if (!mounted) return;
+        if (alreadyOpen) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You already have an open challenge with this friend.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        final seed = DateTime.now().millisecondsSinceEpoch;
+        final challenge = VsChallengeModel.create(
+          challengerId: _player!.id,
+          opponentId: friendId,
+          challengerName: _player!.displayName,
+          opponentName: friendName,
+          seed: seed,
+          vsMode: vsMode,
+        );
+        await _firestore.createChallenge(challenge);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${vsMode == 'rush' ? 'Rush' : 'Speed Run'} challenge sent to $friendName!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        _refresh();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: _orange.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: _orange,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFriendChip(String friendId, String friendName) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -375,56 +435,18 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              final alreadyOpen = await _firestore.hasOpenChallenge(
-                _player!.id,
-                friendId,
-              );
-              if (!mounted) return;
-              if (alreadyOpen) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('You already have an open challenge with this friend.'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-                return;
-              }
-              final seed = DateTime.now().millisecondsSinceEpoch;
-              final challenge = VsChallengeModel.create(
-                challengerId: _player!.id,
-                opponentId: friendId,
-                challengerName: _player!.displayName,
-                opponentName: friendName,
-                seed: seed,
-              );
-              await _firestore.createChallenge(challenge);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Challenge sent to $friendName!'),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-              _refresh();
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: _orange.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
-              ),
-              child: const Text(
-                'Challenge',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: _orange,
-                ),
-              ),
-            ),
+          _buildChallengeButton(
+            label: '⚡ 90s',
+            friendId: friendId,
+            friendName: friendName,
+            vsMode: 'rush',
+          ),
+          const SizedBox(width: 8),
+          _buildChallengeButton(
+            label: '🏁 3 Puzzles',
+            friendId: friendId,
+            friendName: friendName,
+            vsMode: 'speedrun',
           ),
           const SizedBox(width: 8),
           GestureDetector(
@@ -652,6 +674,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   myDisplayName: _player!.displayName,
                   friendName: iAmChallenger ? c.opponentName : c.challengerName,
                   incomingChallenge: c,
+                  vsMode: c.vsMode,
                 ),
               ),
             );

@@ -16,6 +16,7 @@ class VsChallengeModel {
   final String status;
   final DateTime createdAt;
   final DateTime expiresAt;
+  final String vsMode; // 'rush' or 'speedrun'
 
   const VsChallengeModel({
     required this.id,
@@ -35,6 +36,7 @@ class VsChallengeModel {
     required this.status,
     required this.createdAt,
     required this.expiresAt,
+    required this.vsMode,
   });
 
   static VsChallengeModel create({
@@ -43,6 +45,7 @@ class VsChallengeModel {
     required String challengerName,
     required String opponentName,
     required int seed,
+    required String vsMode,
   }) {
     final now = DateTime.now();
     return VsChallengeModel(
@@ -63,6 +66,7 @@ class VsChallengeModel {
       status: 'invited',
       createdAt: now,
       expiresAt: now.add(const Duration(days: 7)),
+      vsMode: vsMode,
     );
   }
 
@@ -95,6 +99,7 @@ class VsChallengeModel {
       status: 'completed',
       createdAt: createdAt,
       expiresAt: expiresAt,
+      vsMode: vsMode,
     );
   }
 
@@ -117,6 +122,7 @@ class VsChallengeModel {
       status: 'accepted',
       createdAt: createdAt,
       expiresAt: expiresAt,
+      vsMode: vsMode,
     );
   }
 
@@ -143,6 +149,7 @@ class VsChallengeModel {
       status: 'pending',
       createdAt: createdAt,
       expiresAt: expiresAt,
+      vsMode: vsMode,
     );
   }
 
@@ -164,6 +171,7 @@ class VsChallengeModel {
         'status': status,
         'createdAt': createdAt.toIso8601String(),
         'expiresAt': expiresAt.toIso8601String(),
+        'vsMode': vsMode,
       };
 
   factory VsChallengeModel.fromMap(Map<String, dynamic> map) => VsChallengeModel(
@@ -184,5 +192,6 @@ class VsChallengeModel {
         status: map['status'] as String,
         createdAt: DateTime.parse(map['createdAt'] as String),
         expiresAt: DateTime.parse(map['expiresAt'] as String),
+        vsMode: (map['vsMode'] as String?) ?? 'rush',
       );
 }
