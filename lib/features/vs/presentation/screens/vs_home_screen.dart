@@ -326,17 +326,31 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => VsStartScreen(
-                  mode: VsStartMode.challenger,
-                  friendId: friendId,
-                  myId: _player!.id,
-                  myDisplayName: _player!.displayName,
-                  friendName: friendName,
+            onTap: () async {
+              final seed = DateTime.now().millisecondsSinceEpoch;
+              final challenge = VsChallengeModel.create(
+                challengerId: _player!.id,
+                opponentId: friendId,
+                challengerName: _player!.displayName,
+                opponentName: friendName,
+                seed: seed,
+              );
+              await _firestore.createChallenge(challenge);
+              if (!mounted) return;
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => VsStartScreen(
+                    mode: VsStartMode.challenger,
+                    friendId: friendId,
+                    myId: _player!.id,
+                    myDisplayName: _player!.displayName,
+                    friendName: friendName,
+                    incomingChallenge: challenge,
+                  ),
                 ),
-              ),
-            ),
+              );
+              _refresh();
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
@@ -519,6 +533,41 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       );
     }
 
+    if (iAmChallenger && !c.challengerPlayed) {
+      return GestureDetector(
+        onTap: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => VsStartScreen(
+                mode: VsStartMode.challenger,
+                friendId: c.opponentId,
+                myId: _player!.id,
+                myDisplayName: _player!.displayName,
+                friendName: c.opponentName,
+                incomingChallenge: c,
+              ),
+            ),
+          );
+          _refresh();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: _orange.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
+          ),
+          child: const Text(
+            'Play',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: _orange,
+            ),
+          ),
+        ),
+      );
+    }
     return Text(
       'Waiting...',
       style: TextStyle(

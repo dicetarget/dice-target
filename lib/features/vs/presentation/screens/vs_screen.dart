@@ -393,28 +393,47 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     unawaited(analytics.logRushComplete(score: _score));
     if (!mounted) return;
 
-    final isChallenger = widget.incomingChallenge == null;
+    final isChallenger =
+        widget.incomingChallenge?.challengerId == widget.myId;
 
     if (isChallenger) {
-      final challengeId = widget.incomingChallenge?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString();
       unawaited(_firestore.updateChallengeWithChallengerResult(
-        challengeId: challengeId,
+        challengeId: widget.incomingChallenge!.id,
         puzzles: _score,
         timeMs: _timeUsedMs,
         moves: _totalMoves,
       ));
-      final challengeAsOld = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => VsResultScreen(
-            challenger: challengeAsOld,
-            opponent: challengeAsOld,
-            isChallenger: true,
-            pendingOpponent: true,
+      final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
+      final opponentPlayed = widget.incomingChallenge!.opponentPlayed;
+      if (opponentPlayed) {
+        final incoming = widget.incomingChallenge!;
+        final opponentResult = _toVsChallenge(
+          incoming.opponentPuzzles ?? 0,
+          incoming.opponentTimeMs ?? 0,
+          incoming.opponentMoves ?? 0,
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => VsResultScreen(
+              challenger: myResult,
+              opponent: opponentResult,
+              isChallenger: true,
+              pendingOpponent: false,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => VsResultScreen(
+              challenger: myResult,
+              opponent: myResult,
+              isChallenger: true,
+              pendingOpponent: true,
+            ),
+          ),
+        );
+      }
     } else {
       unawaited(_firestore.updateChallengeWithOpponentResult(
         challengeId: widget.incomingChallenge!.id,
@@ -422,17 +441,18 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         timeMs: _timeUsedMs,
         moves: _totalMoves,
       ));
-
       final incoming = widget.incomingChallenge!;
-      final challengerOld = _toVsChallenge(incoming.challengerPuzzles,
-          incoming.challengerTimeMs, incoming.challengerMoves);
-      final opponentOld = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
-
+      final challengerResult = _toVsChallenge(
+        incoming.challengerPuzzles,
+        incoming.challengerTimeMs,
+        incoming.challengerMoves,
+      );
+      final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => VsResultScreen(
-            challenger: challengerOld,
-            opponent: opponentOld,
+            challenger: challengerResult,
+            opponent: myResult,
             isChallenger: false,
             pendingOpponent: false,
           ),
