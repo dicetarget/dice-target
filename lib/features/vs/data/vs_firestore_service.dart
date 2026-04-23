@@ -122,6 +122,16 @@ class VsFirestoreService {
     await _challenges.doc(challengeId).delete();
   }
 
+  Future<void> acceptChallenge(String challengeId) async {
+    await _challenges.doc(challengeId).update({
+      'status': 'accepted',
+    });
+  }
+
+  Future<void> declineChallenge(String challengeId) async {
+    await _challenges.doc(challengeId).delete();
+  }
+
   Future<Map<String, String>> loadPendingRequests(String myId) async {
     final asA = await _friendships
         .where('playerA', isEqualTo: myId)

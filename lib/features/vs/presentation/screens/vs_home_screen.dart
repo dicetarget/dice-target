@@ -450,6 +450,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   }
 
   Widget _buildChallengeAction(VsChallengeModel c, bool iAmChallenger) {
+    // Completed → View Result
     if (c.isCompleted) {
       return GestureDetector(
         onTap: () => _openResult(c, iAmChallenger),
@@ -458,7 +459,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.18), width: 0.5),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.18),
+              width: 0.5,
+            ),
           ),
           child: Text(
             'View Result',
@@ -472,110 +476,133 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       );
     }
 
-    if (!iAmChallenger) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTap: () => _declineChallenge(c),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  width: 0.5,
+    // Invited → Challenger wartet, Opponent kann Accept/Decline
+    if (c.isInvited) {
+      if (iAmChallenger) {
+        return Text(
+          'Waiting...',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.30),
+          ),
+        );
+      } else {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () async {
+                await _firestore.declineChallenge(c.id);
+                if (!mounted) return;
+                setState(() => _challenges.removeWhere((ch) => ch.id == c.id));
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    width: 0.5,
+                  ),
                 ),
-              ),
-              child: Text(
-                'Decline',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.45),
+                child: Text(
+                  'Decline',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withValues(alpha: 0.45),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => Navigator.of(context).push(
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () async {
+                await _firestore.acceptChallenge(c.id);
+                if (!mounted) return;
+                _refresh();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: _orange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _orange.withValues(alpha: 0.50),
+                    width: 1.0,
+                  ),
+                ),
+                child: const Text(
+                  'Accept',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: _orange,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+    }
+
+    // Accepted → beide können spielen wenn noch nicht gespielt
+    if (c.isAccepted || c.isPending) {
+      final iHavePlayed = iAmChallenger ? c.challengerPlayed : c.opponentPlayed;
+      if (!iHavePlayed) {
+        return GestureDetector(
+          onTap: () async {
+            await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => VsStartScreen(
-                  mode: VsStartMode.opponent,
-                  friendId: c.challengerId,
+                  mode: iAmChallenger
+                      ? VsStartMode.challenger
+                      : VsStartMode.opponent,
+                  friendId: iAmChallenger ? c.opponentId : c.challengerId,
                   myId: _player!.id,
                   myDisplayName: _player!.displayName,
-                  friendName: c.challengerName,
+                  friendName: iAmChallenger ? c.opponentName : c.challengerName,
                   incomingChallenge: c,
                 ),
               ),
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: _orange.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
+            );
+            _refresh();
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(
+              color: _orange.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _orange.withValues(alpha: 0.50),
+                width: 1.0,
               ),
-              child: const Text(
-                'Play',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: _orange,
-                ),
+            ),
+            child: const Text(
+              'Play',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: _orange,
               ),
             ),
           ),
-        ],
-      );
-    }
-
-    if (iAmChallenger && !c.challengerPlayed) {
-      return GestureDetector(
-        onTap: () async {
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => VsStartScreen(
-                mode: VsStartMode.challenger,
-                friendId: c.opponentId,
-                myId: _player!.id,
-                myDisplayName: _player!.displayName,
-                friendName: c.opponentName,
-                incomingChallenge: c,
-              ),
-            ),
-          );
-          _refresh();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: _orange.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
-          ),
-          child: const Text(
-            'Play',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: _orange,
-            ),
-          ),
+        );
+      }
+      return Text(
+        'Waiting...',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Colors.white.withValues(alpha: 0.30),
         ),
       );
     }
-    return Text(
-      'Waiting...',
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: Colors.white.withValues(alpha: 0.30),
-      ),
-    );
+
+    return const SizedBox.shrink();
   }
 
   Future<void> _acceptRequest(String friendId) async {
@@ -595,11 +622,6 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     setState(() => _friends.remove(friendId));
   }
 
-  Future<void> _declineChallenge(VsChallengeModel c) async {
-    await _firestore.deleteChallenge(c.id);
-    if (!mounted) return;
-    setState(() => _challenges.removeWhere((ch) => ch.id == c.id));
-  }
 
   void _openResult(VsChallengeModel c, bool iAmChallenger) {
     final challenger = VsChallenge(

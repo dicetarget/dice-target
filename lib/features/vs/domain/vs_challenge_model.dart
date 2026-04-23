@@ -60,15 +60,16 @@ class VsChallengeModel {
       opponentMoves: null,
       challengerPlayed: false,
       opponentPlayed: false,
-      status: 'created',
+      status: 'invited',
       createdAt: now,
       expiresAt: now.add(const Duration(days: 7)),
     );
   }
 
+  bool get isInvited => status == 'invited';
+  bool get isAccepted => status == 'accepted';
   bool get isPending => status == 'pending';
   bool get isCompleted => status == 'completed';
-  bool get isCreated => status == 'created';
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 
   VsChallengeModel withOpponentResult({
@@ -92,6 +93,28 @@ class VsChallengeModel {
       challengerPlayed: challengerPlayed,
       opponentPlayed: true,
       status: 'completed',
+      createdAt: createdAt,
+      expiresAt: expiresAt,
+    );
+  }
+
+  VsChallengeModel withAccepted() {
+    return VsChallengeModel(
+      id: id,
+      challengerId: challengerId,
+      opponentId: opponentId,
+      challengerName: challengerName,
+      opponentName: opponentName,
+      seed: seed,
+      challengerPuzzles: challengerPuzzles,
+      challengerTimeMs: challengerTimeMs,
+      challengerMoves: challengerMoves,
+      opponentPuzzles: opponentPuzzles,
+      opponentTimeMs: opponentTimeMs,
+      opponentMoves: opponentMoves,
+      challengerPlayed: challengerPlayed,
+      opponentPlayed: opponentPlayed,
+      status: 'accepted',
       createdAt: createdAt,
       expiresAt: expiresAt,
     );
