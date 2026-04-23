@@ -337,16 +337,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               );
               await _firestore.createChallenge(challenge);
               if (!mounted) return;
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => VsStartScreen(
-                    mode: VsStartMode.challenger,
-                    friendId: friendId,
-                    myId: _player!.id,
-                    myDisplayName: _player!.displayName,
-                    friendName: friendName,
-                    incomingChallenge: challenge,
-                  ),
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Challenge sent to $friendName!'),
+                  duration: const Duration(seconds: 2),
                 ),
               );
               _refresh();
