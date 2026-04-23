@@ -382,6 +382,57 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     sfx.undo();
   }
 
+  Future<void> _confirmGiveUp() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D0F1F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Give Up?',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
+        content: Text(
+          'Your current score of $_score will be submitted.',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.60),
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.45),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              'Give Up',
+              style: TextStyle(
+                color: Color(0xFFFF3B30),
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      _timer?.cancel();
+      _endRun();
+    }
+  }
+
   // ── End run ───────────────────────────────────────────────────────────────────
 
   void _endRun() {
@@ -393,8 +444,15 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     unawaited(analytics.logRushComplete(score: _score));
     if (!mounted) return;
 
-    final isChallenger =
-        widget.incomingChallenge?.challengerId == widget.myId;
+    final myId = widget.myId;
+    final isChallenger = myId != null &&
+        widget.incomingChallenge?.challengerId == myId;
+
+    // Sicherheitsnetz: falls incomingChallenge null → direkt Home
+    if (widget.incomingChallenge == null) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      return;
+    }
 
     if (isChallenger) {
       unawaited(_firestore.updateChallengeWithChallengerResult(
@@ -485,15 +543,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () {
-            _timer?.cancel();
-            Navigator.of(context).pop();
-          },
-          enableFeedback: false,
-          color: _ink.withValues(alpha: 0.70),
-        ),
+        automaticallyImplyLeading: false,
         title: const Text(
           'VS',
           style: TextStyle(
@@ -521,7 +571,10 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             ),
           ),
           IconButton(
-            icon: Icon(sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded, size: 20),
+            icon: Icon(
+              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              size: 20,
+            ),
             color: _ink.withValues(alpha: 0.60),
             enableFeedback: false,
             onPressed: () async {
@@ -609,10 +662,33 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        GestureDetector(
+          onTap: _confirmGiveUp,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.12),
+                width: 0.5,
+              ),
+            ),
+            child: Text(
+              'Give Up',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Colors.white.withValues(alpha: 0.40),
+              ),
+            ),
+          ),
+        ),
+        const Spacer(),
         SizedBox(
           width: 80,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 'Score',
@@ -630,34 +706,6 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.5,
-                  height: 1.1,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const Spacer(),
-        SizedBox(
-          width: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'Stage',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.30),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              Text(
-                _score >= 12 ? '3' : _score >= 5 ? '2' : '1',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
                   height: 1.1,
                 ),
               ),
