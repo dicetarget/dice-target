@@ -437,6 +437,15 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   Future<void> _endRun() async {
     if (_phase == _RunPhase.ended) return;
+
+    debugPrint('=== VS ENDRUN DEBUG ===');
+    debugPrint('widget.myId: ${widget.myId}');
+    debugPrint('widget.friendId: ${widget.friendId}');
+    debugPrint('incomingChallenge?.challengerId: ${widget.incomingChallenge?.challengerId}');
+    debugPrint('incomingChallenge?.opponentId: ${widget.incomingChallenge?.opponentId}');
+    debugPrint('isChallenger: ${widget.myId != null && widget.incomingChallenge?.challengerId == widget.myId}');
+    debugPrint('=======================');
+
     _pulseCtrl.stop();
     _timeUsedMs = (_runDuration - _remaining).inMilliseconds;
     setState(() => _phase = _RunPhase.ended);
@@ -463,6 +472,14 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       );
       // Aktuellen Stand aus Firestore lesen
       final fresh = await _firestore.loadChallenge(widget.incomingChallenge!.id);
+
+      // DEBUG — temporär
+      debugPrint('=== VS DEBUG ===');
+      debugPrint('fresh: ${fresh?.toMap()}');
+      debugPrint('opponentPlayed: ${fresh?.opponentPlayed}');
+      debugPrint('opponentPuzzles: ${fresh?.opponentPuzzles}');
+      debugPrint('================');
+
       if (!mounted) return;
       final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
       if (fresh != null && fresh.opponentPlayed) {
@@ -494,29 +511,43 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         );
       }
     } else {
-      unawaited(_firestore.updateChallengeWithOpponentResult(
+      await _firestore.updateChallengeWithOpponentResult(
         challengeId: widget.incomingChallenge!.id,
         puzzles: _score,
         timeMs: _timeUsedMs,
         moves: _totalMoves,
-      ));
-      final incoming = widget.incomingChallenge!;
-      final challengerResult = _toVsChallenge(
-        incoming.challengerPuzzles,
-        incoming.challengerTimeMs,
-        incoming.challengerMoves,
       );
+      final fresh = await _firestore.loadChallenge(widget.incomingChallenge!.id);
+      if (!mounted) return;
       final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => VsResultScreen(
-            challenger: challengerResult,
-            opponent: myResult,
-            isChallenger: false,
-            pendingOpponent: false,
+      if (fresh != null && fresh.challengerPlayed) {
+        final challengerResult = _toVsChallenge(
+          fresh.challengerPuzzles,
+          fresh.challengerTimeMs,
+          fresh.challengerMoves,
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => VsResultScreen(
+              challenger: challengerResult,
+              opponent: myResult,
+              isChallenger: false,
+              pendingOpponent: false,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => VsResultScreen(
+              challenger: myResult,
+              opponent: myResult,
+              isChallenger: false,
+              pendingOpponent: true,
+            ),
+          ),
+        );
+      }
     }
   }
 
