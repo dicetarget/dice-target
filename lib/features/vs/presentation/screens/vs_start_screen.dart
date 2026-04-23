@@ -66,12 +66,23 @@ class _VsStartScreenState extends State<VsStartScreen> {
         _buildHeader('Challenge a Friend'),
         const SizedBox(height: 16),
         Text(
-          'Play 90 seconds. Share your result. See who wins.',
+          'Same puzzles. Same seed.\n90 seconds each.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: Colors.white.withValues(alpha: 0.55),
+            height: 1.6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Solve more puzzles to win — fewest moves breaks ties.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.30),
             height: 1.5,
           ),
         ),
@@ -105,6 +116,28 @@ class _VsStartScreenState extends State<VsStartScreen> {
         _buildHeader("You've been challenged!"),
         const SizedBox(height: 32),
         _buildChallengerStatsCard(),
+        const SizedBox(height: 16),
+        Text(
+          'Same puzzles. Same seed.\n90 seconds each.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.55),
+            height: 1.6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Solve more puzzles to win — fewest moves breaks ties.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.30),
+            height: 1.5,
+          ),
+        ),
         const Spacer(),
         _buildPrimaryButton('Accept Challenge', () {
           if (widget.incomingChallenge == null) return;
