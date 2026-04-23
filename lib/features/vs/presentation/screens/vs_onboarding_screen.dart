@@ -89,6 +89,28 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Back button
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        width: 1,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 Text(
                   'VS',
@@ -129,6 +151,9 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
+                  onChanged: (_) {
+                    if (_error != null) setState(() => _error = null);
+                  },
                   decoration: InputDecoration(
                     hintText: 'Your name',
                     hintStyle: TextStyle(
@@ -136,38 +161,24 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
-                    errorText: _error,
-                    errorStyle: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFFFF3B30),
-                    ),
+                    // errorText intentionally omitted — handled manually below
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.04),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: _violet.withValues(alpha: 0.40),
-                        width: 1.0,
+                        color: _error != null
+                            ? const Color(0xFFFF3B30)
+                            : _violet.withValues(alpha: 0.40),
+                        width: _error != null ? 1.0 : 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: _violet.withValues(alpha: 0.90),
-                        width: 1.5,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFFF3B30),
-                        width: 1.0,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFFF3B30),
+                        color: _error != null
+                            ? const Color(0xFFFF3B30)
+                            : _violet.withValues(alpha: 0.90),
                         width: 1.5,
                       ),
                     ),
@@ -180,6 +191,20 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                     ),
                   ),
                 ),
+                // Manual error row — wraps correctly on all platforms
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 4),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFFFF3B30),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      softWrap: true,
+                    ),
+                  ),
                 const SizedBox(height: 24),
                 if (_loading)
                   const Center(
