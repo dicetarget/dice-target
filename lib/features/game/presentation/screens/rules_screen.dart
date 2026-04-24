@@ -126,6 +126,24 @@ class RulesScreen extends StatelessWidget {
                         '• No hints — pure speed and skill\n'
                         '• Your best score is saved automatically',
                   ),
+                  const SizedBox(height: 12),
+                  _RulesSectionCard(
+                    icon: Icons.people_rounded,
+                    heading: 'VS Mode',
+                    body:
+                        'Challenge a friend to a head-to-head match.\n'
+                        'Both players use the same seed — fair and equal.\n\n'
+                        '⚡ 90s Rush:\n'
+                        '• Solve as many puzzles as possible in 90 seconds\n'
+                        '• More puzzles solved wins\n'
+                        '• Tie: fewest total moves wins\n\n'
+                        '🏁 3 Puzzle Speedrun:\n'
+                        '• Solve exactly 3 puzzles as fast as possible\n'
+                        '• Fastest time wins\n'
+                        '• Tie on time: fewest total moves wins\n\n'
+                        'Challenges are valid for 7 days.\n'
+                        'Play in your own time — no need to be online together.',
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
