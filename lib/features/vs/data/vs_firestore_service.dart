@@ -86,7 +86,6 @@ class VsFirestoreService {
       if (!seen.add(doc.id)) continue;
       final data = doc.data() as Map<String, dynamic>;
 
-      // Filter: wenn ich bereits gelöscht habe, nicht anzeigen
       final isChallenger = data['challengerId'] == myId;
       final deletedByMe = isChallenger
           ? (data['deletedByChallenger'] as bool? ?? false)
@@ -96,6 +95,25 @@ class VsFirestoreService {
       final model = VsChallengeModel.fromMap(data);
       if (!model.isExpired) results.add(model);
     }
+
+    // Auto-delete oldest completed challenges beyond limit of 10
+    const maxCompleted = 10;
+    final completed = results
+        .where((c) => c.isCompleted)
+        .toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    if (completed.length > maxCompleted) {
+      final toDelete = completed.take(completed.length - maxCompleted).toList();
+      for (final c in toDelete) {
+        final field = c.challengerId == myId
+            ? 'deletedByChallenger'
+            : 'deletedByOpponent';
+        await _challenges.doc(c.id).update({field: true});
+        results.removeWhere((r) => r.id == c.id);
+      }
+    }
+
     return results;
   }
 
@@ -153,6 +171,7 @@ class VsFirestoreService {
       'opponentPuzzles': puzzles,
       'opponentTimeMs': timeMs,
       'opponentMoves': moves,
+      'opponentPlayed': true,
       'status': 'completed',
     });
 
@@ -244,7 +263,14 @@ class VsFirestoreService {
     return all.any((doc) {
       final data = doc.data() as Map<String, dynamic>;
       final status = data['status'] as String? ?? '';
-      return status == 'invited' || status == 'accepted' || status == 'pending';
+      if (status != 'invited' && status != 'accepted' && status != 'pending') {
+        return false;
+      }
+      final iAmChallenger = (data['challengerId'] as String?) == myId;
+      final deletedByMe = iAmChallenger
+          ? (data['deletedByChallenger'] as bool? ?? false)
+          : (data['deletedByOpponent'] as bool? ?? false);
+      return !deletedByMe;
     });
   }
 }

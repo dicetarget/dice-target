@@ -574,10 +574,21 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => _deleteChallenge(c),
-            child: Icon(
-              Icons.delete_outline_rounded,
-              size: 20,
-              color: Colors.white.withValues(alpha: 0.25),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF3B30).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFFFF3B30).withValues(alpha: 0.30),
+                  width: 0.5,
+                ),
+              ),
+              child: const Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: Color(0xFFFF3B30),
+              ),
             ),
           ),
         ],
@@ -587,13 +598,38 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     // Invited → Challenger wartet, Opponent kann Accept/Decline
     if (c.isInvited) {
       if (iAmChallenger) {
-        return Text(
-          'Waiting...',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.30),
-          ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Waiting...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.30),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _deleteChallenge(c),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF3B30).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFFFF3B30).withValues(alpha: 0.30),
+                    width: 0.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: Color(0xFFFF3B30),
+                ),
+              ),
+            ),
+          ],
         );
       } else {
         return Row(
@@ -701,13 +737,38 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           ),
         );
       }
-      return Text(
-        'Waiting...',
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Colors.white.withValues(alpha: 0.30),
-        ),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Waiting...',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.30),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _deleteChallenge(c),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF3B30).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFFFF3B30).withValues(alpha: 0.30),
+                  width: 0.5,
+                ),
+              ),
+              child: const Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: Color(0xFFFF3B30),
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -759,6 +820,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           challenger: challenger,
           opponent: opponent,
           isChallenger: iAmChallenger,
+          vsMode: c.vsMode,
         ),
       ),
     );

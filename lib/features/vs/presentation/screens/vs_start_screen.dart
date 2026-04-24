@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/vs/domain/vs_challenge_model.dart';
+import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_screen.dart';
 
 enum VsStartMode { challenger, opponent }
@@ -30,7 +31,7 @@ class VsStartScreen extends StatefulWidget {
 }
 
 class _VsStartScreenState extends State<VsStartScreen> {
-  static const Color _orange = Color(0xFF7B35E8);
+  static const Color _orange = Color(0xFF00E5FF);
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +93,37 @@ class _VsStartScreenState extends State<VsStartScreen> {
             height: 1.5,
           ),
         ),
+        const SizedBox(height: 32),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            color: _orange.withValues(alpha: 0.07),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _orange.withValues(alpha: 0.25),
+              width: 1.0,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.vsMode == 'rush' ? '⚡' : '🏁',
+                style: const TextStyle(fontSize: 22),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                widget.vsMode == 'rush' ? '90 Seconds Rush' : '3 Puzzle Speedrun',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: _orange,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
         const Spacer(),
         _buildPrimaryButton('Start Challenge', () {
           if (widget.incomingChallenge == null) return;
@@ -104,6 +136,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
                 myDisplayName: widget.myDisplayName,
                 friendName: widget.friendName,
                 incomingChallenge: widget.incomingChallenge,
+                vsMode: widget.vsMode,
               ),
             ),
           );
@@ -160,6 +193,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
                 myDisplayName: widget.myDisplayName,
                 friendName: widget.friendName,
                 incomingChallenge: widget.incomingChallenge,
+                vsMode: widget.vsMode,
               ),
             ),
           );
@@ -340,8 +374,9 @@ class _VsStartScreenState extends State<VsStartScreen> {
 
   Widget _buildHomeButton() {
     return GestureDetector(
-      onTap: () => Navigator.of(context).popUntil(
-        (route) => route.settings.name == '/vs' || route.isFirst,
+      onTap: () => Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+        (route) => route.isFirst,
       ),
       child: Container(
         width: double.infinity,

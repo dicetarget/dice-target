@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_winner_logic.dart';
+import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 
 class VsResultScreen extends StatefulWidget {
   final VsChallenge challenger;
@@ -25,7 +25,7 @@ class VsResultScreen extends StatefulWidget {
 }
 
 class _VsResultScreenState extends State<VsResultScreen> {
-  static const Color _orange = Color(0xFF7B35E8);
+  static const Color _orange = Color(0xFF00E5FF);
 
   late VsWinner _winner;
   late bool _iWon;
@@ -38,26 +38,6 @@ class _VsResultScreenState extends State<VsResultScreen> {
       _winner = VsWinner.draw;
       _iWon = false;
       _isDraw = false;
-    } else if (widget.vsMode == 'speedrun') {
-        final myTime = widget.isChallenger
-            ? widget.challenger.timeUsedMs
-            : widget.opponent.timeUsedMs;
-        final theirTime = widget.isChallenger
-            ? widget.opponent.timeUsedMs
-            : widget.challenger.timeUsedMs;
-        if (myTime < theirTime) {
-          _winner = widget.isChallenger ? VsWinner.challenger : VsWinner.opponent;
-          _iWon = true;
-          _isDraw = false;
-        } else if (theirTime < myTime) {
-          _winner = widget.isChallenger ? VsWinner.opponent : VsWinner.challenger;
-          _iWon = false;
-          _isDraw = false;
-        } else {
-          _winner = VsWinner.draw;
-          _iWon = false;
-          _isDraw = true;
-        }
     } else {
       _winner = VsWinnerLogic.determine(
         challengerPuzzles: widget.challenger.puzzlesSolved,
@@ -99,7 +79,6 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   const SizedBox(height: 32),
                   _buildComparisonCard(),
                   const SizedBox(height: 24),
-                  if (widget.isChallenger && !widget.pendingOpponent) _buildShareButton(),
                   if (widget.pendingOpponent)
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
@@ -211,7 +190,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
       children: [
         const SizedBox(width: 90),
         _buildHeaderCell('Puzzles'),
-        _buildHeaderCell('Time'),
+        if (widget.vsMode == 'speedrun') _buildHeaderCell('Time'),
         _buildHeaderCell('Moves'),
       ],
     );
@@ -237,9 +216,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
     required VsChallenge challenge,
     required bool isWinner,
   }) {
-    final timeStr =
-        '${(challenge.timeUsedMs / 1000).toStringAsFixed(1)}s';
-
+    final timeStr = '${(challenge.timeUsedMs / 1000).toStringAsFixed(1)}s';
     return Row(
       children: [
         SizedBox(
@@ -266,7 +243,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
           ),
         ),
         _buildValueCell('${challenge.puzzlesSolved}', isWinner),
-        _buildValueCell(timeStr, isWinner),
+        if (widget.vsMode == 'speedrun') _buildValueCell(timeStr, isWinner),
         _buildValueCell('${challenge.movesUsed}', isWinner),
       ],
     );
@@ -317,57 +294,11 @@ class _VsResultScreenState extends State<VsResultScreen> {
     );
   }
 
-  Future<void> _shareChallenge() async {
-    await Clipboard.setData(const ClipboardData(text: 'VS Mode coming soon!'));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('VS Mode — Firebase coming soon!')),
-    );
-  }
-
-  Widget _buildShareButton() {
-    return GestureDetector(
-      onTap: _shareChallenge,
-      child: Container(
-        width: double.infinity,
-        height: 58,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              _orange.withValues(alpha: 0.22),
-              _orange.withValues(alpha: 0.10),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _orange.withValues(alpha: 0.70), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: _orange.withValues(alpha: 0.30),
-              blurRadius: 24,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: const Center(
-          child: Text(
-            '🔗  Share Challenge',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: _orange,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildHomeButton() {
     return GestureDetector(
-      onTap: () => Navigator.of(context).popUntil(
-        (route) => route.settings.name == '/vs' || route.isFirst,
+      onTap: () => Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+        (route) => route.isFirst,
       ),
       child: Container(
         width: double.infinity,

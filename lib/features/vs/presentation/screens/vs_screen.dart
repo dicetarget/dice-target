@@ -171,11 +171,10 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     );
 
     _loadPuzzle();
-    _startTimer();
     if (widget.vsMode == 'speedrun') {
-      _timer?.cancel();
       _stopwatch.start();
-      _remaining = Duration.zero; // unused in speedrun
+    } else {
+      _startTimer();
     }
     unawaited(analytics.logRushStart());
   }
@@ -373,6 +372,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     sfx.win();
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
+
     if (widget.vsMode == 'speedrun') {
       _puzzlesRemaining--;
       if (_puzzlesRemaining <= 0) {
@@ -385,6 +385,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         return;
       }
     }
+
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
       _advanceToNextPuzzle();
@@ -474,7 +475,6 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     final isChallenger = myId != null &&
         widget.incomingChallenge?.challengerId == myId;
 
-    // Sicherheitsnetz: falls incomingChallenge null → direkt Home
     if (widget.incomingChallenge == null) {
       Navigator.of(context).popUntil((route) => route.isFirst);
       return;
@@ -487,10 +487,10 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         timeMs: _timeUsedMs,
         moves: _totalMoves,
       );
-      // Aktuellen Stand aus Firestore lesen
+      await Future.delayed(const Duration(milliseconds: 500));
       final fresh = await _firestore.loadChallenge(widget.incomingChallenge!.id);
-
       if (!mounted) return;
+
       final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
       if (fresh != null && fresh.opponentPlayed) {
         final opponentResult = _toVsChallenge(
@@ -529,8 +529,10 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         timeMs: _timeUsedMs,
         moves: _totalMoves,
       );
+      await Future.delayed(const Duration(milliseconds: 500));
       final fresh = await _firestore.loadChallenge(widget.incomingChallenge!.id);
       if (!mounted) return;
+
       final myResult = _toVsChallenge(_score, _timeUsedMs, _totalMoves);
       if (fresh != null && fresh.challengerPlayed) {
         final challengerResult = _toVsChallenge(
