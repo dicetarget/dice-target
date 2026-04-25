@@ -116,6 +116,17 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 48),
+                          child: Text(
+                            '↓ Pull to refresh',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white.withValues(alpha: 0.22),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 28),
                         _buildPlayerCard(),
                         const SizedBox(height: 24),
