@@ -206,7 +206,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         colors: [_amber.withValues(alpha: 0.04), _amber.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: const Color(0xFFF0F0F0),
+      sublabelColor: _amber.withValues(alpha: 0.80),
       glowAlpha: 0.25,
       glowBlur: 18,
       borderWidth: 1.5,
