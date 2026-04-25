@@ -10,6 +10,7 @@ class VsResultScreen extends StatefulWidget {
   final bool isChallenger;
   final bool pendingOpponent;
   final String vsMode;
+  final String? friendName;
 
   const VsResultScreen({
     super.key,
@@ -18,6 +19,7 @@ class VsResultScreen extends StatefulWidget {
     required this.isChallenger,
     this.pendingOpponent = false,
     this.vsMode = 'rush',
+    this.friendName,
   });
 
   @override
@@ -52,6 +54,8 @@ class _VsResultScreenState extends State<VsResultScreen> {
       _isDraw = _winner == VsWinner.draw;
     }
   }
+
+  String get _opponentLabel => widget.friendName ?? 'Opponent';
 
   @override
   Widget build(BuildContext context) {
@@ -137,13 +141,12 @@ class _VsResultScreenState extends State<VsResultScreen> {
   }
 
   Widget _buildComparisonCard() {
-    final myChallenge =
-        widget.isChallenger ? widget.challenger : widget.opponent;
-    final theirChallenge =
-        widget.isChallenger ? widget.opponent : widget.challenger;
+    final myChallenge = widget.isChallenger ? widget.challenger : widget.opponent;
+    final theirChallenge = widget.isChallenger ? widget.opponent : widget.challenger;
     final myIsWinner = _iWon;
     final theirIsWinner = !_iWon && !_isDraw;
 
+    // speedrun: Time + Moves only. rush: Puzzles + Moves only.
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
@@ -176,7 +179,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
             _buildPendingRow()
           else
             _buildTableRow(
-              label: 'Opponent',
+              label: _opponentLabel,
               challenge: theirChallenge,
               isWinner: theirIsWinner,
             ),
@@ -186,11 +189,19 @@ class _VsResultScreenState extends State<VsResultScreen> {
   }
 
   Widget _buildTableHeader() {
+    if (widget.vsMode == 'speedrun') {
+      return Row(
+        children: [
+          const SizedBox(width: 80),
+          _buildHeaderCell('Time'),
+          _buildHeaderCell('Moves'),
+        ],
+      );
+    }
     return Row(
       children: [
-        const SizedBox(width: 90),
+        const SizedBox(width: 80),
         _buildHeaderCell('Puzzles'),
-        if (widget.vsMode == 'speedrun') _buildHeaderCell('Time'),
         _buildHeaderCell('Moves'),
       ],
     );
@@ -220,7 +231,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 90,
+          width: 80,
           child: Row(
             children: [
               if (isWinner)
@@ -242,9 +253,13 @@ class _VsResultScreenState extends State<VsResultScreen> {
             ],
           ),
         ),
-        _buildValueCell('${challenge.puzzlesSolved}', isWinner),
-        if (widget.vsMode == 'speedrun') _buildValueCell(timeStr, isWinner),
-        _buildValueCell('${challenge.movesUsed}', isWinner),
+        if (widget.vsMode == 'speedrun') ...[
+          _buildValueCell(timeStr, isWinner),
+          _buildValueCell('${challenge.movesUsed}', isWinner),
+        ] else ...[
+          _buildValueCell('${challenge.puzzlesSolved}', isWinner),
+          _buildValueCell('${challenge.movesUsed}', isWinner),
+        ],
       ],
     );
   }
@@ -253,18 +268,19 @@ class _VsResultScreenState extends State<VsResultScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 90,
+          width: 80,
           child: Text(
-            'Opponent',
+            _opponentLabel,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: Colors.white.withValues(alpha: 0.65),
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 2,
           child: Text(
             'Waiting...',
             textAlign: TextAlign.center,

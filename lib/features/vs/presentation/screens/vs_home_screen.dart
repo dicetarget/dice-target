@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:dice/features/vs/domain/vs_player.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_challenge_model.dart';
@@ -149,7 +148,11 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         const SizedBox(height: 24),
                         _buildSectionHeader('Open Challenges'),
                         const SizedBox(height: 12),
-                        _buildChallengesList(),
+                        _buildOpenChallengesList(),
+                        const SizedBox(height: 24),
+                        _buildSectionHeader('History'),
+                        const SizedBox(height: 12),
+                        _buildCompletedChallengesList(),
                         const SizedBox(height: 32),
                         if (_friends.isEmpty) ...[
                           GestureDetector(
@@ -258,18 +261,6 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.copy_rounded, size: 22),
-            color: _orange.withValues(alpha: 0.70),
-            enableFeedback: false,
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: _player!.id));
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('ID copied!')),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -361,6 +352,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         final alreadyOpen = await _firestore.hasOpenChallenge(
           _player!.id,
           friendId,
+          vsMode,
         );
         if (!mounted) return;
         if (alreadyOpen) {
@@ -450,7 +442,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: () => _removeFriend(friendId),
+            onTap: () => _removeFriend(friendId, friendName),
             child: Icon(
               Icons.person_remove_rounded,
               size: 20,
@@ -462,8 +454,11 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     );
   }
 
-  Widget _buildChallengesList() {
-    if (_challenges.isEmpty) {
+  Widget _buildOpenChallengesList() {
+    final open = _challenges
+        .where((c) => !c.isCompleted)
+        .toList();
+    if (open.isEmpty) {
       return Text(
         'No open challenges.',
         style: TextStyle(
@@ -473,7 +468,26 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       );
     }
     return Column(
-      children: _challenges.map((c) => _buildChallengeCard(c)).toList(),
+      children: open.map((c) => _buildChallengeCard(c)).toList(),
+    );
+  }
+
+  Widget _buildCompletedChallengesList() {
+    final completed = _challenges
+        .where((c) => c.isCompleted)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (completed.isEmpty) {
+      return Text(
+        'No completed challenges yet.',
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.white.withValues(alpha: 0.35),
+        ),
+      );
+    }
+    return Column(
+      children: completed.map((c) => _buildChallengeCard(c)).toList(),
     );
   }
 
@@ -535,12 +549,13 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     final hour = c.createdAt.hour.toString().padLeft(2, '0');
     final minute = c.createdAt.minute.toString().padLeft(2, '0');
     final dateStr = '$day.$month  $hour:$minute';
+    final modeStr = c.vsMode == 'speedrun' ? '🏁 3 Puzzles' : '⚡ 90s Rush';
     if (c.isCompleted) {
       final myPuzzles = iAmChallenger ? c.challengerPuzzles : (c.opponentPuzzles ?? 0);
       final theirPuzzles = iAmChallenger ? (c.opponentPuzzles ?? 0) : c.challengerPuzzles;
-      return '$myPuzzles : $theirPuzzles  ·  $dateStr';
+      return '$modeStr  ·  $myPuzzles : $theirPuzzles  ·  $dateStr';
     }
-    return dateStr;
+    return '$modeStr  ·  $dateStr';
   }
 
   Widget _buildChallengeAction(VsChallengeModel c, bool iAmChallenger) {
@@ -786,7 +801,52 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     setState(() => _pendingRequests.remove(friendId));
   }
 
-  Future<void> _removeFriend(String friendId) async {
+  Future<void> _removeFriend(String friendId, String friendName) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D0F1F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Remove Friend?',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
+        content: Text(
+          'Remove $friendName from your friends list?',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.60),
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.45),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              'Remove',
+              style: TextStyle(
+                color: Color(0xFFFF3B30),
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
     await _firestore.removeFriend(_player!.id, friendId);
     if (!mounted) return;
     setState(() => _friends.remove(friendId));
@@ -821,6 +881,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           opponent: opponent,
           isChallenger: iAmChallenger,
           vsMode: c.vsMode,
+          friendName: iAmChallenger ? c.opponentName : c.challengerName,
         ),
       ),
     );

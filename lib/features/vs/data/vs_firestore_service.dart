@@ -97,7 +97,7 @@ class VsFirestoreService {
     }
 
     // Auto-delete oldest completed challenges beyond limit of 10
-    const maxCompleted = 10;
+    const maxCompleted = 20;
     final completed = results
         .where((c) => c.isCompleted)
         .toList()
@@ -129,13 +129,45 @@ class VsFirestoreService {
     required int timeMs,
     required int moves,
   }) async {
+    final snap = await _challenges.doc(challengeId).get();
+    if (!snap.exists) return;
+    final data = snap.data() as Map<String, dynamic>;
+
+    final challengerId = data['challengerId'] as String;
+    final opponentId = data['opponentId'] as String;
+    final opponentPlayed = (data['opponentPlayed'] as bool?) ?? false;
+    final opponentPuzzles = (data['opponentPuzzles'] as int?) ?? 0;
+    final opponentTimeMs = (data['opponentTimeMs'] as int?) ?? 0;
+    final opponentMoves = (data['opponentMoves'] as int?) ?? 0;
+
+    final newStatus = opponentPlayed ? 'completed' : 'pending';
+
     await _challenges.doc(challengeId).update({
       'challengerPuzzles': puzzles,
       'challengerTimeMs': timeMs,
       'challengerMoves': moves,
       'challengerPlayed': true,
-      'status': 'pending',
+      'status': newStatus,
     });
+
+    if (opponentPlayed) {
+      String winnerId = '';
+      if (puzzles != opponentPuzzles) {
+        winnerId = puzzles > opponentPuzzles ? challengerId : opponentId;
+      } else if (timeMs != opponentTimeMs) {
+        winnerId = timeMs < opponentTimeMs ? challengerId : opponentId;
+      } else if (moves != opponentMoves) {
+        winnerId = moves < opponentMoves ? challengerId : opponentId;
+      }
+
+      await _h2h.update(
+        userAId: challengerId,
+        userBId: opponentId,
+        winnerId: winnerId,
+        userAMoves: moves,
+        userBMoves: opponentMoves,
+      );
+    }
   }
 
   Future<void> updateChallengeWithOpponentResult({
@@ -150,38 +182,39 @@ class VsFirestoreService {
 
     final challengerId = data['challengerId'] as String;
     final opponentId = data['opponentId'] as String;
+    final challengerPlayed = (data['challengerPlayed'] as bool?) ?? false;
     final challengerMoves = (data['challengerMoves'] as int?) ?? 0;
     final challengerPuzzles = (data['challengerPuzzles'] as int?) ?? 0;
-    final opponentPuzzles = puzzles;
+    final challengerTimeMs = (data['challengerTimeMs'] as int?) ?? 0;
 
-    String winnerId = '';
-    if (challengerPuzzles > opponentPuzzles) {
-      winnerId = challengerId;
-    } else if (opponentPuzzles > challengerPuzzles) {
-      winnerId = opponentId;
-    } else {
-      if (challengerMoves < moves) {
-        winnerId = challengerId;
-      } else if (moves < challengerMoves) {
-        winnerId = opponentId;
-      }
-    }
+    final newStatus = challengerPlayed ? 'completed' : 'pending';
 
     await _challenges.doc(challengeId).update({
       'opponentPuzzles': puzzles,
       'opponentTimeMs': timeMs,
       'opponentMoves': moves,
       'opponentPlayed': true,
-      'status': 'completed',
+      'status': newStatus,
     });
 
-    await _h2h.update(
-      userAId: challengerId,
-      userBId: opponentId,
-      winnerId: winnerId,
-      userAMoves: challengerMoves,
-      userBMoves: moves,
-    );
+    if (challengerPlayed) {
+      String winnerId = '';
+      if (challengerPuzzles != puzzles) {
+        winnerId = challengerPuzzles > puzzles ? challengerId : opponentId;
+      } else if (challengerTimeMs != timeMs) {
+        winnerId = challengerTimeMs < timeMs ? challengerId : opponentId;
+      } else if (challengerMoves != moves) {
+        winnerId = challengerMoves < moves ? challengerId : opponentId;
+      }
+
+      await _h2h.update(
+        userAId: challengerId,
+        userBId: opponentId,
+        winnerId: winnerId,
+        userAMoves: challengerMoves,
+        userBMoves: moves,
+      );
+    }
   }
 
   Future<void> deleteChallenge(String challengeId, String myId) async {
@@ -250,14 +283,16 @@ class VsFirestoreService {
     await _friendships.doc(friendshipId).delete();
   }
 
-  Future<bool> hasOpenChallenge(String myId, String friendId) async {
+  Future<bool> hasOpenChallenge(String myId, String friendId, String vsMode) async {
     final asChallenger = await _challenges
         .where('challengerId', isEqualTo: myId)
         .where('opponentId', isEqualTo: friendId)
+        .where('vsMode', isEqualTo: vsMode)
         .get();
     final asOpponent = await _challenges
         .where('challengerId', isEqualTo: friendId)
         .where('opponentId', isEqualTo: myId)
+        .where('vsMode', isEqualTo: vsMode)
         .get();
     final all = [...asChallenger.docs, ...asOpponent.docs];
     return all.any((doc) {

@@ -82,7 +82,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
-  static const Color _orange = Color(0xFF7B35E8);
+  static const Color _orange = Color(0xFF00E5FF);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -506,6 +506,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               isChallenger: true,
               pendingOpponent: false,
               vsMode: widget.vsMode,
+              friendName: widget.friendName,
             ),
           ),
         );
@@ -518,6 +519,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               isChallenger: true,
               pendingOpponent: true,
               vsMode: widget.vsMode,
+              friendName: widget.friendName,
             ),
           ),
         );
@@ -548,6 +550,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               isChallenger: false,
               pendingOpponent: false,
               vsMode: widget.vsMode,
+              friendName: widget.friendName,
             ),
           ),
         );
@@ -560,6 +563,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               isChallenger: false,
               pendingOpponent: true,
               vsMode: widget.vsMode,
+              friendName: widget.friendName,
             ),
           ),
         );
@@ -787,7 +791,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
                     color: _orange,
-                    shadows: const [Shadow(color: Color(0xFF7B35E8), blurRadius: 14)],
+                    shadows: const [Shadow(color: Color(0xFF00E5FF), blurRadius: 14)],
                   ),
                 ),
               ),
