@@ -188,6 +188,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       glowBlur: 30,
       borderWidth: 2.0,
       labelSize: 28,
+      verticalPadding: 28,
     );
   }
 
@@ -205,7 +206,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         colors: [_amber.withValues(alpha: 0.04), _amber.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _amber.withValues(alpha: 0.85),
+      sublabelColor: const Color(0xFFF0F0F0),
       glowAlpha: 0.25,
       glowBlur: 18,
       borderWidth: 1.5,
@@ -228,7 +229,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         colors: [_cyan.withValues(alpha: 0.04), _cyan.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _cyan.withValues(alpha: 0.70),
+      sublabelColor: _cyan.withValues(alpha: 0.50),
       glowAlpha: 0.18,
       glowBlur: 16,
       borderWidth: 1.5,
@@ -252,7 +253,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         colors: [_amber.withValues(alpha: 0.03), _amber.withValues(alpha: 0.01)],
       ),
       labelColor: Colors.white,
-      sublabelColor: Colors.white.withValues(alpha: 0.45),
+      sublabelColor: const Color(0xFFF0F0F0),
       glowAlpha: 0.08,
       glowBlur: 10,
       borderWidth: 0.5,
@@ -304,6 +305,7 @@ class _NeonButton extends StatefulWidget {
   final double borderWidth;
   final double labelSize;
   final bool isLoading;
+  final double verticalPadding;
 
   const _NeonButton({
     required this.onPressed,
@@ -319,6 +321,7 @@ class _NeonButton extends StatefulWidget {
     required this.borderWidth,
     required this.labelSize,
     this.isLoading = false,
+    this.verticalPadding = 20,
   });
 
   @override
@@ -345,7 +348,7 @@ class _NeonButtonState extends State<_NeonButton> {
           width: double.infinity,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 140),
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
             decoration: BoxDecoration(
               gradient: enabled
                   ? widget.bgGradient
