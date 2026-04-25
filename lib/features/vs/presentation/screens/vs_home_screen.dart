@@ -18,8 +18,8 @@ class VsHomeScreen extends StatefulWidget {
 }
 
 class _VsHomeScreenState extends State<VsHomeScreen> {
-  static const Color _orange = Color(0xFF00E5FF);
-  static const Color _orangeLt = Color(0xFFE0FEFF);
+  static const Color _cyan = Color(0xFF00E5FF);
+  static const Color _cyanLt = Color(0xFFE0FEFF);
 
   VsPlayer? _player;
   Map<String, String> _friends = {};
@@ -70,9 +70,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         ),
         child: SafeArea(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: _orange))
+              ? const Center(child: CircularProgressIndicator(color: _cyan))
               : RefreshIndicator(
-                  color: _orange,
+                  color: _cyan,
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -128,7 +128,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         _buildSectionHeader(
                           'Friends',
                           trailing: IconButton(
-                            icon: const Icon(Icons.person_add, size: 22, color: _orange),
+                            icon: const Icon(Icons.person_add, size: 22, color: _cyan),
                             enableFeedback: false,
                             onPressed: () async {
                               await Navigator.of(context).push(
@@ -175,18 +175,18 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    _orange.withValues(alpha: 0.18),
-                                    _orange.withValues(alpha: 0.08),
+                                    _cyan.withValues(alpha: 0.18),
+                                    _cyan.withValues(alpha: 0.08),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: _orange.withValues(alpha: 0.90),
+                                  color: _cyan.withValues(alpha: 0.90),
                                   width: 2.0,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _orange.withValues(alpha: 0.35),
+                                    color: _cyan.withValues(alpha: 0.35),
                                     blurRadius: 28,
                                     spreadRadius: 2,
                                   ),
@@ -198,7 +198,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w900,
-                                    color: _orange,
+                                    color: _cyan,
                                     letterSpacing: -0.3,
                                   ),
                                 ),
@@ -223,10 +223,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF0D0F1F),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _orange.withValues(alpha: 0.40), width: 1.5),
+        border: Border.all(color: _cyan.withValues(alpha: 0.40), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: _orange.withValues(alpha: 0.12),
+            color: _cyan.withValues(alpha: 0.12),
             blurRadius: 24,
             spreadRadius: 1,
           ),
@@ -253,7 +253,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: _orangeLt,
+                    color: _cyanLt,
                     letterSpacing: 1.0,
                     height: 1.1,
                   ),
@@ -386,16 +386,16 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: _orange.withValues(alpha: 0.15),
+          color: _cyan.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _orange.withValues(alpha: 0.50), width: 1.0),
+          border: Border.all(color: _cyan.withValues(alpha: 0.50), width: 1.0),
         ),
         child: Text(
           label,
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: _orange,
+            color: _cyan,
           ),
         ),
       ),
@@ -504,7 +504,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         border: Border.all(
           color: c.isCompleted
               ? Colors.white.withValues(alpha: 0.12)
-              : _orange.withValues(alpha: 0.30),
+              : _cyan.withValues(alpha: 0.30),
           width: 1.0,
         ),
       ),
@@ -531,7 +531,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     fontWeight: FontWeight.w600,
                     color: c.isCompleted
                         ? Colors.white.withValues(alpha: 0.35)
-                        : _orange.withValues(alpha: 0.70),
+                        : _cyan.withValues(alpha: 0.70),
                   ),
                 ),
               ],
@@ -686,10 +686,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: _orange.withValues(alpha: 0.15),
+                  color: _cyan.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: _orange.withValues(alpha: 0.50),
+                    color: _cyan.withValues(alpha: 0.50),
                     width: 1.0,
                   ),
                 ),
@@ -698,7 +698,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: _orange,
+                    color: _cyan,
                   ),
                 ),
               ),
@@ -734,10 +734,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: _orange.withValues(alpha: 0.15),
+              color: _cyan.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: _orange.withValues(alpha: 0.50),
+                color: _cyan.withValues(alpha: 0.50),
                 width: 1.0,
               ),
             ),
@@ -746,7 +746,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: _orange,
+                color: _cyan,
               ),
             ),
           ),
@@ -903,7 +903,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _orange.withValues(alpha: 0.25),
+          color: _cyan.withValues(alpha: 0.25),
           width: 0.5,
         ),
       ),
@@ -960,10 +960,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: _orange.withValues(alpha: 0.15),
+                color: _cyan.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: _orange.withValues(alpha: 0.50),
+                  color: _cyan.withValues(alpha: 0.50),
                   width: 1.0,
                 ),
               ),
@@ -972,7 +972,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: _orange,
+                  color: _cyan,
                 ),
               ),
             ),
