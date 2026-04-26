@@ -49,6 +49,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
           opponentPuzzles: widget.opponent.puzzlesSolved,
           opponentTimeMs: widget.opponent.timeUsedMs,
           opponentMoves: widget.opponent.movesUsed,
+          vsMode: widget.vsMode,
         );
         _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
             (!widget.isChallenger && _winner == VsWinner.opponent);
