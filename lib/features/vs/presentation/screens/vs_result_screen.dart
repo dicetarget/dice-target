@@ -41,17 +41,24 @@ class _VsResultScreenState extends State<VsResultScreen> {
       _iWon = false;
       _isDraw = false;
     } else {
-      _winner = VsWinnerLogic.determine(
-        challengerPuzzles: widget.challenger.puzzlesSolved,
-        challengerTimeMs: widget.challenger.timeUsedMs,
-        challengerMoves: widget.challenger.movesUsed,
-        opponentPuzzles: widget.opponent.puzzlesSolved,
-        opponentTimeMs: widget.opponent.timeUsedMs,
-        opponentMoves: widget.opponent.movesUsed,
-      );
-      _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
-          (!widget.isChallenger && _winner == VsWinner.opponent);
-      _isDraw = _winner == VsWinner.draw;
+      try {
+        _winner = VsWinnerLogic.determine(
+          challengerPuzzles: widget.challenger.puzzlesSolved,
+          challengerTimeMs: widget.challenger.timeUsedMs,
+          challengerMoves: widget.challenger.movesUsed,
+          opponentPuzzles: widget.opponent.puzzlesSolved,
+          opponentTimeMs: widget.opponent.timeUsedMs,
+          opponentMoves: widget.opponent.movesUsed,
+        );
+        _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
+            (!widget.isChallenger && _winner == VsWinner.opponent);
+        _isDraw = _winner == VsWinner.draw;
+      } catch (e) {
+        debugPrint('VsWinnerLogic error: $e');
+        _winner = VsWinner.draw;
+        _iWon = false;
+        _isDraw = true;
+      }
     }
   }
 

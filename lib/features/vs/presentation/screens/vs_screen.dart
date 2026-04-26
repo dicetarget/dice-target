@@ -498,31 +498,41 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
           fresh.opponentTimeMs ?? 0,
           fresh.opponentMoves ?? 0,
         );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => VsResultScreen(
-              challenger: myResult,
-              opponent: opponentResult,
-              isChallenger: true,
-              pendingOpponent: false,
-              vsMode: widget.vsMode,
-              friendName: widget.friendName,
+        try {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsResultScreen(
+                challenger: myResult,
+                opponent: opponentResult,
+                isChallenger: true,
+                pendingOpponent: false,
+                vsMode: widget.vsMode,
+                friendName: widget.friendName,
+              ),
             ),
-          ),
-        );
+          );
+        } catch (e) {
+          debugPrint('VsResultScreen navigation error: $e');
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => VsResultScreen(
-              challenger: myResult,
-              opponent: myResult,
-              isChallenger: true,
-              pendingOpponent: true,
-              vsMode: widget.vsMode,
-              friendName: widget.friendName,
+        try {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsResultScreen(
+                challenger: myResult,
+                opponent: myResult,
+                isChallenger: true,
+                pendingOpponent: true,
+                vsMode: widget.vsMode,
+                friendName: widget.friendName,
+              ),
             ),
-          ),
-        );
+          );
+        } catch (e) {
+          debugPrint('VsResultScreen navigation error: $e');
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     } else {
       await _firestore.updateChallengeWithOpponentResult(
@@ -542,31 +552,41 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
           fresh.challengerTimeMs,
           fresh.challengerMoves,
         );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => VsResultScreen(
-              challenger: challengerResult,
-              opponent: myResult,
-              isChallenger: false,
-              pendingOpponent: false,
-              vsMode: widget.vsMode,
-              friendName: widget.friendName,
+        try {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsResultScreen(
+                challenger: challengerResult,
+                opponent: myResult,
+                isChallenger: false,
+                pendingOpponent: false,
+                vsMode: widget.vsMode,
+                friendName: widget.friendName,
+              ),
             ),
-          ),
-        );
+          );
+        } catch (e) {
+          debugPrint('VsResultScreen navigation error: $e');
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => VsResultScreen(
-              challenger: myResult,
-              opponent: myResult,
-              isChallenger: false,
-              pendingOpponent: true,
-              vsMode: widget.vsMode,
-              friendName: widget.friendName,
+        try {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VsResultScreen(
+                challenger: myResult,
+                opponent: myResult,
+                isChallenger: false,
+                pendingOpponent: true,
+                vsMode: widget.vsMode,
+                friendName: widget.friendName,
+              ),
             ),
-          ),
-        );
+          );
+        } catch (e) {
+          debugPrint('VsResultScreen navigation error: $e');
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     }
   }
