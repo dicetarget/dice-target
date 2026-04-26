@@ -54,4 +54,15 @@ enum RushDifficulty {
     if (solvedCount >= 4) return (30, 70);
     return (10, 40);
   }
+
+  /// VS puzzle difficulty range based on puzzle index (0-based).
+  /// speedrun (3 puzzles): all Easy (10–40)
+  /// speedrun_advanced (5 puzzles):
+  ///   index 0–1: Easy (10–40), index 2–3: Medium (30–70), index 4: Medium-Hard (40–100)
+  static (int, int) vsPuzzleRange(String vsMode, int puzzleIndex) {
+    if (vsMode == 'speedrun') return (10, 40);
+    if (puzzleIndex <= 1) return (10, 40);
+    if (puzzleIndex <= 3) return (30, 70);
+    return (40, 100);
+  }
 }

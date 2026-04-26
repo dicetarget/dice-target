@@ -422,43 +422,59 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _showFriendProfile(friendId, friendName),
-              child: Text(
-                friendName,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _showFriendProfile(friendId, friendName),
+                  child: Text(
+                    friendName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              GestureDetector(
+                onTap: () => _removeFriend(friendId, friendName),
+                child: Icon(
+                  Icons.person_remove_rounded,
+                  size: 20,
+                  color: Colors.white.withValues(alpha: 0.25),
+                ),
+              ),
+            ],
           ),
-          _buildChallengeButton(
-            label: '⚡ 90s',
-            friendId: friendId,
-            friendName: friendName,
-            vsMode: 'rush',
-          ),
-          const SizedBox(width: 8),
-          _buildChallengeButton(
-            label: '🏁 3 Puzzles',
-            friendId: friendId,
-            friendName: friendName,
-            vsMode: 'speedrun',
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => _removeFriend(friendId, friendName),
-            child: Icon(
-              Icons.person_remove_rounded,
-              size: 20,
-              color: Colors.white.withValues(alpha: 0.25),
-            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _buildChallengeButton(
+                label: '3 Puzzles',
+                friendId: friendId,
+                friendName: friendName,
+                vsMode: 'speedrun',
+              ),
+              const SizedBox(width: 8),
+              _buildChallengeButton(
+                label: '5 Puzzles',
+                friendId: friendId,
+                friendName: friendName,
+                vsMode: 'speedrun_advanced',
+              ),
+              const SizedBox(width: 8),
+              _buildChallengeButton(
+                label: '90s',
+                friendId: friendId,
+                friendName: friendName,
+                vsMode: 'rush',
+              ),
+            ],
           ),
         ],
       ),
@@ -560,7 +576,11 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     final hour = c.createdAt.hour.toString().padLeft(2, '0');
     final minute = c.createdAt.minute.toString().padLeft(2, '0');
     final dateStr = '$day.$month  $hour:$minute';
-    final modeStr = c.vsMode == 'speedrun' ? '🏁 3 Puzzles' : '⚡ 90s Rush';
+    final modeStr = c.vsMode == 'speedrun'
+        ? '3 Puzzles'
+        : c.vsMode == 'speedrun_advanced'
+            ? '5 Puzzles'
+            : '90s Rush';
     if (c.isCompleted) {
       final myPuzzles = iAmChallenger ? c.challengerPuzzles : (c.opponentPuzzles ?? 0);
       final theirPuzzles = iAmChallenger ? (c.opponentPuzzles ?? 0) : c.challengerPuzzles;

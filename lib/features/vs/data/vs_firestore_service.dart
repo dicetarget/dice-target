@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/vs_challenge_model.dart';
 import '../domain/vs_player.dart';
+import '../domain/vs_winner_logic.dart';
 import 'vs_head_to_head_service.dart';
 
 class VsFirestoreService {
@@ -151,29 +152,23 @@ class VsFirestoreService {
     });
 
     if (opponentPlayed) {
-      const totalPuzzles = 3;
       final vsMode = (data['vsMode'] as String?) ?? 'rush';
-      String winnerId = '';
-
-      if (vsMode == 'speedrun') {
-        final cDone = puzzles >= totalPuzzles;
-        final oDone = opponentPuzzles >= totalPuzzles;
-        if (cDone && !oDone) {
-          winnerId = challengerId;
-        } else if (oDone && !cDone) {
-          winnerId = opponentId;
-        } else if (cDone && oDone && timeMs != opponentTimeMs) {
-          winnerId = timeMs < opponentTimeMs ? challengerId : opponentId;
-        }
-      } else {
-        if (puzzles != opponentPuzzles) {
-          winnerId = puzzles > opponentPuzzles ? challengerId : opponentId;
-        } else if (timeMs != opponentTimeMs) {
-          winnerId = timeMs < opponentTimeMs ? challengerId : opponentId;
-        } else if (moves != opponentMoves) {
-          winnerId = moves < opponentMoves ? challengerId : opponentId;
-        }
-      }
+      final totalPuzzles = vsMode == 'speedrun_advanced' ? 5 : 3;
+      final winner = VsWinnerLogic.determine(
+        challengerPuzzles: puzzles,
+        challengerTimeMs: timeMs,
+        challengerMoves: moves,
+        opponentPuzzles: opponentPuzzles,
+        opponentTimeMs: opponentTimeMs,
+        opponentMoves: opponentMoves,
+        vsMode: vsMode,
+        totalPuzzles: totalPuzzles,
+      );
+      final winnerId = winner == VsWinner.challenger
+          ? challengerId
+          : winner == VsWinner.opponent
+              ? opponentId
+              : '';
 
       await _h2h.update(
         userAId: challengerId,
@@ -213,29 +208,23 @@ class VsFirestoreService {
     });
 
     if (challengerPlayed) {
-      const totalPuzzles = 3;
       final vsMode = (data['vsMode'] as String?) ?? 'rush';
-      String winnerId = '';
-
-      if (vsMode == 'speedrun') {
-        final cDone = challengerPuzzles >= totalPuzzles;
-        final oDone = puzzles >= totalPuzzles;
-        if (cDone && !oDone) {
-          winnerId = challengerId;
-        } else if (oDone && !cDone) {
-          winnerId = opponentId;
-        } else if (cDone && oDone && challengerTimeMs != timeMs) {
-          winnerId = challengerTimeMs < timeMs ? challengerId : opponentId;
-        }
-      } else {
-        if (challengerPuzzles != puzzles) {
-          winnerId = challengerPuzzles > puzzles ? challengerId : opponentId;
-        } else if (challengerTimeMs != timeMs) {
-          winnerId = challengerTimeMs < timeMs ? challengerId : opponentId;
-        } else if (challengerMoves != moves) {
-          winnerId = challengerMoves < moves ? challengerId : opponentId;
-        }
-      }
+      final totalPuzzles = vsMode == 'speedrun_advanced' ? 5 : 3;
+      final winner = VsWinnerLogic.determine(
+        challengerPuzzles: challengerPuzzles,
+        challengerTimeMs: challengerTimeMs,
+        challengerMoves: challengerMoves,
+        opponentPuzzles: puzzles,
+        opponentTimeMs: timeMs,
+        opponentMoves: moves,
+        vsMode: vsMode,
+        totalPuzzles: totalPuzzles,
+      );
+      final winnerId = winner == VsWinner.challenger
+          ? challengerId
+          : winner == VsWinner.opponent
+              ? opponentId
+              : '';
 
       await _h2h.update(
         userAId: challengerId,

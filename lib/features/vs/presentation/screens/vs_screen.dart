@@ -76,8 +76,8 @@ enum _RunPhase { running, ended }
 class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   static const Duration _runDuration = Duration(seconds: 90);
   static const int _maxUndo = 4;
-  static const int _speedRunPuzzles = 3;
-  int _puzzlesRemaining = _speedRunPuzzles;
+  int get _totalPuzzles => widget.vsMode == 'speedrun_advanced' ? 5 : 3;
+  late int _puzzlesRemaining;
   final Stopwatch _stopwatch = Stopwatch();
 
   static const Color _ink = AppColors.ink;
@@ -130,15 +130,12 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   bool get _isPlaying => _phase == _RunPhase.running;
 
-  /// Stage-based target range driven by solved count.
-  (int, int) _stageRange([int? score]) {
-    final s = score ?? _score;
-    return RushDifficulty.stageRange(s);
-  }
+  (int, int) _vsRange() => RushDifficulty.vsPuzzleRange(widget.vsMode, _score);
 
   @override
   void initState() {
     super.initState();
+    _puzzlesRemaining = _totalPuzzles;
 
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
     _plusOneCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
@@ -171,7 +168,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     );
 
     _loadPuzzle();
-    if (widget.vsMode == 'speedrun') {
+    if (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') {
       _stopwatch.start();
     } else {
       _startTimer();
@@ -193,7 +190,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   // ── Timer ─────────────────────────────────────────────────────────────────────
 
   void _startTimer() {
-    if (widget.vsMode == 'speedrun') return;
+    if (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') return;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
@@ -233,7 +230,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   }
 
   void _loadPuzzle() {
-    final (min, max) = _stageRange();
+    final (min, max) = _vsRange();
     final puzzle = _coordinator.startNewRun(targetMin: min, targetMax: max);
     _applyPuzzle(puzzle);
     sfx.rushStart();
@@ -241,14 +238,14 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   }
 
   void _startPrefetch() {
-    final (min, max) = _stageRange();
+    final (min, max) = _vsRange();
     _prefetchFuture = Future(
       () => _coordinator.peekNext(targetMin: min, targetMax: max),
     );
   }
 
   Future<void> _advanceToNextPuzzle() async {
-    final (min, max) = _stageRange();
+    final (min, max) = _vsRange();
     // Discard prefetch at stage boundaries (prefetch used previous stage's range).
     final atStageBoundary = _score == 5 || _score == 12;
     final prefetched = (!atStageBoundary && _prefetchFuture != null)
@@ -373,7 +370,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
 
-    if (widget.vsMode == 'speedrun') {
+    if (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') {
       _puzzlesRemaining--;
       if (_puzzlesRemaining <= 0) {
         _stopwatch.stop();
@@ -463,7 +460,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     if (_phase == _RunPhase.ended) return;
 
     _pulseCtrl.stop();
-    _timeUsedMs = widget.vsMode == 'speedrun'
+    _timeUsedMs = (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')
         ? _stopwatch.elapsedMilliseconds
         : (_runDuration - _remaining).inMilliseconds;
     setState(() => _phase = _RunPhase.ended);
@@ -627,7 +624,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         ),
         centerTitle: true,
         actions: [
-          widget.vsMode == 'speedrun'
+          (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')
               ? const SizedBox.shrink()
               : Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -765,7 +762,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                widget.vsMode == 'speedrun' ? 'Puzzles' : 'Score',
+                (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') ? 'Puzzles' : 'Score',
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.30),
@@ -774,8 +771,8 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 ),
               ),
               Text(
-                widget.vsMode == 'speedrun'
-                    ? '$_score / $_speedRunPuzzles'
+                (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')
+                    ? '$_score / $_totalPuzzles'
                     : '$_score',
                 style: const TextStyle(
                   fontSize: 28,

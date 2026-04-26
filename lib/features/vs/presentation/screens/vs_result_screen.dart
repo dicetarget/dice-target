@@ -50,6 +50,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
           opponentTimeMs: widget.opponent.timeUsedMs,
           opponentMoves: widget.opponent.movesUsed,
           vsMode: widget.vsMode,
+          totalPuzzles: widget.vsMode == 'speedrun_advanced' ? 5 : 3,
         );
         _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
             (!widget.isChallenger && _winner == VsWinner.opponent);
