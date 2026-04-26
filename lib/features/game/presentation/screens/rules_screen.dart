@@ -43,7 +43,7 @@ class RulesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  // Title
+
                   ShaderMask(
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [Color(0xFF90D5F0), Color(0xFF3FE8FF)],
@@ -60,7 +60,9 @@ class RulesScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
                   _RulesSectionCard(
                     icon: Icons.flag_rounded,
                     heading: 'Goal',
@@ -71,7 +73,9 @@ class RulesScreen extends StatelessWidget {
                         '• All 5 dice must be used\n'
                         '• The final die value must exactly match the target number',
                   ),
+
                   const SizedBox(height: 12),
+
                   _RulesSectionCard(
                     icon: Icons.casino_rounded,
                     heading: 'Game Start',
@@ -87,7 +91,9 @@ class RulesScreen extends StatelessWidget {
                         '• Easy: 10–40  •  Medium: 30–70\n'
                         '• Hard: 50–100  •  Expert: 80–120',
                   ),
+
                   const SizedBox(height: 12),
+
                   _RulesSectionCard(
                     icon: Icons.functions_rounded,
                     heading: 'Core Gameplay',
@@ -104,7 +110,9 @@ class RulesScreen extends StatelessWidget {
                         '• − and ÷: no negative results; division without remainder only\n'
                         '• Invalid moves are rejected',
                   ),
+
                   const SizedBox(height: 12),
+
                   _RulesSectionCard(
                     icon: Icons.calendar_today_rounded,
                     heading: 'Daily Mode',
@@ -116,7 +124,9 @@ class RulesScreen extends StatelessWidget {
                         '• Perfect run requires optimal move count\n'
                         '• New daily every midnight',
                   ),
+
                   const SizedBox(height: 12),
+
                   _RulesSectionCard(
                     icon: Icons.bolt_rounded,
                     heading: 'Rush',
@@ -126,7 +136,9 @@ class RulesScreen extends StatelessWidget {
                         '• No hints — pure speed and skill\n'
                         '• Your best score is saved automatically',
                   ),
+
                   const SizedBox(height: 12),
+
                   _RulesSectionCard(
                     icon: Icons.people_rounded,
                     heading: 'VS Mode',
@@ -141,9 +153,15 @@ class RulesScreen extends StatelessWidget {
                         '• Solve exactly 3 puzzles as fast as possible\n'
                         '• Fastest time wins\n'
                         '• Tie on time: fewest total moves wins\n\n'
+                        '🏁 5 Puzzle Speedrun:\n'
+                        '• Solve exactly 5 puzzles as fast as possible\n'
+                        '• Difficulty increases with each puzzle\n'
+                        '• Fastest time wins\n'
+                        '• Tie on time: fewest total moves wins\n\n'
                         'Challenges are valid for 7 days.\n'
                         'Play in your own time — no need to be online together.',
                   ),
+
                   const SizedBox(height: 8),
                 ],
               ),
