@@ -1367,6 +1367,8 @@ class _PracticeScreenState extends State<PracticeScreen>
           }
         }
 
+        if (!mounted) return;
+
         Navigator.of(context).pop(
           DailyPuzzlePlayResult(
             solved: solved,
@@ -1748,9 +1750,7 @@ class _PracticeScreenState extends State<PracticeScreen>
               StatefulBuilder(
                 builder: (context, setIcon) => IconButton(
                   icon: Icon(
-                    sfx.enabled
-                        ? Icons.volume_up_rounded
-                        : Icons.volume_off_rounded,
+                    sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                     color: Colors.white70,
                   ),
                   onPressed: () async {

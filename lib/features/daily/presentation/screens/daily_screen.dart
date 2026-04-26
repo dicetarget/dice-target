@@ -201,93 +201,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildMergedStatsCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: _cardDecoration(),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('🔥', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 6),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${controller.dailyStreak}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      'Streak',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.35),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
-          Expanded(
-            child: _StatCell(label: 'Total Runs', value: '${controller.lifetimeTotalRuns}'),
-          ),
-          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
-          Expanded(
-            child: _StatCell(label: 'Best', value: _starsLabel(controller.lifetimeBestRating)),
-          ),
-          Container(width: 1, height: 32, color: Colors.white.withValues(alpha: 0.08)),
-          Expanded(
-            child: _StatCell(label: 'Solved', value: '${controller.lifetimeTotalPuzzlesSolved}'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRunSummaryCard(DailyProgress progress) {
-    final totalDiff = controller.runTotalDiff();
-    final totalTime = progress.totalTimeSeconds;
-    final formattedTime = controller.formatTime(totalTime);
-
-    final efficiencyLabel = progress.gaveUp
-        ? '—'
-        : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
-    final efficiencyColor = progress.gaveUp
-        ? DailyScreen._muted
-        : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(radius: 18),
-      child: Row(
-        children: [
-          Expanded(
-            child: _SummaryCell(
-              label: 'Moves',
-              value: efficiencyLabel,
-              valueColor: efficiencyColor,
-            ),
-          ),
-          Expanded(
-            child: _SummaryCell(label: 'Time', value: formattedTime),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildResultsCard(DailyProgress progress, int totalPuzzles) {
     return Container(
       width: double.infinity,
@@ -789,31 +702,33 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   const SizedBox(width: 20),
                   // Moves + Time rechts
                   Expanded(
-                    child: Builder(builder: (_) {
-                      final totalDiff = controller.runTotalDiff();
-                      final totalTime = progress.totalTimeSeconds;
-                      final formattedTime = controller.formatTime(totalTime);
-                      final efficiencyLabel = progress.gaveUp
-                          ? '—'
-                          : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
-                      final efficiencyColor = progress.gaveUp
-                          ? DailyScreen._muted
-                          : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: _SummaryCell(
-                              label: 'Moves',
-                              value: efficiencyLabel,
-                              valueColor: efficiencyColor,
+                    child: Builder(
+                      builder: (_) {
+                        final totalDiff = controller.runTotalDiff();
+                        final totalTime = progress.totalTimeSeconds;
+                        final formattedTime = controller.formatTime(totalTime);
+                        final efficiencyLabel = progress.gaveUp
+                            ? '—'
+                            : (totalDiff == 0 ? 'Perfect' : '+$totalDiff moves');
+                        final efficiencyColor = progress.gaveUp
+                            ? DailyScreen._muted
+                            : (totalDiff == 0 ? DailyScreen._solved : Colors.white);
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _SummaryCell(
+                                label: 'Moves',
+                                value: efficiencyLabel,
+                                valueColor: efficiencyColor,
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: _SummaryCell(label: 'Time', value: formattedTime),
-                          ),
-                        ],
-                      );
-                    }),
+                            Expanded(
+                              child: _SummaryCell(label: 'Time', value: formattedTime),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -843,11 +758,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           value: '${controller.lifetimeTotalRuns}',
                         ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
+                      Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
                       Expanded(
                         child: _StatCell(
                           label: 'Best',
@@ -857,10 +768,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Divider(
-                    color: Colors.white.withValues(alpha: 0.06),
-                    height: 1,
-                  ),
+                  Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -870,16 +778,9 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           value: '${controller.lifetimeTotalPuzzlesSolved}',
                         ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
+                      Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
                       Expanded(
-                        child: _StatCell(
-                          label: 'Streak',
-                          value: '🔥 ${controller.dailyStreak}',
-                        ),
+                        child: _StatCell(label: 'Streak', value: '🔥 ${controller.dailyStreak}'),
                       ),
                     ],
                   ),
@@ -1033,9 +934,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                       color: isFilled
                           ? DailyScreen._gold.withValues(alpha: 0.85)
                           : Colors.white.withValues(alpha: 0.07),
-                      border: isToday
-                          ? Border.all(color: DailyScreen._gold, width: 2.0)
-                          : null,
+                      border: isToday ? Border.all(color: DailyScreen._gold, width: 2.0) : null,
                     ),
                   ),
                   const SizedBox(height: 6),
