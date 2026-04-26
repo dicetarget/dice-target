@@ -198,7 +198,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
   }
 
   Widget _buildTableHeader() {
-    if (widget.vsMode == 'speedrun') {
+    if ((widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')) {
       return Row(
         children: [
           const SizedBox(width: 80),
@@ -262,7 +262,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
             ],
           ),
         ),
-        if (widget.vsMode == 'speedrun') ...[
+        if ((widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')) ...[
           _buildValueCell(timeStr, isWinner),
           _buildValueCell('${challenge.movesUsed}', isWinner),
         ] else ...[
