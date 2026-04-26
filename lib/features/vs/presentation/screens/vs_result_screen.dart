@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_winner_logic.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
+import 'package:flutter/material.dart';
 
 class VsResultScreen extends StatefulWidget {
   final VsChallenge challenger;
@@ -52,7 +52,8 @@ class _VsResultScreenState extends State<VsResultScreen> {
           vsMode: widget.vsMode,
           totalPuzzles: widget.vsMode == 'speedrun_advanced' ? 5 : 3,
         );
-        _iWon = (widget.isChallenger && _winner == VsWinner.challenger) ||
+        _iWon =
+            (widget.isChallenger && _winner == VsWinner.challenger) ||
             (!widget.isChallenger && _winner == VsWinner.opponent);
         _isDraw = _winner == VsWinner.draw;
       } catch (e) {
@@ -121,8 +122,8 @@ class _VsResultScreenState extends State<VsResultScreen> {
     final title = widget.pendingOpponent
         ? 'Waiting...'
         : _isDraw
-            ? 'Draw!'
-            : (_iWon ? 'You won!' : 'You lost!');
+        ? 'Draw!'
+        : (_iWon ? 'You won!' : 'You lost!');
     return Column(
       children: [
         Text(
@@ -155,34 +156,22 @@ class _VsResultScreenState extends State<VsResultScreen> {
     final myIsWinner = _iWon;
     final theirIsWinner = !_iWon && !_isDraw;
 
-    // speedrun: Time + Moves only. rush: Puzzles + Moves only.
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
         color: const Color(0xFF0D0F1F),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _orange.withValues(alpha: 0.35),
-          width: 1.0,
-        ),
+        border: Border.all(color: _orange.withValues(alpha: 0.35), width: 1.0),
         boxShadow: [
-          BoxShadow(
-            color: _orange.withValues(alpha: 0.10),
-            blurRadius: 30,
-            spreadRadius: 2,
-          ),
+          BoxShadow(color: _orange.withValues(alpha: 0.10), blurRadius: 30, spreadRadius: 2),
         ],
       ),
       child: Column(
         children: [
           _buildTableHeader(),
           const SizedBox(height: 12),
-          _buildTableRow(
-            label: 'You',
-            challenge: myChallenge,
-            isWinner: myIsWinner,
-          ),
+          _buildTableRow(label: 'You', challenge: myChallenge, isWinner: myIsWinner),
           const SizedBox(height: 8),
           if (widget.pendingOpponent)
             _buildPendingRow()
@@ -200,19 +189,11 @@ class _VsResultScreenState extends State<VsResultScreen> {
   Widget _buildTableHeader() {
     if ((widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')) {
       return Row(
-        children: [
-          const SizedBox(width: 80),
-          _buildHeaderCell('Time'),
-          _buildHeaderCell('Moves'),
-        ],
+        children: [const SizedBox(width: 80), _buildHeaderCell('Time'), _buildHeaderCell('Moves')],
       );
     }
     return Row(
-      children: [
-        const SizedBox(width: 80),
-        _buildHeaderCell('Puzzles'),
-        _buildHeaderCell('Moves'),
-      ],
+      children: [const SizedBox(width: 80), _buildHeaderCell('Puzzles'), _buildHeaderCell('Moves')],
     );
   }
 
@@ -231,20 +212,28 @@ class _VsResultScreenState extends State<VsResultScreen> {
     );
   }
 
+  String _formatTime(int ms) {
+    final totalSeconds = ms / 1000;
+    final minutes = (totalSeconds / 60).floor();
+    final seconds = totalSeconds % 60;
+    if (minutes == 0) return '${totalSeconds.toStringAsFixed(1)}s';
+    return '${minutes}m ${seconds.toStringAsFixed(0).padLeft(2, '0')}s';
+  }
+
   Widget _buildTableRow({
     required String label,
     required VsChallenge challenge,
     required bool isWinner,
   }) {
-    final timeStr = '${(challenge.timeUsedMs / 1000).toStringAsFixed(1)}s';
+    final timeStr = _formatTime(challenge.timeUsedMs);
+
     return Row(
       children: [
         SizedBox(
           width: 80,
           child: Row(
             children: [
-              if (isWinner)
-                const Text('👑', style: TextStyle(fontSize: 14)),
+              if (isWinner) const Text('👑', style: TextStyle(fontSize: 14)),
               if (isWinner) const SizedBox(width: 4),
               Flexible(
                 child: Text(
@@ -252,9 +241,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isWinner
-                        ? _orange
-                        : Colors.white.withValues(alpha: 0.65),
+                    color: isWinner ? _orange : Colors.white.withValues(alpha: 0.65),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -330,10 +317,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
         height: 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.12),
-            width: 0.5,
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
         ),
         child: Center(
           child: Text(
