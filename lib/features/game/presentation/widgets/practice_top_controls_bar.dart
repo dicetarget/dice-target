@@ -37,7 +37,6 @@ class PracticeTopControlsBar extends StatelessWidget {
   static const Color _barBorder = Color(0x1A3FE8FF);
   static const Color _textPrimary = Color(0xFFEEEAF6);
   static const Color _textSecondary = Color(0xFF6B8CAE);
-  static const Color _neonAccent = Color(0xFF3FE8FF);
   static const Color _neonAccentLt = Color(0xFF90D5F0);
 
   @override

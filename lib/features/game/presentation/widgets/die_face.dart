@@ -432,7 +432,9 @@ class _Pips extends StatelessWidget {
 
     final on = List<bool>.filled(9, false);
     void setOn(List<int> idx) {
-      for (final i in idx) on[i] = true;
+      for (final i in idx) {
+        on[i] = true;
+      }
     }
 
     switch (value) {

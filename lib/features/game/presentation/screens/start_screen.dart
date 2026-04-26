@@ -69,18 +69,22 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Future<void> _openDaily() async {
     if (_isOpeningDaily) return;
     setState(() => _isOpeningDaily = true);
+
     try {
       final controller = _dailyController ??= _createDailyController();
       if (controller.daily == null || controller.progress == null) {
         await controller.loadToday();
       }
-      if (!mounted) return;
-      await Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => DailyScreen(controllerOverride: controller)));
+
+      if (mounted) {
+        await Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => DailyScreen(controllerOverride: controller)));
+      }
     } finally {
-      if (!mounted) return;
-      setState(() => _isOpeningDaily = false);
+      if (mounted) {
+        setState(() => _isOpeningDaily = false);
+      }
     }
   }
 
