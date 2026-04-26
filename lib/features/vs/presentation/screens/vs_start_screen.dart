@@ -13,7 +13,7 @@ class VsStartScreen extends StatefulWidget {
   final String? myId;
   final String? myDisplayName;
   final String? friendName;
-  final String vsMode; // 'rush' or 'speedrun'
+  final String vsMode; // 'rush', 'speedrun', 'speedrun_advanced'
 
   const VsStartScreen({
     super.key,
@@ -31,7 +31,9 @@ class VsStartScreen extends StatefulWidget {
 }
 
 class _VsStartScreenState extends State<VsStartScreen> {
-  static const Color _orange = Color(0xFF00E5FF);
+  static const Color _cyan = Color(0xFF00E5FF);
+
+  int get _puzzleCount => widget.vsMode == 'speedrun_advanced' ? 5 : 3;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         Text(
           widget.vsMode == 'rush'
               ? '90 seconds. Same seed.\nSolve as many as you can.'
-              : '3 puzzles. Same seed.\nSolve all — fastest time wins.',
+              : '$_puzzleCount puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -97,10 +99,10 @@ class _VsStartScreenState extends State<VsStartScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
-            color: _orange.withValues(alpha: 0.07),
+            color: _cyan.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _orange.withValues(alpha: 0.25),
+              color: _cyan.withValues(alpha: 0.25),
               width: 1.0,
             ),
           ),
@@ -113,11 +115,15 @@ class _VsStartScreenState extends State<VsStartScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                widget.vsMode == 'rush' ? '90 Seconds Rush' : '3 Puzzle Speedrun',
+                switch (widget.vsMode) {
+                  'rush' => '90 Seconds Rush',
+                  'speedrun_advanced' => '5 Puzzle Speedrun',
+                  _ => '3 Puzzle Speedrun',
+                },
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: _orange,
+                  color: _cyan,
                   letterSpacing: 0.3,
                 ),
               ),
@@ -159,7 +165,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         Text(
           widget.vsMode == 'rush'
               ? '90 seconds. Same seed.\nSolve as many as you can.'
-              : '3 puzzles. Same seed.\nSolve all — fastest time wins.',
+              : '$_puzzleCount puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -213,7 +219,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: _orange.withValues(alpha: 0.70),
+            color: _cyan.withValues(alpha: 0.70),
             letterSpacing: 2.0,
           ),
         ),
@@ -241,12 +247,12 @@ class _VsStartScreenState extends State<VsStartScreen> {
         color: const Color(0xFF0D0F1F),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _orange.withValues(alpha: 0.35),
+          color: _cyan.withValues(alpha: 0.35),
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: _orange.withValues(alpha: 0.10),
+            color: _cyan.withValues(alpha: 0.10),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -278,10 +284,10 @@ class _VsStartScreenState extends State<VsStartScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: _orange.withValues(alpha: 0.10),
+              color: _cyan.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _orange.withValues(alpha: 0.35),
+                color: _cyan.withValues(alpha: 0.35),
                 width: 0.5,
               ),
             ),
@@ -290,7 +296,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: _orange.withValues(alpha: 0.80),
+                color: _cyan.withValues(alpha: 0.80),
               ),
             ),
           ),
@@ -344,15 +350,15 @@ class _VsStartScreenState extends State<VsStartScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              _orange.withValues(alpha: 0.22),
-              _orange.withValues(alpha: 0.10),
+              _cyan.withValues(alpha: 0.22),
+              _cyan.withValues(alpha: 0.10),
             ],
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _orange.withValues(alpha: 0.70), width: 1.5),
+          border: Border.all(color: _cyan.withValues(alpha: 0.70), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: _orange.withValues(alpha: 0.30),
+              color: _cyan.withValues(alpha: 0.30),
               blurRadius: 24,
               spreadRadius: 1,
             ),
@@ -364,7 +370,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
             style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
-              color: _orange,
+              color: _cyan,
             ),
           ),
         ),
