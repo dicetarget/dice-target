@@ -403,6 +403,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         ),
         child: Text(
           label,
+          textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
@@ -454,25 +455,31 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              _buildChallengeButton(
-                label: '3 Puzzles',
-                friendId: friendId,
-                friendName: friendName,
-                vsMode: 'speedrun',
+              Expanded(
+                child: _buildChallengeButton(
+                  label: '3 Puzzles',
+                  friendId: friendId,
+                  friendName: friendName,
+                  vsMode: 'speedrun',
+                ),
               ),
               const SizedBox(width: 8),
-              _buildChallengeButton(
-                label: '5 Puzzles',
-                friendId: friendId,
-                friendName: friendName,
-                vsMode: 'speedrun_advanced',
+              Expanded(
+                child: _buildChallengeButton(
+                  label: '5 Puzzles',
+                  friendId: friendId,
+                  friendName: friendName,
+                  vsMode: 'speedrun_advanced',
+                ),
               ),
               const SizedBox(width: 8),
-              _buildChallengeButton(
-                label: '90s',
-                friendId: friendId,
-                friendName: friendName,
-                vsMode: 'rush',
+              Expanded(
+                child: _buildChallengeButton(
+                  label: 'Rush',
+                  friendId: friendId,
+                  friendName: friendName,
+                  vsMode: 'rush',
+                ),
               ),
             ],
           ),
