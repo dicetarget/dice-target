@@ -187,66 +187,66 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     );
   }
 
-  // ── Classic — Cyan, calm primary ────────────────────────────────────────
+  // ── Classic — Cyan PRIMARY (stärkster Glow) ─────────────────────────────
   Widget _buildClassicCard() {
     return _ModeCard(
       onPressed: _openClassic,
       label: 'Classic',
       sublabel: 'Open-ended dice play',
       glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.75),
+      borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.10), _cyan.withValues(alpha: 0.04)],
+        colors: [_cyan.withValues(alpha: 0.16), _cyan.withValues(alpha: 0.06)],
       ),
-      sublabelColor: _cyan.withValues(alpha: 0.85),
-      glowAlpha: 0.22,
-      glowBlur: 18,
-      borderWidth: 1.5,
-      labelSize: 24,
+      sublabelColor: _cyan.withValues(alpha: 0.95),
+      glowAlpha: 0.45,
+      glowBlur: 28,
+      borderWidth: 2.0,
+      labelSize: 26,
     );
   }
 
-  // ── Rush — Cyan, energetischerer Akzent ─────────────────────────────────
+  // ── Rush — Cyan MID ─────────────────────────────────────────────────────
   Widget _buildRushCard() {
     return _ModeCard(
       onPressed: _openRush,
       label: 'Rush',
       sublabel: 'Solve as many as possible in 90 seconds',
       glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.85),
+      borderColor: _cyan.withValues(alpha: 0.70),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.14), _cyan.withValues(alpha: 0.06)],
+        colors: [_cyan.withValues(alpha: 0.09), _cyan.withValues(alpha: 0.03)],
       ),
-      sublabelColor: _cyan.withValues(alpha: 0.90),
-      glowAlpha: 0.30,
-      glowBlur: 22,
-      borderWidth: 1.75,
+      sublabelColor: _cyan.withValues(alpha: 0.75),
+      glowAlpha: 0.22,
+      glowBlur: 18,
+      borderWidth: 1.5,
       labelSize: 24,
     );
   }
 
-  // ── Training — Gold/Amber ───────────────────────────────────────────────
+  // ── Training — Cyan SUBTLE ──────────────────────────────────────────────
   Widget _buildTrainingCard() {
     return _ModeCard(
       onPressed: _openTraining,
       label: 'Training',
       sublabel: 'Solvable puzzles by difficulty',
-      glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.75),
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.40),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.08), _amber.withValues(alpha: 0.02)],
+        colors: [_cyan.withValues(alpha: 0.05), _cyan.withValues(alpha: 0.02)],
       ),
-      sublabelColor: _amber.withValues(alpha: 0.85),
-      glowAlpha: 0.22,
-      glowBlur: 18,
-      borderWidth: 1.5,
-      labelSize: 24,
+      sublabelColor: _cyan.withValues(alpha: 0.55),
+      glowAlpha: 0.12,
+      glowBlur: 12,
+      borderWidth: 1.0,
+      labelSize: 22,
     );
   }
 }
