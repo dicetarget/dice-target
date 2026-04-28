@@ -1,11 +1,9 @@
 // lib/features/game/presentation/screens/free_play_start_screen.dart
 
 import 'package:dice/core/audio/sfx_singleton.dart';
-import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
+import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:flutter/material.dart';
-
-enum _Tab { free, training }
 
 class FreePlayStartScreen extends StatefulWidget {
   const FreePlayStartScreen({super.key});
@@ -15,408 +13,397 @@ class FreePlayStartScreen extends StatefulWidget {
 }
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
-  // White/silver — no color-meaning conflict with Daily (gold) or Rush (green)
-  static const Color _neutral = Color(0xFFFFB300);
+  static const Color _cyan = Color(0xFF00E5FF);
+  static const Color _amber = Color(0xFFFFB300);
 
-  _Tab _tab = _Tab.free;
-  PracticeDifficulty _selectedDifficulty = PracticeDifficulty.easy;
-
-  Future<void> _startFree() async {
-    if (!mounted) return;
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const PracticeScreen(initialTrainingMode: false)));
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _startTraining() async {
-    if (!mounted) return;
-    await Navigator.of(context).push(
+  void _openClassic() {
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            PracticeScreen(initialTrainingMode: true, initialDifficulty: _selectedDifficulty),
+        builder: (_) => const PracticeScreen(initialTrainingMode: false),
       ),
     );
-    if (mounted) setState(() {});
+  }
+
+  void _openRush() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const RushStartScreen()),
+    );
+  }
+
+  Future<void> _openTraining() async {
+    final difficulty = await _showDifficultySheet();
+    if (!mounted || difficulty == null) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PracticeScreen(
+          initialTrainingMode: true,
+          initialDifficulty: difficulty,
+        ),
+      ),
+    );
+  }
+
+  Future<PracticeDifficulty?> _showDifficultySheet() {
+    return showModalBottomSheet<PracticeDifficulty>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        const items = [
+          (PracticeDifficulty.easy, 'Easy', '10 – 40'),
+          (PracticeDifficulty.medium, 'Medium', '30 – 70'),
+          (PracticeDifficulty.hard, 'Hard', '50 – 100'),
+          (PracticeDifficulty.expert, 'Expert', '80 – 120'),
+        ];
+
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF0A1628),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(top: BorderSide(color: Color(0x33FFB300), width: 0.5)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Select Difficulty',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 18),
+              for (final entry in items) ...[
+                _DifficultyRow(
+                  label: entry.$2,
+                  range: entry.$3,
+                  accent: _amber,
+                  onTap: () => Navigator.of(ctx).pop(entry.$1),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: AppColors.bgTop,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    color: Colors.white.withValues(alpha: 0.60),
-                    enableFeedback: false,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'Free Play',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -1.0,
-                        height: 1.0,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0A0F1F), Color(0xFF05070D)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 8),
+                _buildHeader(),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildClassicCard(),
+                          const SizedBox(height: 14),
+                          _buildRushCard(),
+                          const SizedBox(height: 14),
+                          _buildTrainingCard(),
+                        ],
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                      color: Colors.white70,
-                      size: 22,
-                    ),
-                    enableFeedback: false,
-                    onPressed: () async {
-                      await sfx.toggle();
-                      setState(() {});
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.only(left: 48),
-                child: Text(
-                  'Play without limits',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.45),
-                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              _buildTabSwitcher(),
-              const SizedBox(height: 20),
-              Expanded(child: _tab == _Tab.free ? _buildFreeContent() : _buildTrainingContent()),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTabSwitcher() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          _TabBtn(
-            label: 'Free',
-            active: _tab == _Tab.free,
-            neutral: _neutral,
-            onTap: () => setState(() => _tab = _Tab.free),
-          ),
-          _TabBtn(
-            label: 'Training',
-            active: _tab == _Tab.training,
-            neutral: _neutral,
-            onTap: () => setState(() => _tab = _Tab.training),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Free ───────────────────────────────────────────────────────────────────
-
-  Widget _buildFreeContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _buildHeader() {
+    return Row(
       children: [
-        _buildFormatCard([
-          _FreeFormatRow(
-            icon: Icons.all_inclusive_rounded,
-            text: 'Unlimited puzzles',
-            neutral: _neutral,
-          ),
-          const SizedBox(height: 10),
-          _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer', neutral: _neutral),
-          const SizedBox(height: 10),
-          _FreeFormatRow(
-            icon: Icons.lightbulb_outline_rounded,
-            text: 'Show Solution available',
-            neutral: _neutral.withValues(alpha: 0.35),
-            muted: true,
-          ),
-        ]),
-        const Spacer(),
-        const SizedBox(height: 16),
-        _ActionButton(label: 'Start Free Play', onTap: _startFree, neutral: _neutral),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-
-  // ── Training ───────────────────────────────────────────────────────────────
-
-  Widget _buildTrainingContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildDifficultyCard(),
-        const SizedBox(height: 12),
-        _buildFormatCard([
-          _FreeFormatRow(
-            icon: Icons.tune_rounded,
-            text: 'Focused target range per difficulty',
-            neutral: _neutral,
-          ),
-          const SizedBox(height: 10),
-          _FreeFormatRow(icon: Icons.timer_off_outlined, text: 'No timer', neutral: _neutral),
-          const SizedBox(height: 10),
-          _FreeFormatRow(
-            icon: Icons.lightbulb_outline_rounded,
-            text: 'Show Solution available',
-            neutral: _neutral,
-            muted: true,
-          ),
-        ]),
-        const Spacer(),
-        const SizedBox(height: 16),
-        _ActionButton(label: 'Start Training', onTap: _startTraining, neutral: _neutral),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-
-  Widget _buildDifficultyCard() {
-    final difficulties = [
-      (PracticeDifficulty.easy, 'Easy', '10–40'),
-      (PracticeDifficulty.medium, 'Medium', '30–70'),
-      (PracticeDifficulty.hard, 'Hard', '50–100'),
-      (PracticeDifficulty.expert, 'Expert', '80–120'),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'DIFFICULTY',
+        IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          color: Colors.white.withValues(alpha: 0.70),
+          enableFeedback: false,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(width: 4),
+        const Expanded(
+          child: Text(
+            'Free Play',
             style: TextStyle(
-              fontSize: 11,
-              letterSpacing: 1.6,
-              color: Colors.white.withValues(alpha: 0.30),
-              fontWeight: FontWeight.w700,
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: difficulties.map((entry) {
-              final (difficulty, label, range) = entry;
-              final isSel = difficulty == _selectedDifficulty;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedDifficulty = difficulty),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSel
-                          ? _neutral.withValues(alpha: 0.15)
-                          : Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSel
-                            ? _neutral.withValues(alpha: 0.55)
-                            : Colors.white.withValues(alpha: 0.10),
-                        width: isSel ? 1.5 : 1.0,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: isSel ? Colors.white : Colors.white38,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          range,
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: isSel ? _neutral.withValues(alpha: 0.75) : Colors.white24,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+        ),
+        IconButton(
+          icon: Icon(
+            sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+            color: Colors.white70,
+            size: 22,
           ),
-        ],
-      ),
+          enableFeedback: false,
+          onPressed: () async {
+            await sfx.toggle();
+            if (mounted) setState(() {});
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildFormatCard(List<Widget> rows) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBr),
+  // ── Classic — Cyan, calm primary ────────────────────────────────────────
+  Widget _buildClassicCard() {
+    return _ModeCard(
+      onPressed: _openClassic,
+      label: 'Classic',
+      sublabel: 'Open-ended dice play',
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.75),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_cyan.withValues(alpha: 0.10), _cyan.withValues(alpha: 0.04)],
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+      sublabelColor: _cyan.withValues(alpha: 0.85),
+      glowAlpha: 0.22,
+      glowBlur: 18,
+      borderWidth: 1.5,
+      labelSize: 24,
+    );
+  }
+
+  // ── Rush — Cyan, energetischerer Akzent ─────────────────────────────────
+  Widget _buildRushCard() {
+    return _ModeCard(
+      onPressed: _openRush,
+      label: 'Rush',
+      sublabel: 'Solve as many as possible in 90 seconds',
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 0.85),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_cyan.withValues(alpha: 0.14), _cyan.withValues(alpha: 0.06)],
+      ),
+      sublabelColor: _cyan.withValues(alpha: 0.90),
+      glowAlpha: 0.30,
+      glowBlur: 22,
+      borderWidth: 1.75,
+      labelSize: 24,
+    );
+  }
+
+  // ── Training — Gold/Amber ───────────────────────────────────────────────
+  Widget _buildTrainingCard() {
+    return _ModeCard(
+      onPressed: _openTraining,
+      label: 'Training',
+      sublabel: 'Solvable puzzles by difficulty',
+      glowColor: _amber,
+      borderColor: _amber.withValues(alpha: 0.75),
+      bgGradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [_amber.withValues(alpha: 0.08), _amber.withValues(alpha: 0.02)],
+      ),
+      sublabelColor: _amber.withValues(alpha: 0.85),
+      glowAlpha: 0.22,
+      glowBlur: 18,
+      borderWidth: 1.5,
+      labelSize: 24,
     );
   }
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// ── _ModeCard ─────────────────────────────────────────────────────────────────
 
-class _TabBtn extends StatelessWidget {
+class _ModeCard extends StatefulWidget {
+  final VoidCallback onPressed;
   final String label;
-  final bool active;
-  final Color neutral;
-  final VoidCallback onTap;
-  const _TabBtn({
+  final String sublabel;
+  final Color glowColor;
+  final Color borderColor;
+  final LinearGradient bgGradient;
+  final Color sublabelColor;
+  final double glowAlpha;
+  final double glowBlur;
+  final double borderWidth;
+  final double labelSize;
+
+  const _ModeCard({
+    required this.onPressed,
     required this.label,
-    required this.active,
-    required this.neutral,
+    required this.sublabel,
+    required this.glowColor,
+    required this.borderColor,
+    required this.bgGradient,
+    required this.sublabelColor,
+    required this.glowAlpha,
+    required this.glowBlur,
+    required this.borderWidth,
+    required this.labelSize,
+  });
+
+  @override
+  State<_ModeCard> createState() => _ModeCardState();
+}
+
+class _ModeCardState extends State<_ModeCard> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onPressed,
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 80),
+        child: SizedBox(
+          width: double.infinity,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: BoxDecoration(
+              gradient: widget.bgGradient,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: widget.borderColor, width: widget.borderWidth),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.glowColor.withValues(alpha: widget.glowAlpha),
+                  blurRadius: widget.glowBlur,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.label,
+                  style: TextStyle(
+                    fontSize: widget.labelSize,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.2,
+                    shadows: [
+                      Shadow(
+                        color: widget.glowColor.withValues(alpha: widget.glowAlpha * 1.2),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.sublabel,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: widget.sublabelColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── _DifficultyRow ────────────────────────────────────────────────────────────
+
+class _DifficultyRow extends StatelessWidget {
+  final String label;
+  final String range;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _DifficultyRow({
+    required this.label,
+    required this.range,
+    required this.accent,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: active ? neutral.withValues(alpha: 0.15) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: active ? neutral.withValues(alpha: 0.40) : Colors.transparent,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: active ? Colors.white : Colors.white38,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-  final Color neutral;
-  const _ActionButton({required this.label, required this.onTap, required this.neutral});
-
-  @override
-  Widget build(BuildContext context) {
-    final en = onTap != null;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: en
-                ? [neutral.withValues(alpha: 0.18), neutral.withValues(alpha: 0.08)]
-                : [const Color(0x0DFFFFFF), const Color(0x05FFFFFF)],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: en ? neutral.withValues(alpha: 0.75) : Colors.white.withValues(alpha: 0.10),
-            width: 1.5,
-          ),
-          boxShadow: en
-              ? [BoxShadow(color: neutral.withValues(alpha: 0.25), blurRadius: 20, spreadRadius: 1)]
-              : null,
+          color: accent.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: accent.withValues(alpha: 0.30), width: 0.5),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: en ? neutral : Colors.white30,
-              letterSpacing: -0.2,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
             ),
-          ),
+            Text(
+              range,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: accent.withValues(alpha: 0.85),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _FreeFormatRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color neutral;
-  final bool muted;
-
-  const _FreeFormatRow({
-    required this.icon,
-    required this.text,
-    required this.neutral,
-    this.muted = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: neutral.withValues(alpha: muted ? 0.35 : 0.80)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: muted ? Colors.white.withValues(alpha: 0.30) : Colors.white,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

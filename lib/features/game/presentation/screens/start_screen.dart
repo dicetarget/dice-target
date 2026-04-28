@@ -9,7 +9,6 @@ import 'package:dice/features/daily/presentation/controllers/daily_controller.da
 import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
 import 'package:dice/features/game/presentation/screens/free_play_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
-import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -117,8 +116,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         _buildTitle(),
                         const SizedBox(height: 52),
 
-                        // ── Speed Run — stärkstes Element ──────────────
-                        _buildSpeedRunButton(),
+                        // ── Free Play — stärkstes Element ──────────────
+                        _buildFreePlayButton(),
                         const SizedBox(height: 14),
 
                         // ── Daily Challenge — mittlere Stärke ──────────
@@ -127,10 +126,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
 
                         // ── VS Mode ────────────────────────────────────
                         _buildVsButton(),
-                        const SizedBox(height: 14),
-
-                        // ── Free Play — schwächstes Element ───────────
-                        _buildFreePlayButton(),
 
                         const Spacer(),
                         _buildRulesButton(),
@@ -172,31 +167,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  // ── Speed Run — stärkster Glow, stärkster Border, größte Schrift ──────────
-  Widget _buildSpeedRunButton() {
-    return _NeonButton(
-      onPressed: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RushStartScreen())),
-      label: 'Rush',
-      sublabel: '90 seconds · Solve as many as you can',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 1.0),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
-      ),
-      labelColor: Colors.white,
-      sublabelColor: _cyan.withValues(alpha: 0.90),
-      glowAlpha: 0.45,
-      glowBlur: 30,
-      borderWidth: 2.0,
-      labelSize: 28,
-      verticalPadding: 28,
-    );
-  }
-
-  // ── Daily — calmer, secondary to Speed Run ────────────────────────────────
+  // ── Daily — calmer, secondary to Free Play ───────────────────────────────
   Widget _buildDailyButton() {
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
@@ -241,7 +212,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  // ── Free Play — schwächstes Element ──────────────────────────────────────
+  // ── Free Play — stärkster Glow, stärkster Border, größte Schrift ─────────
   Widget _buildFreePlayButton() {
     return _NeonButton(
       onPressed: () => Navigator.of(
@@ -249,19 +220,20 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
       sublabel: 'Play without limits',
-      glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.30),
+      glowColor: _cyan,
+      borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.03), _amber.withValues(alpha: 0.01)],
+        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
       ),
       labelColor: Colors.white,
-      sublabelColor: const Color(0xFFF0F0F0),
-      glowAlpha: 0.08,
-      glowBlur: 10,
-      borderWidth: 0.5,
-      labelSize: 20,
+      sublabelColor: _cyan.withValues(alpha: 0.90),
+      glowAlpha: 0.45,
+      glowBlur: 30,
+      borderWidth: 2.0,
+      labelSize: 28,
+      verticalPadding: 28,
     );
   }
 

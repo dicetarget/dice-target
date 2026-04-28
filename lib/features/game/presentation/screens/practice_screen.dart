@@ -52,8 +52,6 @@ class PracticeScreen extends StatefulWidget {
   final DailyController? dailyController;
   final bool initialTrainingMode;
   final PracticeDifficulty initialDifficulty;
-  final bool showModeBar;
-
   const PracticeScreen({
     super.key,
     this.initialPuzzle,
@@ -64,7 +62,6 @@ class PracticeScreen extends StatefulWidget {
     this.dailyController,
     this.initialTrainingMode = false,
     this.initialDifficulty = PracticeDifficulty.easy,
-    this.showModeBar = true,
   });
 
   @override
@@ -245,19 +242,6 @@ class _PracticeScreenState extends State<PracticeScreen>
         return (50, 100);
       case PracticeDifficulty.expert:
         return (80, 120);
-    }
-  }
-
-  String _difficultyLabel(PracticeDifficulty difficulty) {
-    switch (difficulty) {
-      case PracticeDifficulty.easy:
-        return 'Easy';
-      case PracticeDifficulty.medium:
-        return 'Medium';
-      case PracticeDifficulty.hard:
-        return 'Hard';
-      case PracticeDifficulty.expert:
-        return 'Expert';
     }
   }
 
@@ -1440,142 +1424,6 @@ class _PracticeScreenState extends State<PracticeScreen>
     });
   }
 
-  Widget _buildPracticeModeBar() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.5),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: _modeToggleButton(
-                    label: 'Free',
-                    active: !_trainingMode,
-                    onTap: () {
-                      if (_trainingMode) {
-                        setState(() => _trainingMode = false);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: _modeToggleButton(
-                    label: 'Training',
-                    active: _trainingMode,
-                    onTap: () {
-                      if (!_trainingMode) {
-                        setState(() => _trainingMode = true);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (_trainingMode) ...[
-            const SizedBox(width: AppSpacing.sm),
-            PopupMenuButton<PracticeDifficulty>(
-              tooltip: 'Select difficulty',
-              onSelected: (difficulty) {
-                if (difficulty == _practiceDifficulty) return;
-                setState(() => _practiceDifficulty = difficulty);
-              },
-              itemBuilder: (context) => PracticeDifficulty.values.map((d) {
-                final sel = d == _practiceDifficulty;
-                return PopupMenuItem<PracticeDifficulty>(
-                  value: d,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _difficultyLabel(d),
-                          style: AppTextStyles.body.copyWith(
-                            fontSize: 14,
-                            fontWeight: sel ? FontWeight.w800 : FontWeight.w600,
-                            color: sel ? AppColors.accentLt : AppColors.ink.withValues(alpha: 0.80),
-                          ),
-                        ),
-                      ),
-                      if (sel) const Icon(Icons.check_rounded, size: 16, color: AppColors.accentLt),
-                    ],
-                  ),
-                );
-              }).toList(),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              color: const Color(0xFF1A1D35),
-              child: Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.30), width: 0.5),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _difficultyLabel(_practiceDifficulty),
-                      style: AppTextStyles.body.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.accentLt,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.expand_more_rounded, size: 16, color: AppColors.accentLt),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _modeToggleButton({
-    required String label,
-    required bool active,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOutCubic,
-        height: 34,
-        decoration: BoxDecoration(
-          color: active ? AppColors.accent.withValues(alpha: 0.14) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: active ? AppColors.accent.withValues(alpha: 0.40) : Colors.transparent,
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.body.copyWith(
-              fontSize: 13,
-              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-              color: active ? AppColors.accentLt : AppColors.ink.withValues(alpha: 0.35),
-              height: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildDailyHintButton() {
     return SizedBox(
       width: double.infinity,
@@ -1731,7 +1579,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                     ),
                   )
                 : Text(
-                    _trainingMode ? 'Training' : 'Free Play',
+                    _trainingMode ? 'Training' : 'Classic',
                     style: AppTextStyles.appBarTitle.copyWith(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -1797,10 +1645,6 @@ class _PracticeScreenState extends State<PracticeScreen>
                           dailyMoves: (_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                           freePlayMoves: (!_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                         ),
-                        if (!_isDailyMode && widget.showModeBar) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          _buildPracticeModeBar(),
-                        ],
                         SizedBox(height: _topSectionGap),
                         TargetDisplayWidget(
                           isPreStart: _isPreStart,
