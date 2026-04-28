@@ -195,8 +195,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return _NeonButton(
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
-      label: 'VS',
-      sublabel: 'Play against a friend',
+      label: 'Duels',
+      sublabel: 'Challenge a friend',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.60),
       bgGradient: LinearGradient(
