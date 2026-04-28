@@ -14,7 +14,6 @@ class FreePlayStartScreen extends StatefulWidget {
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   static const Color _cyan = Color(0xFF00E5FF);
-  static const Color _amber = Color(0xFFFFB300);
 
   void _openClassic() {
     Navigator.of(context).push(
@@ -60,7 +59,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           decoration: const BoxDecoration(
             color: Color(0xFF0A1628),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(top: BorderSide(color: Color(0x33FFB300), width: 0.5)),
+            border: Border(top: BorderSide(color: Color(0x3300E5FF), width: 0.5)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
           child: Column(
@@ -93,7 +92,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 _DifficultyRow(
                   label: entry.$2,
                   range: entry.$3,
-                  accent: _amber,
+                  accent: _cyan,
                   onTap: () => Navigator.of(ctx).pop(entry.$1),
                 ),
                 const SizedBox(height: 8),
