@@ -167,25 +167,26 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
-  // ── Daily — calmer, secondary to Free Play ───────────────────────────────
+  // ── Daily — Gold STRONG (gleichberechtigt zu Free Play) ──────────────────
   Widget _buildDailyButton() {
     return _NeonButton(
       onPressed: _isOpeningDaily ? null : _openDaily,
       label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
       sublabel: _isOpeningDaily ? '' : '5 puzzles · Fewest moves wins',
-      glowColor: _amber,
-      borderColor: _amber.withValues(alpha: 0.75),
+      glowColor: _gold,
+      borderColor: _gold.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_amber.withValues(alpha: 0.04), _amber.withValues(alpha: 0.01)],
+        colors: [_gold.withValues(alpha: 0.10), _gold.withValues(alpha: 0.04)],
       ),
       labelColor: Colors.white,
-      sublabelColor: _amber.withValues(alpha: 0.80),
-      glowAlpha: 0.25,
-      glowBlur: 18,
-      borderWidth: 1.5,
-      labelSize: 22,
+      sublabelColor: _gold.withValues(alpha: 0.90),
+      glowAlpha: 0.40,
+      glowBlur: 28,
+      borderWidth: 2.0,
+      labelSize: 26,
+      verticalPadding: 26,
       isLoading: _isOpeningDaily,
     );
   }
