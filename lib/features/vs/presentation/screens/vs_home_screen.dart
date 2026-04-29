@@ -330,14 +330,42 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              friendName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: -0.5,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    friendName,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _removeFriend(friendId, friendName);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF3B30).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: const Color(0xFFFF3B30).withValues(alpha: 0.30),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.person_remove_rounded,
+                      size: 20,
+                      color: Color(0xFFFF3B30),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             VsHeadToHeadCard(
@@ -417,7 +445,6 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   Widget _buildFriendChip(String friendId, String friendName) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
@@ -428,66 +455,63 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         children: [
           GestureDetector(
             onTap: () => _showFriendProfile(friendId, friendName),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      friendName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: Colors.white.withValues(alpha: 0.30),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Divider(height: 1, thickness: 0.5, color: Colors.white.withValues(alpha: 0.08)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    friendName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
+                  child: _buildChallengeButton(
+                    label: '3 Puzzles',
+                    friendId: friendId,
+                    friendName: friendName,
+                    vsMode: 'speedrun',
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: Colors.white.withValues(alpha: 0.30),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildChallengeButton(
+                    label: '5 Puzzles',
+                    friendId: friendId,
+                    friendName: friendName,
+                    vsMode: 'speedrun_advanced',
+                  ),
                 ),
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: () => _removeFriend(friendId, friendName),
-                  child: Icon(
-                    Icons.person_remove_rounded,
-                    size: 20,
-                    color: Colors.white.withValues(alpha: 0.25),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildChallengeButton(
+                    label: 'Rush',
+                    friendId: friendId,
+                    friendName: friendName,
+                    vsMode: 'rush',
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildChallengeButton(
-                  label: '3 Puzzles',
-                  friendId: friendId,
-                  friendName: friendName,
-                  vsMode: 'speedrun',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildChallengeButton(
-                  label: '5 Puzzles',
-                  friendId: friendId,
-                  friendName: friendName,
-                  vsMode: 'speedrun_advanced',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildChallengeButton(
-                  label: 'Rush',
-                  friendId: friendId,
-                  friendName: friendName,
-                  vsMode: 'rush',
-                ),
-              ),
-            ],
           ),
         ],
       ),
