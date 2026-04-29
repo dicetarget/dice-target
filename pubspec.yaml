@@ -38,13 +38,16 @@ flutter:
   assets:
     - assets/sfx/
     - assets/branding/
+    - assets/icon/
 
 flutter_icons:
   android: true
-  ios: true
-  image_path: "assets/DiceTarget_AppIcon_1024_universal.png"
-  adaptive_icon_background: "#0F1118"
-  adaptive_icon_foreground: "assets/DiceTarget_AppIcon_1024_universal.png"
+  ios: false
+  remove_alpha_ios: false
+  image_path_android: "assets/icon/android_foreground.png"
+  adaptive_icon_background: "#0A0F1F"
+  adaptive_icon_foreground: "assets/icon/android_foreground.png"
+  min_sdk_android: 21
 
 flutter_native_splash:
   color: "#090B18"
