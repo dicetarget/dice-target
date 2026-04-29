@@ -139,7 +139,7 @@ class Sfx {
 
     try {
       await p.stop();
-      await p.setSource(AssetSource(assetPath));
+      if (!_ready) await p.setSource(AssetSource(assetPath));
       await p.resume();
     } catch (_) {}
   }

@@ -194,6 +194,15 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool _trainingMode = false;
   PracticeDifficulty _practiceDifficulty = PracticeDifficulty.easy;
 
+  String get _practiceDifficultyLabel {
+    switch (_practiceDifficulty) {
+      case PracticeDifficulty.easy: return 'Easy';
+      case PracticeDifficulty.medium: return 'Medium';
+      case PracticeDifficulty.hard: return 'Hard';
+      case PracticeDifficulty.expert: return 'Expert';
+    }
+  }
+
   bool get _hasUsedDailyHintGlobally {
     return _hintUsedLocal || (widget.dailyController?.progress?.hintUsed == true);
   }
@@ -1644,6 +1653,11 @@ class _PracticeScreenState extends State<PracticeScreen>
                           dailyPuzzleCount: _isDailyMode ? _dailyPuzzleCount : null,
                           dailyMoves: (_isDailyMode && !_isPreStart) ? _gameState.moves : null,
                           freePlayMoves: (!_isDailyMode && !_isPreStart) ? _gameState.moves : null,
+                          rightLabel: _isDailyMode
+                              ? null
+                              : _trainingMode
+                                  ? _practiceDifficultyLabel
+                                  : 'Random',
                         ),
                         SizedBox(height: _topSectionGap),
                         TargetDisplayWidget(

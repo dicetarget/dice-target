@@ -16,6 +16,7 @@ class PracticeTopControlsBar extends StatelessWidget {
   final bool showMerged;
   final VoidCallback onToggleMerged;
   final int? freePlayMoves;
+  final String? rightLabel;
 
   const PracticeTopControlsBar({
     super.key,
@@ -31,6 +32,7 @@ class PracticeTopControlsBar extends StatelessWidget {
     required this.showMerged,
     required this.onToggleMerged,
     this.freePlayMoves,
+    this.rightLabel,
   });
 
   static const Color _barBg = Color(0xFF0D1F35);
@@ -181,8 +183,24 @@ class PracticeTopControlsBar extends StatelessWidget {
             ),
           ),
 
-          // Rechts: leer (Sound ist in AppBar)
-          const SizedBox(width: 80),
+          // Rechts: mode label (Random / difficulty)
+          SizedBox(
+            width: 80,
+            child: rightLabel != null
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      rightLabel!,
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _textSecondary,
+                        height: 1,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
     );

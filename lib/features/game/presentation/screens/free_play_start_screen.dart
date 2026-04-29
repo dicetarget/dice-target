@@ -191,7 +191,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return _ModeCard(
       onPressed: _openClassic,
       label: 'Classic',
-      sublabel: 'Open-ended dice play',
+      sublabel: 'Targets 1–120 · Not every puzzle has a solution',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
@@ -212,7 +212,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     return _ModeCard(
       onPressed: _openRush,
       label: 'Rush',
-      sublabel: 'Solve as many as possible in 90 seconds',
+      sublabel: 'Solve as many targets as possible in 90 seconds',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.70),
       bgGradient: LinearGradient(
