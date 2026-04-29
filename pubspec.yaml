@@ -12,16 +12,13 @@ dependencies:
   firebase_core: ^3.0.0
   firebase_analytics: ^11.0.0
   cupertino_icons: ^1.0.8
-
   # Audio SFX
   audioplayers: ^6.5.1
-
   # Persistent settings
   shared_preferences: ^2.2.3
   # VS Mode
   cloud_firestore: ^5.0.0
   uuid: ^4.5.2
-
   # Confetti animation
   confetti: ^0.8.0
 
@@ -34,7 +31,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
     - assets/sfx/
     - assets/branding/
@@ -53,10 +49,10 @@ flutter_icons:
 flutter_native_splash:
   color: "#0A0F1F"
   image: assets/DiceTarget_AppIcon_1024_universal.png
-  ios: true
+  ios: false
   android: true
   android_gravity: center
   android_12:
     color: "#0A0F1F"
-    image: assets/icon/android_foreground.png
+    image: assets/icon/android_splash_icon.png
     icon_background_color: "#0A0F1F"
