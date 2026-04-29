@@ -24,7 +24,7 @@ class RushResultScreen extends StatefulWidget {
 }
 
 class _RushResultScreenState extends State<RushResultScreen> {
-  static const Color _green = Color(0xFF4CAF82);
+  static const Color _cyan = Color(0xFF00E5FF);
 
   int _newPb = 0;
   bool _isNewBest = false;
@@ -106,7 +106,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: _green.withValues(alpha: 0.70),
+            color: _cyan.withValues(alpha: 0.70),
             letterSpacing: 2.0,
           ),
         ),
@@ -133,12 +133,12 @@ class _RushResultScreenState extends State<RushResultScreen> {
         color: const Color(0xFF0D0F1F),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _green.withValues(alpha: _isNewBest ? 0.60 : 0.25),
+          color: _cyan.withValues(alpha: _isNewBest ? 0.60 : 0.25),
           width: _isNewBest ? 2.0 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: _green.withValues(alpha: _isNewBest ? 0.18 : 0.06),
+            color: _cyan.withValues(alpha: _isNewBest ? 0.18 : 0.06),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -151,13 +151,13 @@ class _RushResultScreenState extends State<RushResultScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: _green.withValues(alpha: 0.15),
+                color: _cyan.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _green.withValues(alpha: 0.50), width: 0.5),
+                border: Border.all(color: _cyan.withValues(alpha: 0.50), width: 0.5),
               ),
               child: const Text(
                 '🏆  New Best!',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: _green),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: _cyan),
               ),
             ),
           Text(
@@ -212,7 +212,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF00FF88),
+                  color: Color(0xFF00E5FF),
                 ),
               ),
             ],
@@ -254,18 +254,18 @@ class _RushResultScreenState extends State<RushResultScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_green.withValues(alpha: 0.22), _green.withValues(alpha: 0.10)],
+            colors: [_cyan.withValues(alpha: 0.22), _cyan.withValues(alpha: 0.10)],
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _green.withValues(alpha: 0.70), width: 1.5),
+          border: Border.all(color: _cyan.withValues(alpha: 0.70), width: 1.5),
           boxShadow: [
-            BoxShadow(color: _green.withValues(alpha: 0.30), blurRadius: 24, spreadRadius: 1),
+            BoxShadow(color: _cyan.withValues(alpha: 0.30), blurRadius: 24, spreadRadius: 1),
           ],
         ),
         child: const Center(
           child: Text(
             'Play Again',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: _green),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: _cyan),
           ),
         ),
       ),

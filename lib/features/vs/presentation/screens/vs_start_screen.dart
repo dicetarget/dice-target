@@ -95,36 +95,6 @@ class _VsStartScreenState extends State<VsStartScreen> {
             height: 1.5,
           ),
         ),
-        if (widget.vsMode == 'rush') ...[
-          const SizedBox(height: 32),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: _cyan.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _cyan.withValues(alpha: 0.25),
-                width: 1.0,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('⚡', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 12),
-                Text(
-                  '90 Seconds Rush',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: _cyan,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
         const Spacer(),
         _buildPrimaryButton('Start Challenge', () {
           if (widget.incomingChallenge == null) return;

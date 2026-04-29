@@ -93,6 +93,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   // ── Run state ─────────────────────────────────────────────────────────────────
   _RunPhase _phase = _RunPhase.running;
+  bool _gaveUp = false;
   List<DiceState> _dice = [];
   List<int> _originalDice = [];
   int _target = 0;
@@ -111,6 +112,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   final List<_UndoSnapshot> _undoStack = [];
   int _moves = 0;
   int _mergePopKey = 0;
+  final Set<int> _usedTargets = {};
 
   // ── Rolling notifiers ─────────────────────────────────────────────────────────
   final ValueNotifier<List<int>> _rollingDiceNotifier = ValueNotifier([]);
@@ -233,6 +235,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     final (min, max) = _vsRange();
     final puzzle = _coordinator.startNewRun(targetMin: min, targetMax: max);
     _applyPuzzle(puzzle);
+    _usedTargets.add(puzzle.target);
     sfx.rushStart();
     _startPrefetch();
   }
@@ -246,20 +249,28 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   Future<void> _advanceToNextPuzzle() async {
     final (min, max) = _vsRange();
-    // Discard prefetch at stage boundaries (prefetch used previous stage's range).
     final atStageBoundary = _score == 5 || _score == 12;
     final prefetched = (!atStageBoundary && _prefetchFuture != null)
         ? await _prefetchFuture
         : null;
     _prefetchFuture = null;
 
-    final Puzzle puzzle;
-    if (prefetched != null) {
+    Puzzle puzzle;
+    if (prefetched != null && !_usedTargets.contains(prefetched.target)) {
       _coordinator.advanceIndex();
       puzzle = prefetched;
     } else {
+      // Skip prefetch if duplicate, generate fresh until unique target
+      if (prefetched != null) _coordinator.advanceIndex(); // discard prefetch index
       puzzle = _coordinator.nextPuzzle(targetMin: min, targetMax: max);
+      int safety = 0;
+      while (_usedTargets.contains(puzzle.target) && safety < 10) {
+        puzzle = _coordinator.nextPuzzle(targetMin: min, targetMax: max);
+        safety++;
+      }
     }
+
+    _usedTargets.add(puzzle.target);
 
     if (!mounted) return;
     setState(() => _applyPuzzle(puzzle));
@@ -366,7 +377,6 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   void _onSolve() {
     _totalMoves += _moves;
     setState(() => _score++);
-    sfx.win();
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
 
@@ -374,6 +384,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       _puzzlesRemaining--;
       if (_puzzlesRemaining <= 0) {
         _stopwatch.stop();
+        sfx.dailyComplete();
         Future.delayed(const Duration(milliseconds: 520), () {
           if (!mounted) return;
           _timer?.cancel();
@@ -383,6 +394,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       }
     }
 
+    sfx.win();
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
       _advanceToNextPuzzle();
@@ -449,6 +461,8 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       ),
     );
     if (confirm == true) {
+      _gaveUp = true;
+      sfx.giveUp();
       _timer?.cancel();
       unawaited(_endRun());
     }
@@ -464,7 +478,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         ? _stopwatch.elapsedMilliseconds
         : (_runDuration - _remaining).inMilliseconds;
     setState(() => _phase = _RunPhase.ended);
-    sfx.dailyComplete();
+    if (!_gaveUp && widget.vsMode != 'speedrun' && widget.vsMode != 'speedrun_advanced') {
+      sfx.dailyComplete();
+    }
     unawaited(analytics.logRushComplete(score: _score));
     if (!mounted) return;
 

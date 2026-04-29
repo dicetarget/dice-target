@@ -32,6 +32,7 @@ class VsWinnerLogic {
     }
 
     // Rush logic
+    if (challengerPuzzles == 0 && opponentPuzzles == 0) return VsWinner.draw;
     if (challengerPuzzles != opponentPuzzles) {
       return challengerPuzzles > opponentPuzzles
           ? VsWinner.challenger
