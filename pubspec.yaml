@@ -50,12 +50,12 @@ flutter_icons:
   min_sdk_android: 21
 
 flutter_native_splash:
-  color: "#090B18"
+  color: "#0A0F1F"
   image: assets/DiceTarget_AppIcon_1024_universal.png
-
-  android: true
   ios: true
-
+  android: true
+  android_gravity: center
   android_12:
-    color: "#090B18"
-    image: assets/DiceTarget_AppIcon_1024_universal.png
+    color: "#0A0F1F"
+    image: assets/icon/android_foreground.png
+    icon_background_color: "#0A0F1F"
