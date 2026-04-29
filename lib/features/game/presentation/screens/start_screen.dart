@@ -128,6 +128,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                         _buildVsButton(),
 
                         const Spacer(),
+                        const SizedBox(height: 32),
                         _buildRulesButton(),
                         const SizedBox(height: 24),
                       ],
@@ -196,7 +197,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
       label: 'Duels',
-      sublabel: 'Challenge a friend',
+      sublabel: 'Compete against a friend',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 0.60),
       bgGradient: LinearGradient(
@@ -220,7 +221,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         context,
       ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
       label: 'Free Play',
-      sublabel: 'Play without limits',
+      sublabel: 'Classic • Rush • Training',
       glowColor: _cyan,
       borderColor: _cyan.withValues(alpha: 1.0),
       bgGradient: LinearGradient(
@@ -238,30 +239,13 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     );
   }
 
+  // ── How to Play — Ghost Button (Helper Link) ──────────────────────────
   Widget _buildRulesButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: GestureDetector(
-        onTap: () =>
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
-        child: Container(
-          height: 52,
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'How to Play',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _muted),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return _GhostButton(
+      label: 'How to Play',
+      color: _muted,
+      onTap: () =>
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
     );
   }
 }
@@ -410,6 +394,57 @@ class _NeonButtonState extends State<_NeonButton> {
                       ],
                     ],
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── _GhostButton ──────────────────────────────────────────────────────────────
+
+class _GhostButton extends StatefulWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _GhostButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  State<_GhostButton> createState() => _GhostButtonState();
+}
+
+class _GhostButtonState extends State<_GhostButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: SizedBox(
+        height: 44,
+        width: double.infinity,
+        child: Center(
+          child: AnimatedOpacity(
+            opacity: _pressed ? 0.6 : 1.0,
+            duration: const Duration(milliseconds: 120),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: widget.color.withValues(alpha: 0.85),
+                letterSpacing: 0.2,
+              ),
+            ),
           ),
         ),
       ),
