@@ -11,7 +11,7 @@ class VsOnboardingScreen extends StatefulWidget {
 }
 
 class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
-  static const Color _violet = Color(0xFF7B35E8);
+  static const Color _violet = Color(0xFF00BCD4);
 
   final _controller = TextEditingController();
   final _storage = VsPlayerStorage();
