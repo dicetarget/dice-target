@@ -114,18 +114,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                       children: [
                         const Spacer(),
                         _buildTitle(),
-                        const SizedBox(height: 8),
-                        Text(
-                          'by Target Labs',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.22),
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 44),
+                        const SizedBox(height: 52),
 
                         // ── Free Play — stärkstes Element ──────────────
                         _buildFreePlayButton(),
