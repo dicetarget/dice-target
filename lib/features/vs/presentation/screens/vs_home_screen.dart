@@ -426,11 +426,11 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _showFriendProfile(friendId, friendName),
+          GestureDetector(
+            onTap: () => _showFriendProfile(friendId, friendName),
+            child: Row(
+              children: [
+                Expanded(
                   child: Text(
                     friendName,
                     style: const TextStyle(
@@ -441,16 +441,22 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () => _removeFriend(friendId, friendName),
-                child: Icon(
-                  Icons.person_remove_rounded,
+                Icon(
+                  Icons.chevron_right_rounded,
                   size: 20,
-                  color: Colors.white.withValues(alpha: 0.25),
+                  color: Colors.white.withValues(alpha: 0.30),
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => _removeFriend(friendId, friendName),
+                  child: Icon(
+                    Icons.person_remove_rounded,
+                    size: 20,
+                    color: Colors.white.withValues(alpha: 0.25),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Row(
