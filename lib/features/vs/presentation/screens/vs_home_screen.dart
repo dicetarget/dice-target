@@ -165,59 +165,6 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         const SizedBox(height: 12),
                         _buildCompletedChallengesList(),
                         const SizedBox(height: 32),
-                        if (_friends.isEmpty) ...[
-                          GestureDetector(
-                            onTap: () async {
-                              await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => VsFriendAddScreen(
-                                    myId: _player!.id,
-                                    myDisplayName: _player!.displayName,
-                                  ),
-                                ),
-                              );
-                              _refresh();
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    _cyan.withValues(alpha: 0.18),
-                                    _cyan.withValues(alpha: 0.08),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: _cyan.withValues(alpha: 0.90),
-                                  width: 2.0,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _cyan.withValues(alpha: 0.35),
-                                    blurRadius: 28,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  'Add Friend',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    color: _cyan,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
                       ],
                     ),
                   ),
