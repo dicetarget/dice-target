@@ -105,6 +105,9 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   late final AnimationController _celebrateCtrl;
   late final Animation<double> _celebrateT;
 
+  late final AnimationController _shakeCtrl;
+  late final Animation<double> _shakeAnim;
+
   bool get _isPlaying => _phase == _RunPhase.running;
 
   /// Stage-based target range driven by solved count.
@@ -141,6 +144,15 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
       ),
     ]).animate(_celebrateCtrl);
 
+    _shakeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _shakeAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeCtrl, curve: Curves.easeOut));
+
     _coordinator = PuzzleCoordinator(
       generator: PuzzleGenerator(),
       mode: GameMode.rush,
@@ -159,6 +171,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     _pulseCtrl.dispose();
     _plusOneCtrl.dispose();
     _celebrateCtrl.dispose();
+    _shakeCtrl.dispose();
     _rollingDiceNotifier.dispose();
     _rollingTargetNotifier.dispose();
     super.dispose();
@@ -285,6 +298,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     );
     if (result == null) {
       sfx.invalid();
+      _shakeCtrl.forward(from: 0);
       return;
     }
 
@@ -496,7 +510,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                         selectedIndices: _selected,
                         accentColor: _accent,
                         inkColor: _ink,
-                        shakeAnimation: const AlwaysStoppedAnimation(0.0),
+                        shakeAnimation: _shakeAnim,
                         rollingDiceListenable: _rollingDiceNotifier,
                         rollingTargetLocked: false,
                         dice: _dice
