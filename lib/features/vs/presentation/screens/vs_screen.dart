@@ -130,6 +130,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   late final AnimationController _celebrateCtrl;
   late final Animation<double> _celebrateT;
 
+  late final AnimationController _shakeCtrl;
+  late final Animation<double> _shakeAnim;
+
   bool get _isPlaying => _phase == _RunPhase.running;
 
   (int, int) _vsRange() => RushDifficulty.vsPuzzleRange(widget.vsMode, _score);
@@ -162,6 +165,15 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       ),
     ]).animate(_celebrateCtrl);
 
+    _shakeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 380));
+    _shakeAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeCtrl, curve: Curves.easeOut));
+
     _coordinator = PuzzleCoordinator(
       generator: PuzzleGenerator(),
       mode: GameMode.rush,
@@ -184,6 +196,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     _pulseCtrl.dispose();
     _plusOneCtrl.dispose();
     _celebrateCtrl.dispose();
+    _shakeCtrl.dispose();
     _rollingDiceNotifier.dispose();
     _rollingTargetNotifier.dispose();
     super.dispose();
@@ -320,6 +333,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     );
     if (result == null) {
       sfx.invalid();
+      _shakeCtrl.forward(from: 0);
       return;
     }
 
@@ -362,6 +376,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   void _resetCurrentPuzzle() {
     sfx.invalid();
+    _shakeCtrl.forward(from: 0);
     setState(() {
       _dice = _originalDice.map((v) => DiceState(value: v)).toList();
       _rollingDiceNotifier.value = List<int>.from(_originalDice);
@@ -716,7 +731,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         selectedIndices: _selected,
                         accentColor: _orange,
                         inkColor: _ink,
-                        shakeAnimation: const AlwaysStoppedAnimation(0.0),
+                        shakeAnimation: _shakeAnim,
                         rollingDiceListenable: _rollingDiceNotifier,
                         rollingTargetLocked: false,
                         dice: _dice

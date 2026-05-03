@@ -363,7 +363,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${vsMode == 'rush' ? 'Rush' : 'Speed Run'} challenge sent to $friendName!'),
+            content: Text('${vsMode == 'rush' ? 'Rush' : vsMode == 'speedrun_advanced' ? '5 Puzzles' : '3 Puzzles'} challenge sent to $friendName!'),
             duration: const Duration(seconds: 2),
           ),
         );
