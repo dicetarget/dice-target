@@ -597,7 +597,6 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             fullExpression: fullExpression,
           );
 
-          if (currentPuzzleIndex < daily.puzzles.length - 1) sfx.win();
           solvedCount += 1;
           currentPuzzleIndex += 1;
 
