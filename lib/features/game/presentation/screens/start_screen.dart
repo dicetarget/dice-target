@@ -2,6 +2,8 @@ import 'package:dice/core/difficulty_config.dart';
 import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
+import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/daily/data/daily_local_storage.dart';
 import 'package:dice/features/daily/data/daily_repository.dart';
 import 'package:dice/features/daily/domain/daily_service.dart';
@@ -20,11 +22,6 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> with SingleTickerProviderStateMixin {
-  static const Color _cyan = Color(0xFF00E5FF);
-  static const Color _amber = Color(0xFFFFB300);
-  static const Color _gold = Color(0xFFFFD700);
-  static const Color _muted = Color(0xFF6B8CAE);
-
   late final AnimationController _controller;
   late final Animation<double> _fade;
   late final Animation<double> _slide;
@@ -90,49 +87,34 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A0F1F), Color(0xFF05070D)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: FadeTransition(
-              opacity: _fade,
-              child: AnimatedBuilder(
-                animation: _slide,
-                builder: (context, child) =>
-                    Transform.translate(offset: Offset(0, _slide.value), child: child),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: Column(
-                      children: [
-                        const Spacer(),
-                        _buildTitle(),
-                        const SizedBox(height: 52),
-
-                        // ── Free Play — stärkstes Element ──────────────
-                        _buildFreePlayButton(),
-                        const SizedBox(height: 14),
-
-                        // ── Daily Challenge — mittlere Stärke ──────────
-                        _buildDailyButton(),
-                        const SizedBox(height: 14),
-
-                        // ── VS Mode ────────────────────────────────────
-                        _buildVsButton(),
-
-                        const Spacer(),
-                        const SizedBox(height: 32),
-                        _buildRulesButton(),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: FadeTransition(
+            opacity: _fade,
+            child: AnimatedBuilder(
+              animation: _slide,
+              builder: (context, child) =>
+                  Transform.translate(offset: Offset(0, _slide.value), child: child),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    children: [
+                      const Spacer(),
+                      _buildTitle(),
+                      const SizedBox(height: 52),
+                      _buildFreePlayButton(),
+                      const SizedBox(height: 12),
+                      _buildDailyButton(),
+                      const SizedBox(height: 12),
+                      _buildVsButton(),
+                      const Spacer(),
+                      const SizedBox(height: 32),
+                      _buildRulesButton(),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
               ),
@@ -144,308 +126,138 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildTitle() {
-    return ShaderMask(
-      shaderCallback: (bounds) => const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFFFFF8DC), Color(0xFFFFD700), Color(0xFFB8860B)],
-        stops: [0.0, 0.45, 1.0],
-      ).createShader(bounds),
-      child: Text(
-        'Dice Target',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 54,
-          fontWeight: FontWeight.w900,
-          letterSpacing: -0.5,
-          color: Colors.white,
-          shadows: [
-            Shadow(color: _gold.withValues(alpha: 0.55), blurRadius: 20),
-            Shadow(color: _amber.withValues(alpha: 0.20), blurRadius: 36),
-          ],
-        ),
+    return const Text(
+      'Dice Target',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 54,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.5,
+        color: AppColors.gold,
       ),
     );
   }
 
-  // ── Daily — Gold STRONG (gleichberechtigt zu Free Play) ──────────────────
-  Widget _buildDailyButton() {
-    return _NeonButton(
-      onPressed: _isOpeningDaily ? null : _openDaily,
-      label: _isOpeningDaily ? 'Preparing...' : 'Daily Challenge',
-      sublabel: _isOpeningDaily ? '' : '5 puzzles · Fewest moves wins',
-      glowColor: _gold,
-      borderColor: _gold.withValues(alpha: 1.0),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_gold.withValues(alpha: 0.10), _gold.withValues(alpha: 0.04)],
+  Widget _buildFreePlayButton() {
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Free Play',
+            style: TextStyle(
+              color: AppColors.ink,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Classic · Rush · Training',
+            style: TextStyle(
+              color: AppColors.inkMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
       ),
-      labelColor: Colors.white,
-      sublabelColor: _gold.withValues(alpha: 0.90),
-      glowAlpha: 0.40,
-      glowBlur: 28,
-      borderWidth: 2.0,
-      labelSize: 26,
-      verticalPadding: 26,
-      isLoading: _isOpeningDaily,
+    );
+  }
+
+  Widget _buildDailyButton() {
+    return TactileButton(
+      variant: TactileButtonVariant.gold,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: _isOpeningDaily ? null : _openDaily,
+      child: _isOpeningDaily
+          ? const SizedBox(
+              height: 38,
+              child: Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.dicePip),
+                ),
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  'Daily Challenge',
+                  style: TextStyle(
+                    color: AppColors.dicePip,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '5 puzzles · Fewest moves wins',
+                  style: TextStyle(
+                    color: AppColors.dicePip,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
   Widget _buildVsButton() {
-    return _NeonButton(
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
-      label: 'Duels',
-      sublabel: 'Compete against a friend',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.60),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.04), _cyan.withValues(alpha: 0.01)],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Duels',
+            style: TextStyle(
+              color: AppColors.ink,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Compete against a friend',
+            style: TextStyle(
+              color: AppColors.inkMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
       ),
-      labelColor: Colors.white,
-      sublabelColor: _cyan.withValues(alpha: 0.50),
-      glowAlpha: 0.18,
-      glowBlur: 16,
-      borderWidth: 1.5,
-      labelSize: 24,
     );
   }
 
-  // ── Free Play — stärkster Glow, stärkster Border, größte Schrift ─────────
-  Widget _buildFreePlayButton() {
-    return _NeonButton(
-      onPressed: () => Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
-      label: 'Free Play',
-      sublabel: 'Classic • Rush • Training',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 1.0),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.12), _cyan.withValues(alpha: 0.05)],
-      ),
-      labelColor: Colors.white,
-      sublabelColor: _cyan.withValues(alpha: 0.90),
-      glowAlpha: 0.45,
-      glowBlur: 30,
-      borderWidth: 2.0,
-      labelSize: 28,
-      verticalPadding: 28,
-    );
-  }
-
-  // ── How to Play — Ghost Button (Helper Link) ──────────────────────────
   Widget _buildRulesButton() {
-    return _GhostButton(
-      label: 'How to Play',
-      color: _muted,
-      onTap: () =>
+    return TextButton(
+      onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
-    );
-  }
-}
-
-// ── _NeonButton ───────────────────────────────────────────────────────────────
-
-class _NeonButton extends StatefulWidget {
-  final VoidCallback? onPressed;
-  final String label;
-  final String sublabel;
-  final Color glowColor;
-  final Color borderColor;
-  final LinearGradient bgGradient;
-  final Color labelColor;
-  final Color sublabelColor;
-  final double glowAlpha;
-  final double glowBlur;
-  final double borderWidth;
-  final double labelSize;
-  final bool isLoading;
-  final double verticalPadding;
-
-  const _NeonButton({
-    required this.onPressed,
-    required this.label,
-    required this.sublabel,
-    required this.glowColor,
-    required this.borderColor,
-    required this.bgGradient,
-    required this.labelColor,
-    required this.sublabelColor,
-    required this.glowAlpha,
-    required this.glowBlur,
-    required this.borderWidth,
-    required this.labelSize,
-    this.isLoading = false,
-    this.verticalPadding = 20,
-  });
-
-  @override
-  State<_NeonButton> createState() => _NeonButtonState();
-}
-
-class _NeonButtonState extends State<_NeonButton> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = widget.onPressed != null;
-    final scale = _pressed ? 0.97 : 1.0;
-
-    return GestureDetector(
-      onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
-      onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
-      onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
-      onTap: widget.onPressed,
-      child: AnimatedScale(
-        scale: scale,
-        duration: const Duration(milliseconds: 80),
-        child: SizedBox(
-          width: double.infinity,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
-            decoration: BoxDecoration(
-              gradient: enabled
-                  ? widget.bgGradient
-                  : LinearGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.04),
-                        Colors.white.withValues(alpha: 0.02),
-                      ],
-                    ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: enabled ? widget.borderColor : Colors.white.withValues(alpha: 0.08),
-                width: widget.borderWidth,
-              ),
-              boxShadow: enabled
-                  ? [
-                      BoxShadow(
-                        color: widget.glowColor.withValues(alpha: widget.glowAlpha),
-                        blurRadius: widget.glowBlur,
-                        spreadRadius: 1,
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.35),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : [],
-            ),
-            child: widget.isLoading
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: widget.labelColor),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: widget.labelColor,
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          fontSize: widget.labelSize,
-                          fontWeight: FontWeight.w900,
-                          color: widget.labelColor,
-                          letterSpacing: -0.2,
-                          shadows: enabled
-                              ? [
-                                  Shadow(
-                                    color: widget.glowColor.withValues(
-                                      alpha: widget.glowAlpha * 1.2,
-                                    ),
-                                    blurRadius: 10,
-                                  ),
-                                ]
-                              : null,
-                        ),
-                      ),
-                      if (widget.sublabel.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.sublabel,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: widget.sublabelColor,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── _GhostButton ──────────────────────────────────────────────────────────────
-
-class _GhostButton extends StatefulWidget {
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _GhostButton({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  State<_GhostButton> createState() => _GhostButtonState();
-}
-
-class _GhostButtonState extends State<_GhostButton> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onTap,
-      child: SizedBox(
-        height: 44,
-        width: double.infinity,
-        child: Center(
-          child: AnimatedOpacity(
-            opacity: _pressed ? 0.6 : 1.0,
-            duration: const Duration(milliseconds: 120),
-            child: Text(
-              widget.label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: widget.color.withValues(alpha: 0.85),
-                letterSpacing: 0.2,
-              ),
-            ),
-          ),
+      child: const Text(
+        'How to Play',
+        style: TextStyle(
+          color: AppColors.inkMuted,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
         ),
       ),
     );
