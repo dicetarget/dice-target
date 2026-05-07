@@ -16,6 +16,7 @@ class DiceRowWidget extends StatelessWidget {
   final bool rollingTargetLocked;
   final List<PracticeDieData> dice;
   final UiOp? pendingOp;
+  final FinalDiceState finalDiceState;
   final void Function(int index) onToggleSelect;
 
   const DiceRowWidget({
@@ -33,6 +34,7 @@ class DiceRowWidget extends StatelessWidget {
     required this.rollingTargetLocked,
     required this.dice,
     this.pendingOp,
+    required this.finalDiceState,
     required this.onToggleSelect,
   });
 
@@ -62,6 +64,7 @@ class DiceRowWidget extends StatelessWidget {
             selectedIndices: selectedIndices,
             accentColor: accentColor,
             pendingOp: pendingOp,
+            finalDiceState: finalDiceState,
             onToggleSelect: onToggleSelect,
           );
         },

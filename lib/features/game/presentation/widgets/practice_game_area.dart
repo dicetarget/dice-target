@@ -22,6 +22,7 @@ class PracticeGameArea extends StatelessWidget {
   final bool canInteractGameplay;
   final List<UiOp> allowedOps;
   final UiOp? pendingOp;
+  final FinalDiceState finalDiceState;
   final bool undoEnabled;
   final void Function(int index) onToggleSelect;
   final void Function(UiOp op) onApplyOp;
@@ -46,6 +47,7 @@ class PracticeGameArea extends StatelessWidget {
     required this.canInteractGameplay,
     required this.allowedOps,
     required this.pendingOp,
+    required this.finalDiceState,
     required this.undoEnabled,
     required this.onToggleSelect,
     required this.onApplyOp,
@@ -73,6 +75,7 @@ class PracticeGameArea extends StatelessWidget {
             rollingTargetLocked: rollingTargetLocked,
             dice: dice,
             pendingOp: pendingOp,
+            finalDiceState: finalDiceState,
             onToggleSelect: onToggleSelect,
           ),
           const SizedBox(height: AppSpacing.xl),

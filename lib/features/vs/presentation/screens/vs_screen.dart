@@ -740,6 +740,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         canInteractGameplay: _isPlaying,
                         allowedOps: DifficultyConfig.easy.allowedOps,
                         pendingOp: _pendingOp,
+                        finalDiceState: FinalDiceState.none,
                         undoEnabled: canUndo,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,

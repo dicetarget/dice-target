@@ -152,6 +152,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool _resultDialogOpen = false;
 
   int _mergePopKey = 0;
+  FinalDiceState _finalDiceState = FinalDiceState.none;
 
   Timer? _timeoutTimer;
   Timer? _invalidTimer;
@@ -661,6 +662,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     setState(() {
       _resultDialogOpen = false;
       _mergePopKey = 0;
+      _finalDiceState = FinalDiceState.none;
 
       _gameRules.reset();
 
@@ -1218,12 +1220,22 @@ class _PracticeScreenState extends State<PracticeScreen>
     final solved = result == GameState.solved;
 
     if (solved) {
+      setState(() => _finalDiceState = FinalDiceState.success);
+      await Future.delayed(const Duration(milliseconds: 620));
+      if (!mounted) return;
+      setState(() => _finalDiceState = FinalDiceState.none);
       if (_isDailyMode) {
         await Future<void>.delayed(Duration.zero);
       }
       await _endRound(reason: EndReason.solved, solved: true, title: 'Solved');
       return;
     }
+
+    setState(() => _finalDiceState = FinalDiceState.fail);
+    _shakeCtrl.forward(from: 0);
+    await Future.delayed(const Duration(milliseconds: 370));
+    if (!mounted) return;
+    setState(() => _finalDiceState = FinalDiceState.none);
 
     await _resetCurrentPuzzleAfterInvalidFinal();
   }
@@ -1694,6 +1706,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             canInteractGameplay: _canInteractGameplay,
                             allowedOps: DifficultyConfig.easy.allowedOps,
                             pendingOp: _selectedOp ?? _hintSuggestedOp,
+                            finalDiceState: _finalDiceState,
                             undoEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
