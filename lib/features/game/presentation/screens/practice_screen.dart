@@ -1221,7 +1221,8 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     if (solved) {
       setState(() => _finalDiceState = FinalDiceState.success);
-      if (_soundEnabled) sfx.win();
+      final isLastDailyPuzzle = _isDailyMode && _dailyPuzzleNumber == _dailyPuzzleCount;
+      if (_soundEnabled && !isLastDailyPuzzle) sfx.win();
       await Future.delayed(const Duration(milliseconds: 320));
       if (!mounted) return;
       setState(() => _finalDiceState = FinalDiceState.none);
