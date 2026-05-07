@@ -88,6 +88,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   final List<_UndoSnapshot> _undoStack = [];
   int _moves = 0;
   int _mergePopKey = 0;
+  FinalDiceState _finalDiceState = FinalDiceState.none;
 
   // ── Rolling notifiers ─────────────────────────────────────────────────────────
   final ValueNotifier<List<int>> _rollingDiceNotifier = ValueNotifier([]);
@@ -335,8 +336,17 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     if (gs == GameState.solved) {
       _onSolve();
     } else if (gs == GameState.notSolved) {
-      _resetCurrentPuzzle();
+      _onFail();
     }
+  }
+
+  Future<void> _onFail() async {
+    setState(() => _finalDiceState = FinalDiceState.fail);
+    _shakeCtrl.forward(from: 0);
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return;
+    setState(() => _finalDiceState = FinalDiceState.none);
+    _resetCurrentPuzzle();
   }
 
   void _resetCurrentPuzzle() {
@@ -354,12 +364,16 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   }
 
   void _onSolve() {
-    setState(() => _score++);
+    setState(() {
+      _score++;
+      _finalDiceState = FinalDiceState.success;
+    });
     sfx.win();
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
     Future.delayed(const Duration(milliseconds: 520), () {
       if (!mounted || _phase == _RunPhase.ended) return;
+      setState(() => _finalDiceState = FinalDiceState.none);
       _advanceToNextPuzzle();
     });
   }
@@ -519,7 +533,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                         canInteractGameplay: _isPlaying,
                         allowedOps: DifficultyConfig.easy.allowedOps,
                         pendingOp: _pendingOp,
-                        finalDiceState: FinalDiceState.none,
+                        finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
