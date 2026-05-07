@@ -457,7 +457,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D0F1F),
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Give Up?',
@@ -660,18 +660,17 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     final canUndo = _undoStack.isNotEmpty && _isPlaying;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFF020408),
+      backgroundColor: AppColors.bgDark,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.bgDark,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: const Text(
           'VS',
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
+            color: AppColors.gold,
+            fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
           ),
@@ -710,14 +709,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-            stops: [0.0, 0.5, 1.0],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: AppColors.bgDark,
         child: SafeArea(
           child: Stack(
             children: [

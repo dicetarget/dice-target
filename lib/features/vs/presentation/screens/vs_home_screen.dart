@@ -1,3 +1,4 @@
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dice/features/vs/domain/vs_player.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
@@ -57,17 +58,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFF020408),
+      backgroundColor: AppColors.bgDark,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-            stops: [0.0, 0.5, 1.0],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: AppColors.bgDark,
         child: SafeArea(
           child: _loading
               ? const Center(child: CircularProgressIndicator(color: _cyan))
@@ -179,7 +172,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _cyan.withValues(alpha: 0.40), width: 1.5),
         boxShadow: [
@@ -256,7 +249,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
   void _showFriendProfile(String friendId, String friendName) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF0D0F1F),
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -510,7 +503,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: c.isCompleted
@@ -820,7 +813,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D0F1F),
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Remove Friend?',

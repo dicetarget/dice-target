@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/vs/domain/vs_challenge_model.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_screen.dart';
+import 'package:flutter/material.dart';
 
 enum VsStartMode { challenger, opponent }
 
@@ -13,7 +14,7 @@ class VsStartScreen extends StatefulWidget {
   final String? myId;
   final String? myDisplayName;
   final String? friendName;
-  final String vsMode; // 'rush', 'speedrun', 'speedrun_advanced'
+  final String vsMode;
 
   const VsStartScreen({
     super.key,
@@ -31,35 +32,19 @@ class VsStartScreen extends StatefulWidget {
 }
 
 class _VsStartScreenState extends State<VsStartScreen> {
-  static const Color _cyan = Color(0xFF00E5FF);
-
   int get _puzzleCount => widget.vsMode == 'speedrun_advanced' ? 5 : 3;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgTop,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: widget.mode == VsStartMode.challenger
-                  ? _buildChallengerContent()
-                  : _buildOpponentContent(),
-            ),
-          ),
-        ],
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: widget.mode == VsStartMode.challenger
+              ? _buildChallengerContent()
+              : _buildOpponentContent(),
+        ),
       ),
     );
   }
@@ -75,10 +60,10 @@ class _VsStartScreenState extends State<VsStartScreen> {
               ? '90 seconds. Same seed.\nSolve as many as you can.'
               : '$_puzzleCount puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.55),
+            color: AppColors.inkMuted,
             height: 1.6,
           ),
         ),
@@ -88,30 +73,44 @@ class _VsStartScreenState extends State<VsStartScreen> {
               ? 'More puzzles wins — fewest moves breaks ties.'
               : 'No time limit. Pure speed.',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.30),
+            color: AppColors.inkMuted,
             height: 1.5,
           ),
         ),
         const Spacer(),
-        _buildPrimaryButton('Start Challenge', () {
-          if (widget.incomingChallenge == null) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => VsScreen(
-                seed: widget.incomingChallenge!.seed,
-                myId: widget.myId,
-                friendId: widget.friendId,
-                myDisplayName: widget.myDisplayName,
-                friendName: widget.friendName,
-                incomingChallenge: widget.incomingChallenge,
-                vsMode: widget.vsMode,
+        TactileButton(
+          variant: TactileButtonVariant.gold,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          borderRadius: BorderRadius.circular(16),
+          onPressed: () {
+            if (widget.incomingChallenge == null) return;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => VsScreen(
+                  seed: widget.incomingChallenge!.seed,
+                  myId: widget.myId,
+                  friendId: widget.friendId,
+                  myDisplayName: widget.myDisplayName,
+                  friendName: widget.friendName,
+                  incomingChallenge: widget.incomingChallenge,
+                  vsMode: widget.vsMode,
+                ),
               ),
+            );
+          },
+          child: const Text(
+            'Start Challenge',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.dicePip,
             ),
-          );
-        }),
+          ),
+        ),
         const SizedBox(height: 12),
         _buildHomeButton(),
         const SizedBox(height: 32),
@@ -132,10 +131,10 @@ class _VsStartScreenState extends State<VsStartScreen> {
               ? '90 seconds. Same seed.\nSolve as many as you can.'
               : '$_puzzleCount puzzles. Same seed.\nSolve all — fastest time wins.',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.55),
+            color: AppColors.inkMuted,
             height: 1.6,
           ),
         ),
@@ -145,30 +144,44 @@ class _VsStartScreenState extends State<VsStartScreen> {
               ? 'More puzzles wins — fewest moves breaks ties.'
               : 'No time limit. Pure speed.',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.30),
+            color: AppColors.inkMuted,
             height: 1.5,
           ),
         ),
         const Spacer(),
-        _buildPrimaryButton('Accept Challenge', () {
-          if (widget.incomingChallenge == null) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => VsScreen(
-                seed: widget.incomingChallenge!.seed,
-                myId: widget.myId,
-                friendId: widget.friendId,
-                myDisplayName: widget.myDisplayName,
-                friendName: widget.friendName,
-                incomingChallenge: widget.incomingChallenge,
-                vsMode: widget.vsMode,
+        TactileButton(
+          variant: TactileButtonVariant.gold,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          borderRadius: BorderRadius.circular(16),
+          onPressed: () {
+            if (widget.incomingChallenge == null) return;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => VsScreen(
+                  seed: widget.incomingChallenge!.seed,
+                  myId: widget.myId,
+                  friendId: widget.friendId,
+                  myDisplayName: widget.myDisplayName,
+                  friendName: widget.friendName,
+                  incomingChallenge: widget.incomingChallenge,
+                  vsMode: widget.vsMode,
+                ),
               ),
+            );
+          },
+          child: const Text(
+            'Accept Challenge',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.dicePip,
             ),
-          );
-        }),
+          ),
+        ),
         const SizedBox(height: 12),
         _buildHomeButton(),
         const SizedBox(height: 32),
@@ -179,12 +192,12 @@ class _VsStartScreenState extends State<VsStartScreen> {
   Widget _buildHeader(String title) {
     return Column(
       children: [
-        Text(
+        const Text(
           'VS',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: _cyan.withValues(alpha: 0.70),
+            color: AppColors.inkMuted,
             letterSpacing: 2.0,
           ),
         ),
@@ -194,8 +207,8 @@ class _VsStartScreenState extends State<VsStartScreen> {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 32,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            color: AppColors.gold,
             letterSpacing: -0.8,
             height: 1.1,
           ),
@@ -209,28 +222,18 @@ class _VsStartScreenState extends State<VsStartScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _cyan.withValues(alpha: 0.35),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _cyan.withValues(alpha: 0.10),
-            blurRadius: 30,
-            spreadRadius: 2,
-          ),
-        ],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.8),
       ),
       child: Column(
         children: [
-          Text(
-            'Challenger\'s Score',
+          const Text(
+            "Challenger's Score",
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: AppColors.inkMuted,
               letterSpacing: 0.5,
             ),
           ),
@@ -249,19 +252,16 @@ class _VsStartScreenState extends State<VsStartScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: _cyan.withValues(alpha: 0.10),
+              color: AppColors.gold.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: _cyan.withValues(alpha: 0.35),
-                width: 0.5,
-              ),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.30), width: 0.5),
             ),
-            child: Text(
+            child: const Text(
               'Beat them to win!',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: _cyan.withValues(alpha: 0.80),
+                color: AppColors.gold,
               ),
             ),
           ),
@@ -273,22 +273,22 @@ class _VsStartScreenState extends State<VsStartScreen> {
   Widget _buildStatColumn(String label) {
     return Column(
       children: [
-        Text(
+        const Text(
           '???',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
-            color: Colors.white.withValues(alpha: 0.20),
+            color: AppColors.inkMuted,
             letterSpacing: -1,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.30),
+            color: AppColors.inkMuted,
             letterSpacing: 0.3,
           ),
         ),
@@ -304,70 +304,22 @@ class _VsStartScreenState extends State<VsStartScreen> {
     );
   }
 
-  Widget _buildPrimaryButton(String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 58,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              _cyan.withValues(alpha: 0.22),
-              _cyan.withValues(alpha: 0.10),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _cyan.withValues(alpha: 0.70), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: _cyan.withValues(alpha: 0.30),
-              blurRadius: 24,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: _cyan,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildHomeButton() {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushAndRemoveUntil(
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: () => Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const VsHomeScreen()),
         (route) => route.isFirst,
       ),
-      child: Container(
-        width: double.infinity,
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.12),
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            'Back to VS',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.45),
-            ),
-          ),
+      child: const Text(
+        'Back to VS',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: AppColors.inkMuted,
         ),
       ),
     );

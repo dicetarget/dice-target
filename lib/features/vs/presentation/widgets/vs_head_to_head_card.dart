@@ -1,3 +1,4 @@
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../data/vs_head_to_head_service.dart';
 import '../../domain/vs_head_to_head_model.dart';
@@ -21,8 +22,6 @@ class VsHeadToHeadCard extends StatefulWidget {
 }
 
 class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
-  static const Color _cyan = Color(0xFF00E5FF);
-
   final _service = VsHeadToHeadService();
   VsHeadToHeadModel? _data;
   bool _loading = true;
@@ -64,19 +63,14 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _cyan.withValues(alpha: 0.30), width: 1.0),
-        boxShadow: [
-          BoxShadow(
-            color: _cyan.withValues(alpha: 0.08),
-            blurRadius: 20,
-            spreadRadius: 1,
-          ),
-        ],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.8),
       ),
       child: _loading
-          ? const Center(child: CircularProgressIndicator(color: _cyan, strokeWidth: 2))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 2),
+            )
           : _buildContent(),
     );
   }
@@ -92,18 +86,15 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: _cyan,
+            color: AppColors.gold,
             letterSpacing: 0.4,
           ),
         ),
         const SizedBox(height: 14),
         if (noData)
-          Text(
+          const Text(
             'No matches played yet',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.40),
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.inkMuted),
           )
         else ...[
           Row(
@@ -119,10 +110,7 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
             const SizedBox(height: 12),
             Text(
               _lastPlayedLabel(),
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withValues(alpha: 0.25),
-              ),
+              style: const TextStyle(fontSize: 11, color: AppColors.inkMuted),
             ),
           ],
         ],
@@ -137,10 +125,10 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: AppColors.inkMuted,
               letterSpacing: 0.3,
             ),
           ),
@@ -150,7 +138,7 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: AppColors.ink,
               letterSpacing: -0.2,
             ),
           ),

@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:dice/features/vs/data/vs_player_storage.dart';
+import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/vs/data/vs_firestore_service.dart';
+import 'package:dice/features/vs/data/vs_player_storage.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
+import 'package:flutter/material.dart';
 
 class VsOnboardingScreen extends StatefulWidget {
   const VsOnboardingScreen({super.key});
@@ -11,8 +13,6 @@ class VsOnboardingScreen extends StatefulWidget {
 }
 
 class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
-  static const Color _violet = Color(0xFF00BCD4);
-
   final _controller = TextEditingController();
   final _storage = VsPlayerStorage();
   final _firestore = VsFirestoreService();
@@ -73,189 +73,130 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF020408),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-            stops: [0.0, 0.5, 1.0],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back button
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        width: 1,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                color: AppColors.inkMuted,
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+              ),
+              const Spacer(),
+              const Text(
+                'VS',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.inkMuted,
+                  letterSpacing: 2.0,
                 ),
-                const Spacer(),
-                Text(
-                  'VS',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: _violet.withValues(alpha: 0.70),
-                    letterSpacing: 2.0,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Choose your name',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.gold,
+                  letterSpacing: -0.8,
+                  height: 1.1,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Choose your name',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: -0.8,
-                    height: 1.1,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This is how friends will find you.',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.inkMuted,
+                  height: 1.5,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'This is how friends will find you.',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.55),
-                    height: 1.5,
-                  ),
+              ),
+              const SizedBox(height: 40),
+              TextField(
+                controller: _controller,
+                maxLength: 20,
+                style: const TextStyle(
+                  color: AppColors.ink,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: _controller,
-                  maxLength: 20,
-                  style: const TextStyle(
-                    color: Colors.white,
+                onChanged: (_) {
+                  if (_error != null) setState(() => _error = null);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Your name',
+                  hintStyle: const TextStyle(
+                    color: AppColors.inkMuted,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
-                  onChanged: (_) {
-                    if (_error != null) setState(() => _error = null);
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Your name',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.30),
-                      fontSize: 18,
+                  filled: true,
+                  fillColor: AppColors.surfaceHigh,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: _error != null
+                          ? AppColors.failed
+                          : Colors.white.withValues(alpha: 0.12),
+                      width: 1.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: _error != null
+                          ? AppColors.failed
+                          : AppColors.gold.withValues(alpha: 0.70),
+                      width: 1.5,
+                    ),
+                  ),
+                  counterStyle: const TextStyle(color: AppColors.inkMuted),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                ),
+              ),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.failed,
                       fontWeight: FontWeight.w500,
                     ),
-                    // errorText intentionally omitted — handled manually below
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.04),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: _error != null
-                            ? const Color(0xFFFF3B30)
-                            : _violet.withValues(alpha: 0.40),
-                        width: _error != null ? 1.0 : 1.0,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: _error != null
-                            ? const Color(0xFFFF3B30)
-                            : _violet.withValues(alpha: 0.90),
-                        width: 1.5,
-                      ),
-                    ),
-                    counterStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.30),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 18,
+                    softWrap: true,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              if (_loading)
+                const Center(
+                  child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 2.5),
+                )
+              else
+                TactileButton(
+                  variant: TactileButtonVariant.gold,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  borderRadius: BorderRadius.circular(16),
+                  onPressed: _confirm,
+                  child: const Text(
+                    "Let's go!",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.dicePip,
                     ),
                   ),
                 ),
-                // Manual error row — wraps correctly on all platforms
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, left: 4),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFFFF3B30),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      softWrap: true,
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                if (_loading)
-                  const Center(
-                    child: CircularProgressIndicator(
-                      color: _violet,
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                else
-                  GestureDetector(
-                    onTap: _confirm,
-                    child: Container(
-                      width: double.infinity,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            _violet.withValues(alpha: 0.22),
-                            _violet.withValues(alpha: 0.10),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: _violet.withValues(alpha: 0.70),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _violet.withValues(alpha: 0.30),
-                            blurRadius: 24,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Let's go!",
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w900,
-                            color: _violet,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                const Spacer(),
-              ],
-            ),
+              const Spacer(),
+            ],
           ),
         ),
       ),

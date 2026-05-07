@@ -1,4 +1,5 @@
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
 import 'package:dice/features/vs/domain/vs_winner_logic.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
@@ -27,8 +28,6 @@ class VsResultScreen extends StatefulWidget {
 }
 
 class _VsResultScreenState extends State<VsResultScreen> {
-  static const Color _orange = Color(0xFF00E5FF);
-
   late VsWinner _winner;
   late bool _iWon;
   late bool _isDraw;
@@ -70,50 +69,53 @@ class _VsResultScreenState extends State<VsResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgTop,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                children: [
-                  const SizedBox(height: 32),
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildComparisonCard(),
-                  const SizedBox(height: 24),
-                  if (widget.pendingOpponent)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Text(
-                        'Waiting for opponent to play...',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.40),
-                        ),
-                      ),
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            children: [
+              const SizedBox(height: 32),
+              _buildHeader(),
+              const SizedBox(height: 32),
+              _buildComparisonCard(),
+              const SizedBox(height: 24),
+              if (widget.pendingOpponent)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: const Text(
+                    'Waiting for opponent to play...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.inkMuted,
                     ),
-                  const Spacer(),
-                  _buildHomeButton(),
-                  const SizedBox(height: 32),
-                ],
+                  ),
+                ),
+              const Spacer(),
+              TactileButton(
+                variant: TactileButtonVariant.primary,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                borderRadius: BorderRadius.circular(16),
+                onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+                  (route) => route.isFirst,
+                ),
+                child: const Text(
+                  'Back to VS',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.inkMuted,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 32),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -126,22 +128,22 @@ class _VsResultScreenState extends State<VsResultScreen> {
         : (_iWon ? 'You won!' : 'You lost!');
     return Column(
       children: [
-        Text(
+        const Text(
           'VS',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: _orange.withValues(alpha: 0.70),
+            color: AppColors.inkMuted,
             letterSpacing: 2.0,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 32,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            color: _iWon ? AppColors.gold : AppColors.ink,
             letterSpacing: -0.8,
             height: 1.1,
           ),
@@ -160,12 +162,9 @@ class _VsResultScreenState extends State<VsResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: _orange.withValues(alpha: 0.35), width: 1.0),
-        boxShadow: [
-          BoxShadow(color: _orange.withValues(alpha: 0.10), blurRadius: 30, spreadRadius: 2),
-        ],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.8),
       ),
       child: Column(
         children: [
@@ -202,10 +201,10 @@ class _VsResultScreenState extends State<VsResultScreen> {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Colors.white.withValues(alpha: 0.35),
+          color: AppColors.inkMuted,
           letterSpacing: 0.5,
         ),
       ),
@@ -241,7 +240,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isWinner ? _orange : Colors.white.withValues(alpha: 0.65),
+                    color: isWinner ? AppColors.gold : AppColors.inkMuted,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -267,15 +266,15 @@ class _VsResultScreenState extends State<VsResultScreen> {
           width: 80,
           child: Text(
             _opponentLabel,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.65),
+              color: AppColors.inkMuted,
             ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        Expanded(
+        const Expanded(
           flex: 2,
           child: Text(
             'Waiting...',
@@ -283,7 +282,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.30),
+              color: AppColors.inkMuted,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -300,34 +299,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w800,
-          color: isWinner ? _orange : Colors.white.withValues(alpha: 0.80),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHomeButton() {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
-        (route) => route.isFirst,
-      ),
-      child: Container(
-        width: double.infinity,
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
-        ),
-        child: Center(
-          child: Text(
-            'Back to VS',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.45),
-            ),
-          ),
+          color: isWinner ? AppColors.gold : AppColors.ink,
         ),
       ),
     );
