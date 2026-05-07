@@ -197,10 +197,14 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   String get _practiceDifficultyLabel {
     switch (_practiceDifficulty) {
-      case PracticeDifficulty.easy: return 'Easy';
-      case PracticeDifficulty.medium: return 'Medium';
-      case PracticeDifficulty.hard: return 'Hard';
-      case PracticeDifficulty.expert: return 'Expert';
+      case PracticeDifficulty.easy:
+        return 'Easy';
+      case PracticeDifficulty.medium:
+        return 'Medium';
+      case PracticeDifficulty.hard:
+        return 'Hard';
+      case PracticeDifficulty.expert:
+        return 'Expert';
     }
   }
 
@@ -1670,8 +1674,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                           rightLabel: _isDailyMode
                               ? null
                               : _trainingMode
-                                  ? _practiceDifficultyLabel
-                                  : 'Random',
+                              ? _practiceDifficultyLabel
+                              : 'Random',
                         ),
                         SizedBox(height: _topSectionGap),
                         TargetDisplayWidget(
@@ -1710,6 +1714,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                             pendingOp: _selectedOp ?? _hintSuggestedOp,
                             finalDiceState: _finalDiceState,
                             undoEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
+                            resetEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
+                            onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty) ? _resetDice : null,
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
                             onUndo: _undo,
@@ -1728,7 +1734,9 @@ class _PracticeScreenState extends State<PracticeScreen>
                             inkColor: _ink,
                             onNoSolution: _impossible,
                             onNewGame: _newGame,
-                            onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty) ? _resetDice : null,
+                            onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty)
+                                ? _resetDice
+                                : null,
                           ),
                         if (_isDailyMode && !widget.isReplayMode) _buildDailyHintButton(),
                         if (_isDailyMode) _buildDailyGiveUpButton(),

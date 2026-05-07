@@ -395,6 +395,18 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     _gameRules.start(_target);
   }
 
+  void _resetCurrentPuzzle() {
+    setState(() {
+      _dice = _originalDice.map((v) => DiceState(value: v)).toList();
+      _rollingDiceNotifier.value = List<int>.from(_originalDice);
+      _undoStack.clear();
+      _selected.clear();
+      _pendingOp = null;
+      _moves = 0;
+    });
+    _gameRules.reset();
+    _gameRules.start(_target);
+  }
 
   void _onSolve() {
     _totalMoves += _moves;
@@ -753,9 +765,11 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         pendingOp: _pendingOp,
                         finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
+                        resetEnabled: _undoStack.isNotEmpty && _isPlaying,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
+                        onResetPuzzle: (_undoStack.isNotEmpty && _isPlaying) ? _resetCurrentPuzzle : null,
                       ),
                     ),
                     SizedBox(height: AppSpacing.lg + bottomInset * 0.5),

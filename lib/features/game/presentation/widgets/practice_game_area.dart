@@ -24,9 +24,11 @@ class PracticeGameArea extends StatelessWidget {
   final UiOp? pendingOp;
   final FinalDiceState finalDiceState;
   final bool undoEnabled;
+  final bool resetEnabled;
   final void Function(int index) onToggleSelect;
   final void Function(UiOp op) onApplyOp;
   final VoidCallback onUndo;
+  final VoidCallback? onResetPuzzle;
   final MainAxisAlignment mainAxisAlignment;
 
   const PracticeGameArea({
@@ -49,9 +51,11 @@ class PracticeGameArea extends StatelessWidget {
     required this.pendingOp,
     required this.finalDiceState,
     required this.undoEnabled,
+    required this.resetEnabled,
     required this.onToggleSelect,
     required this.onApplyOp,
     required this.onUndo,
+    required this.onResetPuzzle,
     this.mainAxisAlignment = MainAxisAlignment.center,
   });
 
@@ -85,10 +89,12 @@ class PracticeGameArea extends StatelessWidget {
           allowedOps: allowedOps,
           pendingOp: pendingOp,
           undoEnabled: undoEnabled,
+          resetEnabled: resetEnabled,
           accentColor: accentColor,
           inkColor: inkColor,
           onApplyOp: onApplyOp,
           onUndo: onUndo,
+          onResetPuzzle: onResetPuzzle,
         ),
       ],
     );

@@ -10,10 +10,12 @@ class RoundControlsWidget extends StatelessWidget {
   final List<UiOp> allowedOps;
   final UiOp? pendingOp;
   final bool undoEnabled;
+  final bool resetEnabled;
   final Color accentColor;
   final Color inkColor;
   final void Function(UiOp op) onApplyOp;
   final VoidCallback onUndo;
+  final VoidCallback? onResetPuzzle;
 
   const RoundControlsWidget({
     super.key,
@@ -21,10 +23,12 @@ class RoundControlsWidget extends StatelessWidget {
     required this.allowedOps,
     required this.pendingOp,
     required this.undoEnabled,
+    required this.resetEnabled,
     required this.accentColor,
     required this.inkColor,
     required this.onApplyOp,
     required this.onUndo,
+    required this.onResetPuzzle,
   });
 
   @override
@@ -45,6 +49,8 @@ class RoundControlsWidget extends StatelessWidget {
           accentColor: accentColor,
           inkColor: inkColor,
           onUndo: onUndo,
+          resetEnabled: resetEnabled,
+          onResetPuzzle: onResetPuzzle,
         ),
       ],
     );

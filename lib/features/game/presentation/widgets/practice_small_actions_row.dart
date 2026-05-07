@@ -7,6 +7,8 @@ class PracticeSmallActionsRow extends StatelessWidget {
   final Color accentColor;
   final Color inkColor;
   final VoidCallback? onUndo;
+  final bool resetEnabled;
+  final VoidCallback? onResetPuzzle;
 
   const PracticeSmallActionsRow({
     super.key,
@@ -14,56 +16,101 @@ class PracticeSmallActionsRow extends StatelessWidget {
     required this.accentColor,
     required this.inkColor,
     required this.onUndo,
+    required this.resetEnabled,
+    required this.onResetPuzzle,
   });
 
   static const _undoActive = Color(0xFFFFFFFF);
   static const _undoInactive = Color(0xFF555555);
+  static const _resetColor = Color(0xFFB85C5C);
+  static const _resetColorLt = Color(0xFFFFB3B3);
 
   @override
   Widget build(BuildContext context) {
     final color = enabled ? _undoActive : _undoInactive;
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: enabled ? onUndo : null,
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: enabled ? onUndo : null,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: enabled
+                        ? _undoActive.withValues(alpha: 0.07)
+                        : Colors.white.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                    border: Border.all(
+                      color: enabled
+                          ? _undoActive.withValues(alpha: 0.28)
+                          : Colors.white.withValues(alpha: 0.08),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.undo_rounded, size: 20, color: color),
+                      const SizedBox(width: 7),
+                      Text(
+                        'Undo',
+                        style: AppTextStyles.body.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                          height: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (resetEnabled) ...[
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onResetPuzzle,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 160),
               height: 50,
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: enabled
-                    ? _undoActive.withValues(alpha: 0.07)
-                    : Colors.white.withValues(alpha: 0.03),
+                color: _resetColor.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
                 border: Border.all(
-                  color: enabled
-                      ? _undoActive.withValues(alpha: 0.28)
-                      : Colors.white.withValues(alpha: 0.08),
-                  width: 0.5,
+                  color: _resetColor.withValues(alpha: 0.30),
+                  width: 1.0,
                 ),
-                // Kein boxShadow — Undo ist sekundäre Aktion
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.undo_rounded, size: 20, color: color),
+                  Icon(
+                    Icons.refresh_rounded,
+                    size: 16,
+                    color: _resetColorLt.withValues(alpha: 0.70),
+                  ),
                   const SizedBox(width: 7),
                   Text(
-                    'Undo',
+                    'Reset Puzzle',
                     style: AppTextStyles.body.copyWith(
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: color,
+                      fontWeight: FontWeight.w600,
+                      color: _resetColorLt.withValues(alpha: 0.70),
                       height: 1,
-                      // Kein Shadow
                     ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
