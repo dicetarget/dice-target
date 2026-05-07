@@ -1708,10 +1708,12 @@ class _PracticeScreenState extends State<PracticeScreen>
                           PracticeBottomButtons(
                             canPressBottom: _canPressBottom,
                             isPlaying: _isPlaying,
+                            resetEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
                             accentColor: _accent,
                             inkColor: _ink,
                             onNoSolution: _impossible,
                             onNewGame: _newGame,
+                            onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty) ? _resetDice : null,
                           ),
                         if (_isDailyMode && !widget.isReplayMode) _buildDailyHintButton(),
                         if (_isDailyMode) _buildDailyGiveUpButton(),
