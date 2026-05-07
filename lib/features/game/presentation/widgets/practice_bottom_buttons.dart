@@ -30,10 +30,13 @@ class PracticeBottomButtons extends StatelessWidget {
 
     return Column(
       children: [
-        _ResetPuzzleButton(enabled: resetEnabled, onPressed: onResetPuzzle),
-        const SizedBox(height: AppSpacing.sm),
+        _ResetPuzzleButton(
+          enabled: resetEnabled,
+          onPressed: resetEnabled ? onResetPuzzle : null,
+        ),
+        const SizedBox(height: AppSpacing.lg),
         _ShowSolutionButton(enabled: canNoSolution, onPressed: canNoSolution ? onNoSolution : null),
-        const SizedBox(height: AppSpacing.xl),
+        const SizedBox(height: AppSpacing.md),
         _NewGameButton(
           enabled: canPressBottom,
           onPressed: canPressBottom ? onNewGame : null,
