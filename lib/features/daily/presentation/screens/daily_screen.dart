@@ -8,6 +8,7 @@ import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/rush/data/rush_daily_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,6 @@ class DailyScreen extends StatefulWidget {
 
   final DailyController? controllerOverride;
 
-  static const Color _bg = AppColors.bgTop;
   static const Color _cyan = Color(0xFF3FE8FF);
   static const Color _card = AppColors.card;
   static const Color _border = AppColors.cardBr;
@@ -278,7 +278,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.bgBottom,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: DailyScreen._border),
         ),
@@ -414,7 +414,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                   width: double.infinity,
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    color: AppColors.bgBottom,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: DailyScreen._border),
                   ),
@@ -643,7 +643,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       width: double.infinity,
       padding: const EdgeInsets.all(28), // larger than Speed (16)
       decoration: BoxDecoration(
-        color: AppColors.bgBottom,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: DailyScreen._gold.withValues(alpha: showResults ? 0.55 : 0.35),
@@ -820,54 +820,19 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
             const SizedBox(height: 8),
             const SizedBox(height: 24),
             // CTA — PRIMARY: tallest button on screen
-            GestureDetector(
-              onTap: disableButton ? null : () async => _handleMainAction(progress),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 140),
-                width: double.infinity,
-                height: 64, // taller than Speed (40)
-                decoration: BoxDecoration(
-                  gradient: disableButton
-                      ? LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0.04),
-                            Colors.white.withValues(alpha: 0.02),
-                          ],
-                        )
-                      : LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            DailyScreen._gold.withValues(alpha: 0.22),
-                            DailyScreen._gold.withValues(alpha: 0.10),
-                          ],
-                        ),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: disableButton
-                        ? Colors.white.withValues(alpha: 0.10)
-                        : DailyScreen._gold.withValues(alpha: 0.75),
-                    width: 2.0,
-                  ),
-                  boxShadow: disableButton
-                      ? []
-                      : [
-                          BoxShadow(
-                            color: DailyScreen._gold.withValues(alpha: 0.38),
-                            blurRadius: 30,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                ),
-                child: Center(
-                  child: Text(
-                    _actionLabel(progress),
-                    style: TextStyle(
-                      fontSize: 17, // larger than Speed (14)
-                      fontWeight: FontWeight.w900,
-                      color: disableButton ? DailyScreen._muted : DailyScreen._gold,
-                    ),
-                  ),
+            TactileButton(
+              variant: TactileButtonVariant.gold,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              borderRadius: BorderRadius.circular(16),
+              enabled: !disableButton,
+              onPressed: disableButton ? null : () async => _handleMainAction(progress),
+              child: Text(
+                _actionLabel(progress),
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dicePip,
                 ),
               ),
             ),
@@ -901,7 +866,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -959,13 +924,12 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: DailyScreen._bg,
+      backgroundColor: AppColors.bgDark,
       body: AnimatedBuilder(
         animation: controller,
         builder: (context, _) {
           if (controller.isLoading || _isStartingDaily) {
-            return Container(color: AppColors.bgBottom);
+            return Container(color: AppColors.bgDark);
           }
 
           final daily = controller.daily;
@@ -1170,7 +1134,7 @@ class _ProgressSteps extends StatelessWidget {
                   ? DailyScreen._gold
                   : isCurrent
                   ? DailyScreen._gold.withValues(alpha: 0.28)
-                  : AppColors.bgBottom,
+                  : AppColors.surface,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: isDone ? DailyScreen._gold.withValues(alpha: 0.5) : DailyScreen._border,
@@ -1227,7 +1191,7 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(16), // compact (Puzzle = 24)
       decoration: BoxDecoration(
-        color: AppColors.bgBottom,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _green.withValues(alpha: 0.22),
@@ -1314,8 +1278,13 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
             ),
             const SizedBox(height: 12), // tighter than Puzzle (20)
             // CTA — normal prominence
-            GestureDetector(
-              onTap: _ctaDisabled(state)
+            TactileButton(
+              variant: TactileButtonVariant.gold,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              borderRadius: BorderRadius.circular(16),
+              enabled: !_ctaDisabled(state),
+              onPressed: _ctaDisabled(state)
                   ? null
                   : () async {
                       final navigator = Navigator.of(context);
@@ -1330,49 +1299,12 @@ class _DailySpeedCardState extends State<_DailySpeedCard> {
                       if (!mounted) return;
                       await _load();
                     },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 140),
-                width: double.infinity,
-                height: 40, // shorter than Puzzle (64)
-                decoration: BoxDecoration(
-                  gradient: _ctaDisabled(state)
-                      ? LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0.04),
-                            Colors.white.withValues(alpha: 0.02),
-                          ],
-                        )
-                      : LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [_green.withValues(alpha: 0.15), _green.withValues(alpha: 0.07)],
-                        ),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: _ctaDisabled(state)
-                        ? Colors.white.withValues(alpha: 0.10)
-                        : _green.withValues(alpha: 0.45),
-                    width: 1.5,
-                  ),
-                  boxShadow: _ctaDisabled(state)
-                      ? []
-                      : [
-                          BoxShadow(
-                            color: _green.withValues(alpha: 0.07),
-                            blurRadius: 8,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                ),
-                child: Center(
-                  child: Text(
-                    _ctaLabel(state),
-                    style: TextStyle(
-                      fontSize: 14, // smaller than Puzzle (17)
-                      fontWeight: FontWeight.w700,
-                      color: _ctaDisabled(state) ? _muted : _green,
-                    ),
-                  ),
+              child: Text(
+                _ctaLabel(state),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dicePip,
                 ),
               ),
             ),

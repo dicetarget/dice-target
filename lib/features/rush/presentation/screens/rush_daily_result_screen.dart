@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/game/logic/solver_service.dart';
 import 'package:flutter/material.dart';
 
@@ -25,10 +26,6 @@ class RushDailyResultScreen extends StatefulWidget {
 }
 
 class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
-  static const Color _green = Color(0xFF00E5A0);
-  static const Color _greenLt = Color(0xFFD0FFF0);
-  static const Color _cyan = Color(0xFF3FE8FF);
-
   Timer? _countdownTimer;
   Duration _timeUntilNextDaily = Duration.zero;
 
@@ -89,25 +86,25 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.card,
+          backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: AppColors.cardBr),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
           ),
           titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
           contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
           title: const Text(
             'Last Puzzle — Solution',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.ink),
           ),
           content: Container(
             width: double.maxFinite,
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.bgBottom,
+              color: AppColors.bgDark,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBr),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -118,7 +115,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFFD4AC0D),
+                    color: AppColors.gold,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -127,7 +124,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   style: const TextStyle(
                     fontSize: 17,
                     height: 1.5,
-                    color: Colors.white,
+                    color: AppColors.ink,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -140,9 +137,9 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text(
+              child: const Text(
                 'Close',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _cyan),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.gold),
               ),
             ),
           ],
@@ -156,7 +153,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.bgTop,
+        backgroundColor: AppColors.bgDark,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -164,13 +161,13 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 48),
-                Center(
+                const Center(
                   child: Text(
                     'Daily Complete',
                     style: TextStyle(
                       fontSize: 15,
                       letterSpacing: 0.4,
-                      color: Colors.white.withValues(alpha: 0.38),
+                      color: AppColors.inkMuted,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -180,19 +177,22 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 28),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: _green.withValues(alpha: 0.50), width: 1.5),
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.40),
+                      width: 1.5,
+                    ),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         'Score',
                         style: TextStyle(
                           fontSize: 12,
                           letterSpacing: 0.8,
-                          color: _green.withValues(alpha: 0.70),
+                          color: AppColors.inkMuted,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -202,7 +202,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                         style: const TextStyle(
                           fontSize: 64,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: AppColors.gold,
                           letterSpacing: -1.5,
                           height: 1.0,
                         ),
@@ -214,11 +214,13 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: _isNewRecord ? _green.withValues(alpha: 0.55) : AppColors.cardBr,
-                      width: _isNewRecord ? 2.0 : 1.0,
+                      color: _isNewRecord
+                          ? AppColors.gold.withValues(alpha: 0.55)
+                          : Colors.white.withValues(alpha: 0.07),
+                      width: _isNewRecord ? 1.8 : 0.8,
                     ),
                   ),
                   child: Column(
@@ -229,7 +231,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: AppColors.ink,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -238,16 +240,16 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
-                            color: _green.withValues(alpha: 0.13),
+                            color: AppColors.gold.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: _green.withValues(alpha: 0.45)),
+                            border: Border.all(color: AppColors.gold.withValues(alpha: 0.40)),
                           ),
                           child: const Text(
                             '🏆  New Daily Record!',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
-                              color: _greenLt,
+                              color: AppColors.goldLight,
                             ),
                           ),
                         ),
@@ -257,7 +259,7 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                           'All-time best: ${widget.allTimeBest}',
                           style: const TextStyle(
                             fontSize: 13,
-                            color: AppColors.muted,
+                            color: AppColors.inkMuted,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -272,9 +274,12 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: _cyan.withValues(alpha: 0.07),
+                        color: AppColors.surfaceHigh,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: _cyan.withValues(alpha: 0.35), width: 1.0),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          width: 0.8,
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -282,15 +287,15 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                           Icon(
                             Icons.lightbulb_outline_rounded,
                             size: 17,
-                            color: _cyan.withValues(alpha: 0.80),
+                            color: AppColors.gold.withValues(alpha: 0.80),
                           ),
                           const SizedBox(width: 8),
-                          Text(
+                          const Text(
                             'Show Last Puzzle Solution',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: _cyan.withValues(alpha: 0.80),
+                              color: AppColors.gold,
                             ),
                           ),
                         ],
@@ -305,14 +310,14 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                       Icon(
                         Icons.schedule_rounded,
                         size: 14,
-                        color: Colors.white.withValues(alpha: 0.28),
+                        color: AppColors.inkFaint,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Next daily in ${_formatCountdown(_timeUntilNextDaily)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.28),
+                          color: AppColors.inkMuted,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -320,35 +325,18 @@ class _RushDailyResultScreenState extends State<RushDailyResultScreen> {
                   ),
                 ),
                 const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 19),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [_green.withValues(alpha: 0.28), _green.withValues(alpha: 0.13)],
-                      ),
-                      borderRadius: BorderRadius.circular(17),
-                      border: Border.all(color: _green.withValues(alpha: 0.60), width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _green.withValues(alpha: 0.18),
-                          blurRadius: 16,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Main Menu',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
+                TactileButton(
+                  variant: TactileButtonVariant.gold,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  borderRadius: BorderRadius.circular(16),
+                  onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                  child: const Text(
+                    'Main Menu',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.dicePip,
                     ),
                   ),
                 ),

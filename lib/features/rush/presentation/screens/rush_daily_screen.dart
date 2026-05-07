@@ -51,7 +51,6 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
   static const Color _accent = AppColors.accent;
-  static const Color _green = Color(0xFF4CAF82);
   static const Color _timerAmber = Color(0xFFFF9F00);
   static const Color _timerRed = AppColors.failed;
 
@@ -377,18 +376,17 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
     return PopScope(
       canPop: false, // Kein Zurück während des Runs
       child: Scaffold(
-        extendBodyBehindAppBar: true,
-        backgroundColor: const Color(0xFF020408),
+        backgroundColor: AppColors.bgDark,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.bgDark,
           elevation: 0,
           surfaceTintColor: Colors.transparent,
-          automaticallyImplyLeading: false, // Kein Back-Button
+          automaticallyImplyLeading: false,
           title: const Text(
             'Rush Daily',
             style: TextStyle(
-              color: _green,
-              fontWeight: FontWeight.w900,
+              color: AppColors.gold,
+              fontWeight: FontWeight.w800,
               fontSize: 17,
               letterSpacing: -0.2,
             ),
@@ -410,14 +408,7 @@ class _RushDailyScreenState extends State<RushDailyScreen> with TickerProviderSt
           ],
         ),
         body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-              stops: [0.0, 0.5, 1.0],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
+          color: AppColors.bgDark,
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.only(

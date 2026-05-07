@@ -1,6 +1,7 @@
 // lib/features/rush/presentation/screens/rush_result_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +25,6 @@ class RushResultScreen extends StatefulWidget {
 }
 
 class _RushResultScreenState extends State<RushResultScreen> {
-  static const Color _cyan = Color(0xFF00E5FF);
-
   int _newPb = 0;
   bool _isNewBest = false;
   int _todayBest = 0;
@@ -60,40 +59,54 @@ class _RushResultScreenState extends State<RushResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgTop,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            children: [
+              const SizedBox(height: 32),
+              _buildHeader(),
+              const SizedBox(height: 32),
+              _buildScoreCard(),
+              const SizedBox(height: 16),
+              _buildPbCard(),
+              const Spacer(),
+              TactileButton(
+                variant: TactileButtonVariant.gold,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                borderRadius: BorderRadius.circular(16),
+                onPressed: _playAgain,
+                child: const Text(
+                  'Play Again',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.dicePip,
+                  ),
+                ),
               ),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                children: [
-                  const SizedBox(height: 32),
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildScoreCard(),
-                  const SizedBox(height: 16),
-                  _buildPbCard(),
-                  const Spacer(),
-                  _buildPlayAgainButton(),
-                  const SizedBox(height: 12),
-                  _buildHomeButton(context),
-                  const SizedBox(height: 32),
-                ],
+              const SizedBox(height: 12),
+              TactileButton(
+                variant: TactileButtonVariant.primary,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                borderRadius: BorderRadius.circular(16),
+                onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                child: const Text(
+                  'Home',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.inkMuted,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 32),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -101,12 +114,12 @@ class _RushResultScreenState extends State<RushResultScreen> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Text(
+        const Text(
           'RUSH',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: _cyan.withValues(alpha: 0.70),
+            color: AppColors.inkMuted,
             letterSpacing: 2.0,
           ),
         ),
@@ -115,8 +128,8 @@ class _RushResultScreenState extends State<RushResultScreen> {
           'Run complete!',
           style: TextStyle(
             fontSize: 32,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            color: AppColors.ink,
             letterSpacing: -0.8,
             height: 1.1,
           ),
@@ -130,19 +143,23 @@ class _RushResultScreenState extends State<RushResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D0F1F),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _cyan.withValues(alpha: _isNewBest ? 0.60 : 0.25),
-          width: _isNewBest ? 2.0 : 1.0,
+          color: _isNewBest
+              ? AppColors.gold.withValues(alpha: 0.60)
+              : Colors.white.withValues(alpha: 0.08),
+          width: _isNewBest ? 1.8 : 0.8,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: _cyan.withValues(alpha: _isNewBest ? 0.18 : 0.06),
-            blurRadius: 30,
-            spreadRadius: 2,
-          ),
-        ],
+        boxShadow: _isNewBest
+            ? [
+                BoxShadow(
+                  color: AppColors.gold.withValues(alpha: 0.18),
+                  blurRadius: 24,
+                  spreadRadius: 1,
+                ),
+              ]
+            : [],
       ),
       child: Column(
         children: [
@@ -151,21 +168,21 @@ class _RushResultScreenState extends State<RushResultScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: _cyan.withValues(alpha: 0.15),
+                color: AppColors.gold.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _cyan.withValues(alpha: 0.50), width: 0.5),
+                border: Border.all(color: AppColors.gold.withValues(alpha: 0.40), width: 0.5),
               ),
               child: const Text(
                 '🏆  New Best!',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: _cyan),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.gold),
               ),
             ),
-          Text(
+          const Text(
             'Puzzles solved',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: AppColors.inkMuted,
               letterSpacing: 0.5,
             ),
           ),
@@ -175,7 +192,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
             style: const TextStyle(
               fontSize: 80,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: AppColors.gold,
               letterSpacing: -4,
               height: 0.9,
             ),
@@ -190,29 +207,29 @@ class _RushResultScreenState extends State<RushResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 0.8),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Today\'s best',
+              const Text(
+                "Today's best",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: AppColors.inkMuted,
                 ),
               ),
               Text(
                 '$_todayBest',
                 style: const TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF00E5FF),
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
                 ),
               ),
             ],
@@ -223,75 +240,23 @@ class _RushResultScreenState extends State<RushResultScreen> {
             children: [
               Text(
                 _isNewBest ? 'New all-time best' : 'All-time best',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: AppColors.inkMuted,
                 ),
               ),
               Text(
                 '$_newPb',
                 style: const TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.gold,
                 ),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlayAgainButton() {
-    return GestureDetector(
-      onTap: _playAgain,
-      child: Container(
-        width: double.infinity,
-        height: 58,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [_cyan.withValues(alpha: 0.22), _cyan.withValues(alpha: 0.10)],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _cyan.withValues(alpha: 0.70), width: 1.5),
-          boxShadow: [
-            BoxShadow(color: _cyan.withValues(alpha: 0.30), blurRadius: 24, spreadRadius: 1),
-          ],
-        ),
-        child: const Center(
-          child: Text(
-            'Play Again',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: _cyan),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHomeButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-      child: Container(
-        width: double.infinity,
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
-        ),
-        child: Center(
-          child: Text(
-            'Home',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.45),
-            ),
-          ),
-        ),
       ),
     );
   }

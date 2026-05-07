@@ -1,4 +1,5 @@
 import 'package:dice/core/audio/sfx_singleton.dart';
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../../game/presentation/screens/practice_screen.dart';
@@ -18,11 +19,6 @@ class DailyRunScreen extends StatefulWidget {
 }
 
 class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObserver {
-  static const Color _bg = Color(0xFFF7F1F6);
-  static const Color _ink = Color(0xFF1D1B20);
-  static const Color _accent = Color(0xFF6E5AAE);
-  static const Color _card = Colors.white;
-
   late int _currentIndex;
   late int _solvedCount;
   late List<DailyPuzzleResult> _puzzleResults;
@@ -86,9 +82,6 @@ class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObse
 
   void _persistDailyRunState() {
     // Lifecycle hook intentionally prepared here.
-    // Real persistence must be connected to the existing Daily repository/storage flow
-    // so the current run state can be written on pause/background without changing
-    // the current navigation behavior in this file.
   }
 
   DailyPuzzlePlayResult _buildFinalResult({
@@ -263,17 +256,17 @@ class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObse
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: _bg,
+        backgroundColor: AppColors.bgDark,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.bgDark,
           elevation: 0,
           surfaceTintColor: Colors.transparent,
-          foregroundColor: _ink,
+          foregroundColor: AppColors.ink,
           centerTitle: true,
           title: const Text(
             'Daily',
-            style: TextStyle(fontWeight: FontWeight.w800, color: _ink),
+            style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.gold),
           ),
         ),
         body: SafeArea(
@@ -297,26 +290,34 @@ class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObse
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-              decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(24)),
-              child: Column(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 0.8),
+              ),
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   SizedBox(
                     width: 34,
                     height: 34,
-                    child: CircularProgressIndicator(color: _accent, strokeWidth: 3.2),
+                    child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 3.2),
                   ),
                   SizedBox(height: 18),
                   Text(
                     'Opening puzzle...',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: _ink),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.ink,
+                    ),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'Preparing your next Daily challenge.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, height: 1.35, color: _ink),
+                    style: TextStyle(fontSize: 14, height: 1.35, color: AppColors.inkMuted),
                   ),
                 ],
               ),
@@ -330,25 +331,33 @@ class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObse
   Widget _buildProgressCard() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 0.8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Daily in Progress',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: _ink),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.gold),
           ),
           const SizedBox(height: 8),
           Text(
             '$_displayPuzzleNumber / $_totalPuzzles',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: _ink),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.ink,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             'Solved: $_solvedCount / $_totalPuzzles',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: _ink.withValues(alpha: 0.75),
+              color: AppColors.inkMuted,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -358,8 +367,8 @@ class _DailyRunScreenState extends State<DailyRunScreen> with WidgetsBindingObse
             child: LinearProgressIndicator(
               value: _progressValue.clamp(0, 1),
               minHeight: 10,
-              backgroundColor: _accent.withValues(alpha: 0.10),
-              valueColor: const AlwaysStoppedAnimation<Color>(_accent),
+              backgroundColor: AppColors.gold.withValues(alpha: 0.10),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.gold),
             ),
           ),
         ],

@@ -427,10 +427,9 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
     final canUndo = _undoStack.isNotEmpty && _isPlaying;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFF020408),
+      backgroundColor: AppColors.bgDark,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.bgDark,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
@@ -445,8 +444,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         title: const Text(
           'Rush',
           style: TextStyle(
-            color: Color(0xFF00E5FF),
-            fontWeight: FontWeight.w900,
+            color: AppColors.gold,
+            fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
           ),
@@ -480,14 +479,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-            stops: [0.0, 0.5, 1.0],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: AppColors.bgDark,
         child: SafeArea(
           child: Stack(
             children: [

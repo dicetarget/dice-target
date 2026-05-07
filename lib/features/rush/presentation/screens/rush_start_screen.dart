@@ -1,6 +1,7 @@
 // lib/features/rush/presentation/screens/rush_start_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,35 +15,17 @@ class RushStartScreen extends StatefulWidget {
 
 class _RushStartScreenState extends State<RushStartScreen>
     with SingleTickerProviderStateMixin {
-  static const Color _neon = Color(0xFF00E5FF);
-
   int? _globalBest;
   int _todayBest = 0;
   bool _loaded = false;
   bool _isStarting = false;
-
-  late final AnimationController _pulseCtrl;
-  late final Animation<double> _pulseAnim;
 
   final RushHighscoreStorage _storage = RushHighscoreStorage();
 
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.2, end: 0.6).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
     _loadBest();
-  }
-
-  @override
-  void dispose() {
-    _pulseCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _loadBest() async {
@@ -72,37 +55,23 @@ class _RushStartScreenState extends State<RushStartScreen>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
     return Scaffold(
-      backgroundColor: AppColors.bgTop,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(),
+            const Spacer(),
+            _buildStats(),
+            const SizedBox(height: 32),
+            _buildStages(),
+            const Spacer(),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
+              child: _buildStartButton(),
             ),
-          ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(),
-                const Spacer(),
-                _buildStats(),
-                const SizedBox(height: 32),
-                _buildStages(),
-                const Spacer(),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
-                  child: _buildStartButton(),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -115,30 +84,30 @@ class _RushStartScreenState extends State<RushStartScreen>
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            color: Colors.white.withValues(alpha: 0.60),
+            color: AppColors.inkMuted,
             onPressed: () => Navigator.of(context).maybePop(),
             padding: EdgeInsets.zero,
           ),
           const SizedBox(width: 8),
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Rush',
                 style: TextStyle(
                   fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  color: _neon,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.gold,
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 '90 seconds · Solve as many as you can',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: _neon.withValues(alpha: 0.5),
+                  color: AppColors.inkMuted,
                 ),
               ),
             ],
@@ -153,36 +122,14 @@ class _RushStartScreenState extends State<RushStartScreen>
     final todayDisplay = _todayBest == 0 ? '--' : '$_todayBest';
 
     return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Radial glow behind the numbers area
-          Container(
-            width: 320,
-            height: 200,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  _neon.withValues(alpha: 0.15),
-                  _neon.withValues(alpha: 0.0),
-                ],
-                stops: const [0.0, 1.0],
-              ),
-            ),
-          ),
-          if (!_loaded)
-            SizedBox(
+      child: !_loaded
+          ? const SizedBox(
               height: 120,
               child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: _neon.withValues(alpha: 0.7),
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.gold),
               ),
             )
-          else
-            Row(
+          : Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -191,13 +138,11 @@ class _RushStartScreenState extends State<RushStartScreen>
                   width: 1,
                   height: 80,
                   margin: const EdgeInsets.symmetric(horizontal: 28),
-                  color: _neon.withValues(alpha: 0.20),
+                  color: AppColors.inkFaint,
                 ),
                 _buildStatColumn(todayDisplay, "today's best"),
               ],
             ),
-        ],
-      ),
     );
   }
 
@@ -211,93 +156,58 @@ class _RushStartScreenState extends State<RushStartScreen>
           style: TextStyle(
             fontSize: 72,
             fontWeight: FontWeight.bold,
-            color: hasValue ? _neon : _neon.withValues(alpha: 0.18),
+            color: hasValue ? AppColors.gold : AppColors.inkFaint,
             letterSpacing: -2,
             height: 0.9,
-            shadows: hasValue
-                ? [Shadow(color: _neon.withValues(alpha: 0.5), blurRadius: 24)]
-                : null,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: _neon.withValues(alpha: 0.6),
-          ),
+          style: const TextStyle(fontSize: 13, color: AppColors.inkMuted),
         ),
       ],
     );
   }
 
   Widget _buildStages() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Text(
         'Difficulty increases automatically',
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 13,
-          color: _neon.withValues(alpha: 0.35),
-          fontWeight: FontWeight.w500,
-        ),
+        style: TextStyle(fontSize: 13, color: AppColors.inkMuted, fontWeight: FontWeight.w500),
       ),
     );
   }
 
   Widget _buildStartButton() {
-    return AnimatedBuilder(
-      animation: _pulseAnim,
-      builder: (context, child) {
-        return GestureDetector(
-          onTap: _isStarting ? null : _startRun,
-          child: Container(
-            width: double.infinity,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  _neon.withValues(alpha: 0.18),
-                  _neon.withValues(alpha: 0.08),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: _neon.withValues(alpha: 0.90),
-                width: 2.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: _neon.withValues(alpha: _pulseAnim.value),
-                  blurRadius: 32,
-                  spreadRadius: 3,
+    return TactileButton(
+      variant: TactileButtonVariant.gold,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: _isStarting ? null : _startRun,
+      child: _isStarting
+          ? const SizedBox(
+              height: 24,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.dicePip),
                 ),
-              ],
+              ),
+            )
+          : const Text(
+              'Start Rush',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.dicePip,
+                letterSpacing: -0.3,
+              ),
             ),
-            child: child,
-          ),
-        );
-      },
-      child: Center(
-        child: _isStarting
-            ? SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: _neon),
-              )
-            : Text(
-                'Start Rush',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: _neon,
-                  letterSpacing: -0.3,
-                ),
-              ),
-      ),
     );
   }
 }
