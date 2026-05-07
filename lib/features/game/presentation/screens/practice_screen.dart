@@ -1720,7 +1720,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             onApplyOp: _applyOp,
                             onUndo: _undo,
                             mainAxisAlignment: _isDailyMode
-                                ? MainAxisAlignment.center
+                                ? MainAxisAlignment.end
                                 : MainAxisAlignment.center,
                           ),
                         ),
