@@ -1200,7 +1200,8 @@ class _PracticeScreenState extends State<PracticeScreen>
       });
     }
 
-    if (!move.willEndAfterMove && _soundEnabled) {
+    final willBeSingleDie = remainingDice.length == 1;
+    if (!move.willEndAfterMove && !willBeSingleDie && _soundEnabled) {
       sfx.valid();
     }
 
