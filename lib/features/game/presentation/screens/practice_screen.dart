@@ -1221,13 +1221,11 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     if (solved) {
       setState(() => _finalDiceState = FinalDiceState.success);
-      await Future.delayed(const Duration(milliseconds: 620));
-      if (!mounted) return;
-      setState(() => _finalDiceState = FinalDiceState.none);
       if (_isDailyMode) {
         await Future<void>.delayed(Duration.zero);
       }
       await _endRound(reason: EndReason.solved, solved: true, title: 'Solved');
+      if (mounted) setState(() => _finalDiceState = FinalDiceState.none);
       return;
     }
 
