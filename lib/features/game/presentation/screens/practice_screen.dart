@@ -1221,6 +1221,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     if (solved) {
       setState(() => _finalDiceState = FinalDiceState.success);
+      if (_soundEnabled) sfx.win();
       await Future.delayed(const Duration(milliseconds: 320));
       if (!mounted) return;
       setState(() => _finalDiceState = FinalDiceState.none);
@@ -1391,7 +1392,6 @@ class _PracticeScreenState extends State<PracticeScreen>
       }
 
       final summary = _buildRoundSummary(title: title, solved: solved);
-      if (solved && _soundEnabled) sfx.win();
       _handleRoundEndFeedback(solved);
 
       await _showRoundResultOverlay(summary);
