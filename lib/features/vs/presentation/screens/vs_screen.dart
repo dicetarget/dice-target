@@ -112,6 +112,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
   final List<_UndoSnapshot> _undoStack = [];
   int _moves = 0;
   int _mergePopKey = 0;
+  FinalDiceState _finalDiceState = FinalDiceState.none;
   final Set<int> _usedTargets = {};
 
   // ── Rolling notifiers ─────────────────────────────────────────────────────────
@@ -356,7 +357,8 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
       _mergePopKey++;
     });
 
-    if (!result.willEndAfterMove) sfx.valid();
+    final willBeSingleDie = newValues.length == 1;
+    if (!result.willEndAfterMove && !willBeSingleDie) sfx.valid();
     if (result.willEndAfterMove) _checkSolve();
   }
 
@@ -370,13 +372,17 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     if (gs == GameState.solved) {
       _onSolve();
     } else if (gs == GameState.notSolved) {
-      _resetCurrentPuzzle();
+      unawaited(_onFail());
     }
   }
 
-  void _resetCurrentPuzzle() {
-    sfx.invalid();
+  Future<void> _onFail() async {
+    setState(() => _finalDiceState = FinalDiceState.fail);
     _shakeCtrl.forward(from: 0);
+    sfx.invalid();
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return;
+    setState(() => _finalDiceState = FinalDiceState.none);
     setState(() {
       _dice = _originalDice.map((v) => DiceState(value: v)).toList();
       _rollingDiceNotifier.value = List<int>.from(_originalDice);
@@ -389,9 +395,14 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     _gameRules.start(_target);
   }
 
+
   void _onSolve() {
     _totalMoves += _moves;
     setState(() => _score++);
+    setState(() => _finalDiceState = FinalDiceState.success);
+    Future.delayed(const Duration(milliseconds: 520), () {
+      if (mounted) setState(() => _finalDiceState = FinalDiceState.none);
+    });
     _celebrateCtrl.forward(from: 0);
     _plusOneCtrl.forward(from: 0);
 
@@ -740,7 +751,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         canInteractGameplay: _isPlaying,
                         allowedOps: DifficultyConfig.easy.allowedOps,
                         pendingOp: _pendingOp,
-                        finalDiceState: FinalDiceState.none,
+                        finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
