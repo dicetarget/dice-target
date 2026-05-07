@@ -224,7 +224,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   int get _dailyPuzzleCount => widget.dailyPuzzleCount ?? 3;
 
   double get _topSectionGap => _isDailyMode ? AppSpacing.md : AppSpacing.md;
-  double get _bottomSectionGap => _isDailyMode ? AppSpacing.sm : AppSpacing.md;
+  double get _bottomSectionGap => _isDailyMode ? AppSpacing.sm : AppSpacing.xs;
+  double get _bottomSectionGapAfterButtons => _isDailyMode ? AppSpacing.sm : AppSpacing.md;
   double get _topPadding => _isDailyMode ? AppSpacing.sm : AppSpacing.sm;
 
   bool get _canUseHint {
@@ -1717,7 +1718,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                           ),
                         if (_isDailyMode && !widget.isReplayMode) _buildDailyHintButton(),
                         if (_isDailyMode) _buildDailyGiveUpButton(),
-                        SizedBox(height: _bottomSectionGap),
+                        SizedBox(height: _bottomSectionGapAfterButtons),
                       ],
                     ),
                   ),
