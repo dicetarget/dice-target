@@ -920,7 +920,6 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   void _resetDice() {
     if (_busy) return;
-    if (_isDailyMode) return;
 
     if (_soundEnabled) {
       sfx.click();
@@ -1719,9 +1718,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
                             onUndo: _undo,
-                            mainAxisAlignment: _isDailyMode
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                           ),
                         ),
                         const SizedBox(height: 8),
