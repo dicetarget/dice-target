@@ -3,45 +3,53 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // ── Primary UI ─────────────────────────────────────────────────────────────
-  static const Color accent = Color(0xFF3FE8FF);
-  static const Color accentLt = Color(0xFF90D5F0);
-  static const Color ink = Color(0xFFEEEAF6);
+  // ── Backgrounds ────────────────────────────────────────────────────────────
+  static const Color bgDark      = Color(0xFF12171D);
+  static const Color surface     = Color(0xFF1C2430);
+  static const Color surfaceHigh = Color(0xFF243040);
 
-  // ── Background gradient ────────────────────────────────────────────────────
-  static const Color bgTop = Color(0xFF090B18);
-  static const Color bgBottom = Color(0xFF0D0F1F);
+  // ── Tactile light/shadow tokens ────────────────────────────────────────────
+  static const Color highlight   = Color(0x12FFFFFF); // top-left light
+  static const Color shadowDeep  = Color(0x8C000000); // bottom-right shadow
 
-  // ── Cards / surfaces ───────────────────────────────────────────────────────
-  static const Color card = Color(0xFF131628);
-  static const Color cardBr = Color(0x33FFFFFF);
+  // ── Gold accent ────────────────────────────────────────────────────────────
+  static const Color gold        = Color(0xFFC8A84B);
+  static const Color goldLight   = Color(0xFFE8C96A);
+  static const Color goldDark    = Color(0xFF9A7A2E);
 
-  // ── Dice ───────────────────────────────────────────────────────────────────
-  static const Color diceFace = Color(0xFF1A1D35);
-  static const Color diceFaceShine = Color(0xFF252849);
-  static const Color dicePip = Color(0xFFE8E8F0);
-  static const Color diceSelected = Color(0xFF9B6DFF);
+  // ── Text ───────────────────────────────────────────────────────────────────
+  static const Color ink         = Color(0xFFE8E2D4);
+  static const Color inkMuted    = Color(0xFF7A8A9A);
+  static const Color inkFaint    = Color(0xFF3A4A5A);
 
   // ── Operator buttons ───────────────────────────────────────────────────────
-  static const Color opAdd = Color(0xFF27AE60);
-  static const Color opSubtract = Color(0xFFC0392B);
-  static const Color opMultiply = Color(0xFFD4AC0D);
-  static const Color opDivide = Color(0xFF2980B9);
+  static const Color opAdd       = Color(0xFF2E7D52);
+  static const Color opSubtract  = Color(0xFF8B2E2E);
+  static const Color opMultiply  = Color(0xFF8B7020);
+  static const Color opDivide    = Color(0xFF1E5A8B);
+
+  // ── Dice ───────────────────────────────────────────────────────────────────
+  static const Color diceBody    = Color(0xFFE8E4D8);
+  static const Color diceBodyShadow = Color(0xFFB8B4A8);
+  static const Color dicePip     = Color(0xFF2A3040);
+  static const Color diceSelected = Color(0xFFC8A84B);
 
   // ── Target display ─────────────────────────────────────────────────────────
-  static const Color targetNumber = Color(0xFFFFD700);
-  static const Color targetGlow = Color(0xFF3FE8FF);
-
-  // ── Ratings ────────────────────────────────────────────────────────────────
-  static const Color gold = Color(0xFFFFD700);
+  static const Color targetNumber = Color(0xFFC8A84B);
 
   // ── Status ─────────────────────────────────────────────────────────────────
-  static const Color solved = Color(0xFF4CAF82);
-  static const Color failed = Color(0xFFE57373);
-  static const Color muted = Color(0xFF4A5568);
+  static const Color solved      = Color(0xFF4CAF82);
+  static const Color failed      = Color(0xFFE57373);
+  static const Color muted       = Color(0xFF3A4A5A);
 
-  // ── Legacy ─────────────────────────────────────────────────────────────────
-  static const Color white = Colors.white;
-  static const Color black = Colors.black;
-  static const Color onAccent = Colors.white;
+  // ── Legacy aliases (für schrittweise Migration) ────────────────────────────
+  static const Color cardBr      = Color(0x33FFFFFF);
+  static const Color accent      = gold;
+  static const Color accentLt    = goldLight;
+  static const Color bgTop       = bgDark;
+  static const Color bgBottom    = bgDark;
+  static const Color card        = surface;
+  static const Color white       = Colors.white;
+  static const Color black       = Colors.black;
+  static const Color onAccent    = Colors.black;
 }
