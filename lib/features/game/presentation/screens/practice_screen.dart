@@ -1220,6 +1220,10 @@ class _PracticeScreenState extends State<PracticeScreen>
     final solved = result == GameState.solved;
 
     if (solved) {
+      setState(() => _finalDiceState = FinalDiceState.success);
+      await Future.delayed(const Duration(milliseconds: 320));
+      if (!mounted) return;
+      setState(() => _finalDiceState = FinalDiceState.none);
       if (_isDailyMode) {
         await Future<void>.delayed(Duration.zero);
       }
