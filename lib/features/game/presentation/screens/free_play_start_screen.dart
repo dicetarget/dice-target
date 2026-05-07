@@ -1,6 +1,8 @@
 // lib/features/game/presentation/screens/free_play_start_screen.dart
 
 import 'package:dice/core/audio/sfx_singleton.dart';
+import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
 import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,6 @@ class FreePlayStartScreen extends StatefulWidget {
 }
 
 class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
-  static const Color _cyan = Color(0xFF00E5FF);
-
   void _openClassic() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -56,10 +56,12 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         ];
 
         return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF0A1628),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(top: BorderSide(color: Color(0x3300E5FF), width: 0.5)),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(
+              top: BorderSide(color: AppColors.gold.withValues(alpha: 0.20), width: 0.5),
+            ),
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
           child: Column(
@@ -83,7 +85,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: AppColors.ink,
                   letterSpacing: -0.2,
                 ),
               ),
@@ -92,7 +94,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 _DifficultyRow(
                   label: entry.$2,
                   range: entry.$3,
-                  accent: _cyan,
                   onTap: () => Navigator.of(ctx).pop(entry.$1),
                 ),
                 const SizedBox(height: 8),
@@ -107,42 +108,34 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0A0F1F), Color(0xFF05070D)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 8),
-                _buildHeader(),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 420),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildClassicCard(),
-                          const SizedBox(height: 14),
-                          _buildRushCard(),
-                          const SizedBox(height: 14),
-                          _buildTrainingCard(),
-                        ],
-                      ),
+      backgroundColor: AppColors.bgDark,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 8),
+              _buildHeader(),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildClassicCard(),
+                        const SizedBox(height: 12),
+                        _buildRushCard(),
+                        const SizedBox(height: 12),
+                        _buildTrainingCard(),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -154,7 +147,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: Colors.white.withValues(alpha: 0.70),
+          color: AppColors.inkMuted,
           enableFeedback: false,
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -164,8 +157,8 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             'Free Play',
             style: TextStyle(
               fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              color: AppColors.gold,
               letterSpacing: -0.5,
             ),
           ),
@@ -173,7 +166,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         IconButton(
           icon: Icon(
             sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-            color: Colors.white70,
+            color: AppColors.inkMuted,
             size: 22,
           ),
           enableFeedback: false,
@@ -186,169 +179,77 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
     );
   }
 
-  // ── Classic — Cyan PRIMARY (stärkster Glow) ─────────────────────────────
   Widget _buildClassicCard() {
-    return _ModeCard(
+    return TactileButton(
+      variant: TactileButtonVariant.gold,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
       onPressed: _openClassic,
-      label: 'Classic',
-      sublabel: 'Targets 1–120 · Not every puzzle has a solution',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 1.0),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.16), _cyan.withValues(alpha: 0.06)],
-      ),
-      sublabelColor: _cyan.withValues(alpha: 0.95),
-      glowAlpha: 0.45,
-      glowBlur: 28,
-      borderWidth: 2.0,
-      labelSize: 26,
-    );
-  }
-
-  // ── Rush — Cyan MID ─────────────────────────────────────────────────────
-  Widget _buildRushCard() {
-    return _ModeCard(
-      onPressed: _openRush,
-      label: 'Rush',
-      sublabel: 'Solve as many targets as possible in 90 seconds',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.70),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.09), _cyan.withValues(alpha: 0.03)],
-      ),
-      sublabelColor: _cyan.withValues(alpha: 0.75),
-      glowAlpha: 0.22,
-      glowBlur: 18,
-      borderWidth: 1.5,
-      labelSize: 24,
-    );
-  }
-
-  // ── Training — Cyan SUBTLE ──────────────────────────────────────────────
-  Widget _buildTrainingCard() {
-    return _ModeCard(
-      onPressed: _openTraining,
-      label: 'Training',
-      sublabel: 'Solvable puzzles by difficulty',
-      glowColor: _cyan,
-      borderColor: _cyan.withValues(alpha: 0.40),
-      bgGradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_cyan.withValues(alpha: 0.05), _cyan.withValues(alpha: 0.02)],
-      ),
-      sublabelColor: _cyan.withValues(alpha: 0.55),
-      glowAlpha: 0.12,
-      glowBlur: 12,
-      borderWidth: 1.0,
-      labelSize: 22,
-    );
-  }
-}
-
-// ── _ModeCard ─────────────────────────────────────────────────────────────────
-
-class _ModeCard extends StatefulWidget {
-  final VoidCallback onPressed;
-  final String label;
-  final String sublabel;
-  final Color glowColor;
-  final Color borderColor;
-  final LinearGradient bgGradient;
-  final Color sublabelColor;
-  final double glowAlpha;
-  final double glowBlur;
-  final double borderWidth;
-  final double labelSize;
-
-  const _ModeCard({
-    required this.onPressed,
-    required this.label,
-    required this.sublabel,
-    required this.glowColor,
-    required this.borderColor,
-    required this.bgGradient,
-    required this.sublabelColor,
-    required this.glowAlpha,
-    required this.glowBlur,
-    required this.borderWidth,
-    required this.labelSize,
-  });
-
-  @override
-  State<_ModeCard> createState() => _ModeCardState();
-}
-
-class _ModeCardState extends State<_ModeCard> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onPressed,
-      child: AnimatedScale(
-        scale: _pressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 80),
-        child: SizedBox(
-          width: double.infinity,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            decoration: BoxDecoration(
-              gradient: widget.bgGradient,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: widget.borderColor, width: widget.borderWidth),
-              boxShadow: [
-                BoxShadow(
-                  color: widget.glowColor.withValues(alpha: widget.glowAlpha),
-                  blurRadius: widget.glowBlur,
-                  spreadRadius: 1,
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontSize: widget.labelSize,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: -0.2,
-                    shadows: [
-                      Shadow(
-                        color: widget.glowColor.withValues(alpha: widget.glowAlpha * 1.2),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.sublabel,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: widget.sublabelColor,
-                  ),
-                ),
-              ],
-            ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Classic',
+            style: TextStyle(color: AppColors.dicePip, fontSize: 17, fontWeight: FontWeight.w600),
           ),
-        ),
+          SizedBox(height: 4),
+          Text(
+            'Targets 1–120 · Not every puzzle has a solution',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.dicePip, fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRushCard() {
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: _openRush,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Rush',
+            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Solve as many targets as possible in 90 seconds',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.inkMuted, fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrainingCard() {
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: _openTraining,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Training',
+            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Solvable puzzles by difficulty',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.inkMuted, fontSize: 12, fontWeight: FontWeight.w400),
+          ),
+        ],
       ),
     );
   }
@@ -359,13 +260,11 @@ class _ModeCardState extends State<_ModeCard> {
 class _DifficultyRow extends StatelessWidget {
   final String label;
   final String range;
-  final Color accent;
   final VoidCallback onTap;
 
   const _DifficultyRow({
     required this.label,
     required this.range,
-    required this.accent,
     required this.onTap,
   });
 
@@ -376,9 +275,12 @@ class _DifficultyRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.06),
+          color: AppColors.surfaceHigh,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accent.withValues(alpha: 0.30), width: 0.5),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 0.8,
+          ),
         ),
         child: Row(
           children: [
@@ -387,17 +289,17 @@ class _DifficultyRow extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink,
                 ),
               ),
             ),
             Text(
               range,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: accent.withValues(alpha: 0.85),
+                fontWeight: FontWeight.w500,
+                color: AppColors.inkMuted,
               ),
             ),
           ],

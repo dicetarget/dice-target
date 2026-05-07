@@ -1588,11 +1588,10 @@ class _PracticeScreenState extends State<PracticeScreen>
       child: PopScope(
         canPop: !_isDailyMode,
         child: Scaffold(
-          extendBodyBehindAppBar: true,
-          backgroundColor: AppColors.bgBottom,
+          backgroundColor: AppColors.bgDark,
           appBar: AppBar(
             automaticallyImplyLeading: !_isDailyMode,
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.bgDark,
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             title: _isDailyMode
@@ -1639,14 +1638,7 @@ class _PracticeScreenState extends State<PracticeScreen>
           body: Stack(
             children: [
               Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF0A1628), Color(0xFF060B14), Color(0xFF020408)],
-                    stops: [0.0, 0.5, 1.0],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
+                color: AppColors.bgDark,
                 child: SafeArea(
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -1749,7 +1741,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                   opacity: _dailyTransitionOpacity,
                   duration: const Duration(milliseconds: 220),
                   curve: Curves.easeOut,
-                  child: Container(color: AppColors.bgBottom),
+                  child: Container(color: AppColors.bgDark),
                 ),
               ),
               IgnorePointer(
