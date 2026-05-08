@@ -255,17 +255,13 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   void _startPrefetch() {
     final (min, max) = _vsRange();
-    _prefetchFuture = Future(
-      () => _coordinator.peekNext(targetMin: min, targetMax: max),
-    );
+    _prefetchFuture = Future(() => _coordinator.peekNext(targetMin: min, targetMax: max));
   }
 
   Future<void> _advanceToNextPuzzle() async {
     final (min, max) = _vsRange();
     final atStageBoundary = _score == 5 || _score == 12;
-    final prefetched = (!atStageBoundary && _prefetchFuture != null)
-        ? await _prefetchFuture
-        : null;
+    final prefetched = (!atStageBoundary && _prefetchFuture != null) ? await _prefetchFuture : null;
     _prefetchFuture = null;
 
     Puzzle puzzle;
@@ -460,38 +456,25 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Give Up?',
-          style: TextStyle(
-            color: AppColors.ink,
-            fontWeight: FontWeight.w900,
-            fontSize: 20,
-          ),
+          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w900, fontSize: 20),
         ),
         content: Text(
           'Your current score of $_score will be submitted.',
-          style: TextStyle(
-            color: AppColors.inkMuted,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: AppColors.inkMuted, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               'Cancel',
-              style: TextStyle(
-                color: AppColors.inkMuted,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(color: AppColors.inkMuted, fontWeight: FontWeight.w700),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text(
               'Give Up',
-              style: TextStyle(
-                color: Color(0xFFFF3B30),
-                fontWeight: FontWeight.w900,
-              ),
+              style: TextStyle(color: Color(0xFFFF3B30), fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -522,8 +505,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
     if (!mounted) return;
 
     final myId = widget.myId;
-    final isChallenger = myId != null &&
-        widget.incomingChallenge?.challengerId == myId;
+    final isChallenger = myId != null && widget.incomingChallenge?.challengerId == myId;
 
     if (widget.incomingChallenge == null) {
       Navigator.of(context).popUntil((route) => route.isFirst);
@@ -688,16 +670,13 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       color: _remaining.inSeconds > 20
                           ? const Color(0xFF00FF88)
                           : _remaining.inSeconds > 10
-                              ? const Color(0xFFFF9500)
-                              : const Color(0xFFFF3B30),
+                          ? const Color(0xFFFF9500)
+                          : const Color(0xFFFF3B30),
                     ),
                   ),
                 ),
           IconButton(
-            icon: Icon(
-              sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-              size: 20,
-            ),
+            icon: Icon(sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded, size: 20),
             color: _ink.withValues(alpha: 0.60),
             enableFeedback: false,
             onPressed: () async {
@@ -722,7 +701,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     _buildStatusRow(),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: 4),
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -733,8 +712,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    PracticeGameArea(
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: PracticeGameArea(
                         showDice: true,
                         isRolling: false,
                         isPlaying: _isPlaying,
@@ -755,14 +735,16 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         pendingOp: _pendingOp,
                         finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
-                        resetEnabled: _isPlaying,
+                        resetEnabled: _undoStack.isNotEmpty && _isPlaying,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
-                        onResetPuzzle: _isPlaying ? _resetCurrentPuzzle : null,
-                        diceTopOffset: 16,
+                        onResetPuzzle: (_undoStack.isNotEmpty && _isPlaying)
+                            ? _resetCurrentPuzzle
+                            : null,
                       ),
-                    const SizedBox(height: 8),
+                    ),
+                    SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
                   ],
                 ),
               ),
@@ -787,10 +769,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
-                width: 0.5,
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.5),
             ),
             child: Text(
               'Give Up',
@@ -809,7 +788,9 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') ? 'Puzzles' : 'Score',
+                (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced')
+                    ? 'Puzzles'
+                    : 'Score',
                 style: TextStyle(
                   fontSize: 11,
                   color: AppColors.inkMuted,
