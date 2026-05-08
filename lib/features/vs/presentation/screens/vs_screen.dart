@@ -734,8 +734,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       celebrateAnimation: _celebrateT,
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Expanded(
-                      child: PracticeGameArea(
+                    PracticeGameArea(
                         showDice: true,
                         isRolling: false,
                         isPlaying: _isPlaying,
@@ -756,14 +755,13 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         pendingOp: _pendingOp,
                         finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
-                        resetEnabled: _undoStack.isNotEmpty && _isPlaying,
+                        resetEnabled: _isPlaying,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
-                        onResetPuzzle: (_undoStack.isNotEmpty && _isPlaying) ? _resetCurrentPuzzle : null,
+                        onResetPuzzle: _isPlaying ? _resetCurrentPuzzle : null,
                         diceTopOffset: 16,
                       ),
-                    ),
                     const SizedBox(height: 8),
                   ],
                 ),
