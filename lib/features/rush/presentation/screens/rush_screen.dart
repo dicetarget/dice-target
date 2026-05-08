@@ -460,7 +460,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: _remaining.inSeconds > 20
-                    ? const Color(0xFF00FF88)
+                    ? AppColors.gold
                     : _remaining.inSeconds > 10
                         ? const Color(0xFFFF9500)
                         : const Color(0xFFFF3B30),
