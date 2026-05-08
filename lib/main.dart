@@ -40,12 +40,12 @@ class DiceApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7B5FE0),
+          seedColor: const Color(0xFFD4AF37), // Champagne Gold statt Purple
           brightness: Brightness.dark,
-          surface: const Color(0xFF0D0F1F),
-          onSurface: const Color(0xFFEEEAF6),
+          surface: const Color(0xFF12171D),
+          onSurface: const Color(0xFFE0E6ED),
         ),
-        scaffoldBackgroundColor: const Color(0xFF0D0F1F),
+        scaffoldBackgroundColor: const Color(0xFF12171D),
         splashFactory: NoSplash.splashFactory,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
@@ -54,15 +54,15 @@ class DiceApp extends StatelessWidget {
         outlinedButtonTheme: OutlinedButtonThemeData(style: ButtonStyle(enableFeedback: false)),
         textButtonTheme: TextButtonThemeData(style: ButtonStyle(enableFeedback: false)),
         snackBarTheme: SnackBarThemeData(
-          backgroundColor: const Color(0xFF0D1F35),
+          backgroundColor: const Color(0xFF1A2030),
           contentTextStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Color(0xFFEEEAF6),
+            color: Color(0xFFE0E6ED),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: Color(0x403FE8FF), width: 0.5),
+            side: const BorderSide(color: Color(0x40D4AF37), width: 0.5),
           ),
           behavior: SnackBarBehavior.floating,
           elevation: 0,
