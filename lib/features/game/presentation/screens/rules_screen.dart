@@ -144,13 +144,13 @@ class _RulesSectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.backgroundCard,
+        color: const Color(0xFF1E2535),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSubtle, width: 0.5),
+        border: Border.all(color: AppColors.borderSubtle, width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.40),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
