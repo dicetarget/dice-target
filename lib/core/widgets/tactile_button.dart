@@ -67,12 +67,12 @@ class _TactileButtonState extends State<TactileButton> {
         } : null,
         onTapCancel: _canPress ? () => setState(() => _pressed = false) : null,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 60),
+          duration: const Duration(milliseconds: 100),
           curve: Curves.easeOutCubic,
           width: widget.width,
           height: widget.height,
           transform: isPressed
-              ? Matrix4.translationValues(0.0, 1.5, 0.0)
+              ? (Matrix4.identity()..scale(0.93, 0.93, 1.0)..translate(0.0, 1.5))
               : Matrix4.identity(),
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
