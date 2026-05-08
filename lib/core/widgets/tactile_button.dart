@@ -126,7 +126,7 @@ class _TactileButtonState extends State<TactileButton> {
               color: _isGoldVariant ? AppColors.dicePip : AppColors.ink,
               fontWeight: FontWeight.w600,
             ),
-            child: widget.child,
+            child: Center(child: widget.child),
           ),
         ),
       ),
