@@ -266,9 +266,7 @@ class PracticeDiceRow extends StatelessWidget {
                       ]
                     : selected
                         ? [
-                            BoxShadow(color: selectionColor.withValues(alpha: 0.60), blurRadius: 10, spreadRadius: 1.2),
-                            BoxShadow(color: selectionColor.withValues(alpha: 0.28), blurRadius: 18, spreadRadius: 2.0),
-                            BoxShadow(color: selectionColor.withValues(alpha: 0.24), blurRadius: 20, spreadRadius: 0.6, offset: const Offset(0, 10)),
+                            BoxShadow(color: selectionColor.withValues(alpha: 0.35), blurRadius: 8, spreadRadius: 0),
                             BoxShadow(color: Colors.black.withValues(alpha: 0.34), blurRadius: 14, offset: const Offset(0, 10)),
                             BoxShadow(color: Colors.white.withValues(alpha: 0.18), blurRadius: 0, spreadRadius: -2, offset: const Offset(0, -2)),
                           ]
