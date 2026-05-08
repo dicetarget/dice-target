@@ -54,7 +54,7 @@ class PracticeOpsRow extends StatelessWidget {
             selected: isSelected,
             enabled: enabled,
             onPressed: enabled ? () => onApplyOp(op) : null,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
             borderRadius: BorderRadius.circular(14),
             child: Center(
               child: Text(

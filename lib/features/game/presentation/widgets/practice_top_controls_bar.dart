@@ -194,7 +194,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                       style: AppTextStyles.body.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: _textSecondary,
+                        color: _accent,
                         height: 1,
                       ),
                     ),

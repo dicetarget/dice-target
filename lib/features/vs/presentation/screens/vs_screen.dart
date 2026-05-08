@@ -722,7 +722,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     _buildStatusRow(),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.sm),
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -733,7 +733,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.md),
                     Expanded(
                       child: PracticeGameArea(
                         showDice: true,
@@ -761,9 +761,10 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
                         onResetPuzzle: (_undoStack.isNotEmpty && _isPlaying) ? _resetCurrentPuzzle : null,
+                        diceTopOffset: 16,
                       ),
                     ),
-                    SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),

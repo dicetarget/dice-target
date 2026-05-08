@@ -229,6 +229,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   int get _dailyPuzzleCount => widget.dailyPuzzleCount ?? 3;
 
   double get _topSectionGap => _isDailyMode ? AppSpacing.md : AppSpacing.md;
+  double get _targetBottomGap => AppSpacing.xl;
   double get _bottomSectionGapAfterButtons => _isDailyMode ? AppSpacing.sm : AppSpacing.md;
   double get _topPadding => _isDailyMode ? AppSpacing.sm : AppSpacing.sm;
 
@@ -1679,9 +1680,11 @@ class _PracticeScreenState extends State<PracticeScreen>
                           rollingTargetListenable: _targetRollController.value,
                           celebrateAnimation: _celebrateT,
                         ),
-                        SizedBox(height: _topSectionGap),
-                        Expanded(
-                          child: PracticeGameArea(
+                        SizedBox(height: _targetBottomGap),
+                        if (_isPreStart)
+                          const Expanded(child: SizedBox.shrink()),
+                        if (!_isPreStart)
+                          PracticeGameArea(
                             showDice: showDice,
                             isRolling: _isRolling,
                             isPlaying: _isPlaying,
@@ -1705,14 +1708,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                             pendingOp: _selectedOp ?? _hintSuggestedOp,
                             finalDiceState: _finalDiceState,
                             undoEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
-                            resetEnabled: _canInteractGameplay,
-                            onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty) ? _resetDice : null,
+                            resetEnabled: !_isRolling && !_resultDialogOpen,
+                            onResetPuzzle: (!_isRolling && !_resultDialogOpen) ? _resetDice : null,
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
                             onUndo: _undo,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            diceTopOffset: 64,
                           ),
-                        ),
                         const SizedBox(height: 8),
                         if (!_isDailyMode)
                           PracticeBottomButtons(

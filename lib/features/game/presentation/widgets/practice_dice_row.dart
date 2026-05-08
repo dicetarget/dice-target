@@ -145,7 +145,7 @@ class PracticeDiceRow extends StatelessWidget {
               ? TweenAnimationBuilder<double>(
                   key: ValueKey(mergePopKey),
                   tween: Tween(begin: 1.0, end: 0.0),
-                  duration: const Duration(milliseconds: 260),
+                  duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOutCubic,
                   builder: (context, t, child) {
                     final popScale = 1.0 + (0.16 * t);
@@ -259,8 +259,9 @@ class PracticeDiceRow extends StatelessWidget {
                   ]
                 : isMergeAnimating
                     ? [
-                        BoxShadow(color: accentColor.withValues(alpha: 0.34 * flashGlow), blurRadius: 20, spreadRadius: 1.6),
-                        BoxShadow(color: accentColor.withValues(alpha: 0.24 * flashGlow), blurRadius: 28, spreadRadius: 1.0, offset: const Offset(0, 10)),
+                        BoxShadow(color: accentColor.withValues(alpha: 0.65 * flashGlow), blurRadius: 28, spreadRadius: 3.0),
+                        BoxShadow(color: accentColor.withValues(alpha: 0.45 * flashGlow), blurRadius: 40, spreadRadius: 2.0, offset: const Offset(0, 10)),
+                        BoxShadow(color: Colors.white.withValues(alpha: 0.20 * flashGlow), blurRadius: 14, spreadRadius: 1.0),
                         BoxShadow(color: Colors.black.withValues(alpha: 0.34), blurRadius: 14, offset: const Offset(0, 8)),
                         BoxShadow(color: Colors.white.withValues(alpha: 0.14), blurRadius: 0, spreadRadius: -2, offset: const Offset(0, -2)),
                       ]
@@ -329,8 +330,8 @@ class PracticeDiceRow extends StatelessWidget {
                         center: Alignment.center,
                         radius: 1.05,
                         colors: [
-                          Colors.white.withValues(alpha: 0.24 * flashGlow),
-                          accentColor.withValues(alpha: 0.18 * flashGlow),
+                          Colors.white.withValues(alpha: 0.42 * flashGlow),
+                          accentColor.withValues(alpha: 0.32 * flashGlow),
                           Colors.transparent,
                         ],
                         stops: const [0.0, 0.38, 1.0],

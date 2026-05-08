@@ -72,7 +72,7 @@ class _TactileButtonState extends State<TactileButton> {
           width: widget.width,
           height: widget.height,
           transform: isPressed
-              ? (Matrix4.identity()..scale(0.93, 0.93, 1.0)..translate(0.0, 1.5))
+              ? (Matrix4.identity()..scaleByDouble(0.93, 0.93, 1.0, 1.0)..translateByDouble(0.0, 1.5, 0.0, 1.0))
               : Matrix4.identity(),
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(

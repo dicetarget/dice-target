@@ -1,4 +1,3 @@
-import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/presentation/widgets/dice_row_widget.dart';
 import 'package:dice/features/game/presentation/widgets/practice_dice_row.dart';
@@ -30,6 +29,8 @@ class PracticeGameArea extends StatelessWidget {
   final VoidCallback onUndo;
   final VoidCallback? onResetPuzzle;
   final MainAxisAlignment mainAxisAlignment;
+  final double diceTopOffset;
+  final double controlsGap;
 
   const PracticeGameArea({
     super.key,
@@ -57,49 +58,51 @@ class PracticeGameArea extends StatelessWidget {
     required this.onUndo,
     required this.onResetPuzzle,
     this.mainAxisAlignment = MainAxisAlignment.center,
+    this.diceTopOffset = 32,
+    this.controlsGap = 32,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Center(
-            child: showDice
-                ? DiceRowWidget(
-                    showDice: showDice,
-                    isRolling: isRolling,
-                    isPlaying: isPlaying,
-                    busy: busy,
-                    showMergedResults: showMergedResults,
-                    mergePopKey: mergePopKey,
-                    selectedIndices: selectedIndices,
-                    accentColor: accentColor,
-                    shakeAnimation: shakeAnimation,
-                    rollingDiceListenable: rollingDiceListenable,
-                    rollingTargetLocked: rollingTargetLocked,
-                    dice: dice,
-                    pendingOp: pendingOp,
-                    finalDiceState: finalDiceState,
-                    onToggleSelect: onToggleSelect,
-                  )
-                : const SizedBox.shrink(),
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(height: diceTopOffset),
+          if (showDice)
+            DiceRowWidget(
+              showDice: showDice,
+              isRolling: isRolling,
+              isPlaying: isPlaying,
+              busy: busy,
+              showMergedResults: showMergedResults,
+              mergePopKey: mergePopKey,
+              selectedIndices: selectedIndices,
+              accentColor: accentColor,
+              shakeAnimation: shakeAnimation,
+              rollingDiceListenable: rollingDiceListenable,
+              rollingTargetLocked: rollingTargetLocked,
+              dice: dice,
+              pendingOp: pendingOp,
+              finalDiceState: finalDiceState,
+              onToggleSelect: onToggleSelect,
+            ),
+          SizedBox(height: controlsGap),
+          RoundControlsWidget(
+            canInteractGameplay: canInteractGameplay,
+            allowedOps: allowedOps,
+            pendingOp: pendingOp,
+            undoEnabled: undoEnabled,
+            resetEnabled: resetEnabled,
+            accentColor: accentColor,
+            inkColor: inkColor,
+            onApplyOp: onApplyOp,
+            onUndo: onUndo,
+            onResetPuzzle: onResetPuzzle,
           ),
-        ),
-        RoundControlsWidget(
-          canInteractGameplay: canInteractGameplay,
-          allowedOps: allowedOps,
-          pendingOp: pendingOp,
-          undoEnabled: undoEnabled,
-          resetEnabled: resetEnabled,
-          accentColor: accentColor,
-          inkColor: inkColor,
-          onApplyOp: onApplyOp,
-          onUndo: onUndo,
-          onResetPuzzle: onResetPuzzle,
-        ),
-      ],
+          const Spacer(),
+        ],
+      ),
     );
   }
 }
