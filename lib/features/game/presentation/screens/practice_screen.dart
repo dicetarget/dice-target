@@ -1705,7 +1705,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             pendingOp: _selectedOp ?? _hintSuggestedOp,
                             finalDiceState: _finalDiceState,
                             undoEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
-                            resetEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
+                            resetEnabled: _canInteractGameplay,
                             onResetPuzzle: (_canInteractGameplay && _undoStack.isNotEmpty) ? _resetDice : null,
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,

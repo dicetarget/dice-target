@@ -62,28 +62,31 @@ class PracticeGameArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: mainAxisAlignment,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (showDice) ...[
-          DiceRowWidget(
-            showDice: showDice,
-            isRolling: isRolling,
-            isPlaying: isPlaying,
-            busy: busy,
-            showMergedResults: showMergedResults,
-            mergePopKey: mergePopKey,
-            selectedIndices: selectedIndices,
-            accentColor: accentColor,
-            shakeAnimation: shakeAnimation,
-            rollingDiceListenable: rollingDiceListenable,
-            rollingTargetLocked: rollingTargetLocked,
-            dice: dice,
-            pendingOp: pendingOp,
-            finalDiceState: finalDiceState,
-            onToggleSelect: onToggleSelect,
+        Expanded(
+          child: Center(
+            child: showDice
+                ? DiceRowWidget(
+                    showDice: showDice,
+                    isRolling: isRolling,
+                    isPlaying: isPlaying,
+                    busy: busy,
+                    showMergedResults: showMergedResults,
+                    mergePopKey: mergePopKey,
+                    selectedIndices: selectedIndices,
+                    accentColor: accentColor,
+                    shakeAnimation: shakeAnimation,
+                    rollingDiceListenable: rollingDiceListenable,
+                    rollingTargetLocked: rollingTargetLocked,
+                    dice: dice,
+                    pendingOp: pendingOp,
+                    finalDiceState: finalDiceState,
+                    onToggleSelect: onToggleSelect,
+                  )
+                : const SizedBox.shrink(),
           ),
-          const SizedBox(height: AppSpacing.xl),
-        ],
+        ),
         RoundControlsWidget(
           canInteractGameplay: canInteractGameplay,
           allowedOps: allowedOps,

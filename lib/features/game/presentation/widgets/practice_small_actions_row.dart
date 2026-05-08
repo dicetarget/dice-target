@@ -31,6 +31,7 @@ class PracticeSmallActionsRow extends StatelessWidget {
 
     return Column(
       children: [
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -70,47 +71,52 @@ class PracticeSmallActionsRow extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
-        if (resetEnabled) ...[
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: onResetPuzzle,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: _resetColor.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(AppRadius.medium),
-                border: Border.all(
-                  color: _resetColor.withValues(alpha: 0.30),
-                  width: 1.0,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.refresh_rounded,
-                    size: 16,
-                    color: _resetColorLt.withValues(alpha: 0.70),
-                  ),
-                  const SizedBox(width: 7),
-                  Text(
-                    'Reset Puzzle',
-                    style: AppTextStyles.body.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _resetColorLt.withValues(alpha: 0.70),
-                      height: 1,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Visibility(
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                visible: resetEnabled,
+                child: GestureDetector(
+                  onTap: resetEnabled ? onResetPuzzle : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: _resetColor.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
+                      border: Border.all(
+                        color: _resetColor.withValues(alpha: 0.30),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.refresh_rounded,
+                          size: 16,
+                          color: _resetColorLt.withValues(alpha: 0.70),
+                        ),
+                        const SizedBox(width: 7),
+                        Text(
+                          'Reset Puzzle',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _resetColorLt.withValues(alpha: 0.70),
+                            height: 1,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ],
     );
   }

@@ -54,14 +54,14 @@ class PracticeOpsRow extends StatelessWidget {
             selected: isSelected,
             enabled: enabled,
             onPressed: enabled ? () => onApplyOp(op) : null,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             borderRadius: BorderRadius.circular(14),
             child: Center(
               child: Text(
                 uiOpSymbol(op),
                 style: TextStyle(
                   color: _fgColorFor(op),
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.w700,
                   height: 1,
                 ),
