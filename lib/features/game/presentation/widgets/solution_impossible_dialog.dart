@@ -1,3 +1,4 @@
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/features/game/presentation/widgets/die_face.dart';
 import 'package:flutter/material.dart';
 
@@ -8,13 +9,6 @@ Future<void> showSolutionOrImpossibleDialog({
   required int target,
   String? fullExpression,
 }) async {
-  const Color bg = Color(0xFF0D2040);
-  const Color border = Color(0x333FE8FF);
-  const Color muted = Color(0xFF6B9AB8);
-  const Color cyan = Color(0xFF3FE8FF);
-  const Color accent = Color(0xFF90D5F0);
-  const Color divider = Color(0x1AFFFFFF);
-
   final title = solvable ? 'Solution' : 'No Solution';
 
   await showDialog<void>(
@@ -28,23 +22,17 @@ Future<void> showSolutionOrImpossibleDialog({
         constraints: const BoxConstraints(maxWidth: 560),
         child: Container(
           decoration: BoxDecoration(
-            color: bg,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: border, width: 1.0),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.65),
-                blurRadius: 48,
-                offset: const Offset(0, 20),
-              ),
-              BoxShadow(
-                color: cyan.withValues(alpha: 0.20),
+                color: Colors.black.withValues(alpha: 0.60),
                 blurRadius: 40,
-                spreadRadius: 2,
-                offset: const Offset(0, 0),
+                offset: const Offset(0, 16),
               ),
               BoxShadow(
-                color: cyan.withValues(alpha: 0.08),
+                color: Colors.black.withValues(alpha: 0.30),
                 blurRadius: 80,
                 offset: const Offset(0, 0),
               ),
@@ -58,34 +46,31 @@ Future<void> showSolutionOrImpossibleDialog({
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Titel
+                    // Title
                     Text(
                       title,
                       style: TextStyle(
                         fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        color: solvable ? cyan : const Color(0xFFE57373),
+                        fontWeight: FontWeight.w800,
+                        color: solvable ? AppColors.gold : AppColors.failed,
                         letterSpacing: -0.5,
-                        shadows: solvable
-                            ? [Shadow(color: cyan.withValues(alpha: 0.40), blurRadius: 12)]
-                            : null,
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    // Starting Dice Label
-                    Text(
+                    // Starting Dice label
+                    const Text(
                       'STARTING DICE',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: muted,
+                        color: AppColors.inkMuted,
                         letterSpacing: 1.0,
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Würfel
+                    // Dice
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
@@ -95,16 +80,16 @@ Future<void> showSolutionOrImpossibleDialog({
                     ),
                     const SizedBox(height: 20),
 
-                    Divider(color: divider, thickness: 0.5),
+                    Divider(color: Colors.white.withValues(alpha: 0.10), thickness: 0.5),
                     const SizedBox(height: 20),
 
                     if (solvable) ...[
-                      Text(
+                      const Text(
                         'FULL EXPRESSION',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: muted,
+                          color: AppColors.inkMuted,
                           letterSpacing: 1.0,
                         ),
                       ),
@@ -113,18 +98,20 @@ Future<void> showSolutionOrImpossibleDialog({
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: cyan.withValues(alpha: 0.06),
+                          color: AppColors.gold.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: cyan.withValues(alpha: 0.22), width: 0.5),
+                          border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.25),
+                            width: 0.8,
+                          ),
                         ),
                         child: Text(
                           '${(fullExpression ?? '').trim()} = $target',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: cyan,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.gold,
                             height: 1.4,
-                            shadows: [Shadow(color: cyan.withValues(alpha: 0.35), blurRadius: 8)],
                           ),
                         ),
                       ),
@@ -133,11 +120,11 @@ Future<void> showSolutionOrImpossibleDialog({
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE57373).withValues(alpha: 0.08),
+                          color: AppColors.failed.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: const Color(0xFFE57373).withValues(alpha: 0.25),
-                            width: 0.5,
+                            color: AppColors.failed.withValues(alpha: 0.25),
+                            width: 0.8,
                           ),
                         ),
                         child: Column(
@@ -148,16 +135,16 @@ Future<void> showSolutionOrImpossibleDialog({
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFFE57373),
+                                color: AppColors.failed,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Target: $target',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: muted,
+                                color: AppColors.inkMuted,
                               ),
                             ),
                           ],
@@ -178,11 +165,14 @@ Future<void> showSolutionOrImpossibleDialog({
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: cyan.withValues(alpha: 0.10),
+                      color: AppColors.gold.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cyan.withValues(alpha: 0.30), width: 0.5),
+                      border: Border.all(
+                        color: AppColors.gold.withValues(alpha: 0.30),
+                        width: 0.8,
+                      ),
                     ),
-                    child: Icon(Icons.check_rounded, size: 22, color: accent),
+                    child: const Icon(Icons.check_rounded, size: 22, color: AppColors.gold),
                   ),
                 ),
               ),

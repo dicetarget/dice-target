@@ -1,3 +1,4 @@
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/theme/app_radius.dart';
 import 'package:dice/core/theme/app_spacing.dart';
 import 'package:dice/core/theme/app_text_styles.dart';
@@ -35,11 +36,10 @@ class PracticeTopControlsBar extends StatelessWidget {
     this.rightLabel,
   });
 
-  static const Color _barBg = Color(0xFF0D1F35);
-  static const Color _barBorder = Color(0x1A3FE8FF);
-  static const Color _textPrimary = Color(0xFFEEEAF6);
-  static const Color _textSecondary = Color(0xFF6B8CAE);
-  static const Color _neonAccentLt = Color(0xFF90D5F0);
+  static const Color _barBg = AppColors.surface;
+  static const Color _textPrimary = AppColors.ink;
+  static const Color _textSecondary = AppColors.inkMuted;
+  static const Color _accent = AppColors.gold;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class PracticeTopControlsBar extends StatelessWidget {
   BoxDecoration get _barDecoration => BoxDecoration(
     color: _barBg,
     borderRadius: BorderRadius.circular(AppRadius.button),
-    border: Border.all(color: _barBorder, width: 0.5),
+    border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
     boxShadow: [
       BoxShadow(
         color: Colors.black.withValues(alpha: 0.28),
@@ -112,7 +112,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                       style: AppTextStyles.body.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: _neonAccentLt.withValues(alpha: 0.90),
+                        color: _accent.withValues(alpha: 0.90),
                         height: 1,
                       ),
                     )
@@ -149,7 +149,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                   Icon(
                     showMerged ? Icons.visibility_rounded : Icons.visibility_off_rounded,
                     size: 16,
-                    color: showMerged ? _neonAccentLt : _textSecondary,
+                    color: showMerged ? _accent : _textSecondary,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -157,7 +157,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                     style: AppTextStyles.body.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: showMerged ? _neonAccentLt : _textSecondary,
+                      color: showMerged ? _accent : _textSecondary,
                       height: 1,
                     ),
                   ),
@@ -175,7 +175,7 @@ class PracticeTopControlsBar extends StatelessWidget {
                       style: AppTextStyles.body.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: _neonAccentLt.withValues(alpha: 0.90),
+                        color: _accent.withValues(alpha: 0.90),
                         height: 1,
                       ),
                     )
