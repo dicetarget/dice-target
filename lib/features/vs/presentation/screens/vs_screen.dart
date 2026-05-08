@@ -82,7 +82,6 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
-  static const Color _orange = Color(0xFF00E5FF);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -462,7 +461,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         title: const Text(
           'Give Up?',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.ink,
             fontWeight: FontWeight.w900,
             fontSize: 20,
           ),
@@ -470,7 +469,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         content: Text(
           'Your current score of $_score will be submitted.',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.60),
+            color: AppColors.inkMuted,
             fontSize: 14,
           ),
         ),
@@ -480,7 +479,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.45),
+                color: AppColors.inkMuted,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -729,7 +728,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       isRolling: false,
                       target: _target,
                       cardColor: _card,
-                      accentColor: _orange,
+                      accentColor: AppColors.gold,
                       inkColor: _ink,
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
@@ -744,7 +743,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         showMergedResults: true,
                         mergePopKey: _mergePopKey,
                         selectedIndices: _selected,
-                        accentColor: _orange,
+                        accentColor: AppColors.gold,
                         inkColor: _ink,
                         shakeAnimation: _shakeAnim,
                         rollingDiceListenable: _rollingDiceNotifier,
@@ -799,7 +798,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Colors.white.withValues(alpha: 0.40),
+                color: AppColors.inkMuted,
               ),
             ),
           ),
@@ -814,7 +813,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 (widget.vsMode == 'speedrun' || widget.vsMode == 'speedrun_advanced') ? 'Puzzles' : 'Score',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.30),
+                  color: AppColors.inkMuted,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.3,
                 ),
@@ -825,7 +824,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                     : '$_score',
                 style: const TextStyle(
                   fontSize: 28,
-                  color: Colors.white,
+                  color: AppColors.ink,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.5,
                   height: 1.1,
@@ -856,8 +855,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: _orange,
-                    shadows: const [Shadow(color: Color(0xFF00E5FF), blurRadius: 14)],
+                    color: AppColors.gold,
                   ),
                 ),
               ),

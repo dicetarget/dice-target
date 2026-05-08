@@ -19,8 +19,6 @@ class VsHomeScreen extends StatefulWidget {
 }
 
 class _VsHomeScreenState extends State<VsHomeScreen> {
-  static const Color _cyan = Color(0xFF00E5FF);
-  static const Color _cyanLt = Color(0xFFE0FEFF);
 
   VsPlayer? _player;
   Map<String, String> _friends = {};
@@ -63,9 +61,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: AppColors.bgDark,
         child: SafeArea(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: _cyan))
+              ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
               : RefreshIndicator(
-                  color: _cyan,
+                  color: AppColors.gold,
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -79,7 +77,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                              color: Colors.white.withValues(alpha: 0.60),
+                              color: AppColors.inkMuted,
                               enableFeedback: false,
                               padding: EdgeInsets.zero,
                               onPressed: () => Navigator.of(context).pop(),
@@ -90,7 +88,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: AppColors.gold,
                                 letterSpacing: -1.0,
                                 height: 1.0,
                               ),
@@ -105,7 +103,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 0.45),
+                              color: AppColors.inkMuted,
                             ),
                           ),
                         ),
@@ -116,7 +114,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                             '↓ Pull to refresh',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.22),
+                              color: AppColors.inkMuted,
                             ),
                           ),
                         ),
@@ -132,7 +130,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         _buildSectionHeader(
                           'Friends',
                           trailing: IconButton(
-                            icon: const Icon(Icons.person_add, size: 22, color: _cyan),
+                            icon: const Icon(Icons.person_add, size: 22, color: AppColors.gold),
                             enableFeedback: false,
                             onPressed: () async {
                               await Navigator.of(context).push(
@@ -174,10 +172,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _cyan.withValues(alpha: 0.40), width: 1.5),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.40), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: _cyan.withValues(alpha: 0.12),
+            color: AppColors.gold.withValues(alpha: 0.12),
             blurRadius: 24,
             spreadRadius: 1,
           ),
@@ -194,7 +192,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.35),
+                    color: AppColors.inkMuted,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -204,7 +202,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: _cyanLt,
+                    color: AppColors.goldLight,
                     letterSpacing: 1.0,
                     height: 1.1,
                   ),
@@ -227,7 +225,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.55),
+              color: AppColors.inkMuted,
             ),
           ),
           const SizedBox(height: 4),
@@ -235,7 +233,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             'Add friends to start playing',
             style: TextStyle(
               fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.30),
+              color: AppColors.inkMuted,
             ),
           ),
         ],
@@ -278,7 +276,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AppColors.ink,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -365,9 +363,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: _cyan.withValues(alpha: 0.15),
+          color: AppColors.gold.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _cyan.withValues(alpha: 0.50), width: 1.0),
+          border: Border.all(color: AppColors.gold.withValues(alpha: 0.50), width: 1.0),
         ),
         child: Text(
           label,
@@ -375,7 +373,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: _cyan,
+            color: AppColors.gold,
           ),
         ),
       ),
@@ -405,7 +403,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppColors.ink,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -413,7 +411,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 20,
-                    color: Colors.white.withValues(alpha: 0.30),
+                    color: AppColors.inkMuted,
                   ),
                 ],
               ),
@@ -467,7 +465,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         'No open challenges.',
         style: TextStyle(
           fontSize: 14,
-          color: Colors.white.withValues(alpha: 0.35),
+          color: AppColors.inkMuted,
         ),
       );
     }
@@ -486,7 +484,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         'No completed challenges yet.',
         style: TextStyle(
           fontSize: 14,
-          color: Colors.white.withValues(alpha: 0.35),
+          color: AppColors.inkMuted,
         ),
       );
     }
@@ -508,7 +506,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         border: Border.all(
           color: c.isCompleted
               ? Colors.white.withValues(alpha: 0.12)
-              : _cyan.withValues(alpha: 0.30),
+              : AppColors.gold.withValues(alpha: 0.30),
           width: 1.0,
         ),
       ),
@@ -523,7 +521,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.ink,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -534,8 +532,8 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: c.isCompleted
-                        ? Colors.white.withValues(alpha: 0.35)
-                        : _cyan.withValues(alpha: 0.70),
+                        ? AppColors.inkMuted
+                        : AppColors.gold.withValues(alpha: 0.70),
                   ),
                 ),
               ],
@@ -589,7 +587,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.70),
+                  color: AppColors.ink,
                 ),
               ),
             ),
@@ -629,7 +627,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.30),
+                color: AppColors.inkMuted,
               ),
             ),
             const SizedBox(width: 8),
@@ -679,7 +677,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: AppColors.inkMuted,
                   ),
                 ),
               ),
@@ -694,10 +692,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: _cyan.withValues(alpha: 0.15),
+                  color: AppColors.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: _cyan.withValues(alpha: 0.50),
+                    color: AppColors.gold.withValues(alpha: 0.50),
                     width: 1.0,
                   ),
                 ),
@@ -706,7 +704,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: _cyan,
+                    color: AppColors.gold,
                   ),
                 ),
               ),
@@ -742,10 +740,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: _cyan.withValues(alpha: 0.15),
+              color: AppColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: _cyan.withValues(alpha: 0.50),
+                color: AppColors.gold.withValues(alpha: 0.50),
                 width: 1.0,
               ),
             ),
@@ -754,7 +752,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: _cyan,
+                color: AppColors.gold,
               ),
             ),
           ),
@@ -768,7 +766,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.30),
+              color: AppColors.inkMuted,
             ),
           ),
           const SizedBox(width: 8),
@@ -818,7 +816,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         title: const Text(
           'Remove Friend?',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.ink,
             fontWeight: FontWeight.w900,
             fontSize: 20,
           ),
@@ -826,7 +824,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         content: Text(
           'Remove $friendName from your friends list?',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.60),
+            color: AppColors.inkMuted,
             fontSize: 14,
           ),
         ),
@@ -836,7 +834,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.45),
+                color: AppColors.inkMuted,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -911,7 +909,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _cyan.withValues(alpha: 0.25),
+          color: AppColors.gold.withValues(alpha: 0.25),
           width: 0.5,
         ),
       ),
@@ -926,7 +924,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -934,7 +932,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   'wants to be friends',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.35),
+                    color: AppColors.inkMuted,
                   ),
                 ),
               ],
@@ -957,7 +955,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: AppColors.inkMuted,
                 ),
               ),
             ),
@@ -968,10 +966,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: _cyan.withValues(alpha: 0.15),
+                color: AppColors.gold.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: _cyan.withValues(alpha: 0.50),
+                  color: AppColors.gold.withValues(alpha: 0.50),
                   width: 1.0,
                 ),
               ),
@@ -980,7 +978,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: _cyan,
+                  color: AppColors.gold,
                 ),
               ),
             ),
@@ -998,7 +996,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: AppColors.ink,
             letterSpacing: -0.3,
           ),
         ),
