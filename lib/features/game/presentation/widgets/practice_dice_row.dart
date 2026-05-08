@@ -1,3 +1,4 @@
+import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/ui_op.dart';
 import 'package:dice/features/game/presentation/widgets/die_face.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class PracticeDiceRow extends StatelessWidget {
   static const double _dieSize = 80.0;
   static const double _itemSpacing = 16.0;
   static const double _rowHeight = 172.0;
-  static const Color _selectionNeon = Color(0xFF5AB6FF);
+  static const Color _selectionNeon = AppColors.gold;
 
   @override
   Widget build(BuildContext context) {
