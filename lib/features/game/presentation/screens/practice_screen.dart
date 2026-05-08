@@ -540,7 +540,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF90D5F0),
+                                color: AppColors.inkMuted,
                               ),
                             ),
                           ),
