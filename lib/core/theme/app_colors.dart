@@ -58,8 +58,8 @@ abstract final class AppColors {
   static const Color card            = backgroundCard;
   static const Color cardBr          = Color(0x33FFFFFF);
   static const Color accent          = gold;
-  static const Color accentLt        = goldLight;
   static const Color goldLight       = Color(0xFFE8C96A);
+  static const Color accentLt        = goldLight;
   static const Color inkFaint        = inkHint;
   static const Color solved          = Color(0xFF4CAF82);
   static const Color failed          = Color(0xFFE57373);
