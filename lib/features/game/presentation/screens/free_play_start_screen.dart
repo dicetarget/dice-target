@@ -181,7 +181,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
 
   Widget _buildClassicCard() {
     return TactileButton(
-      variant: TactileButtonVariant.primary,
+      variant: TactileButtonVariant.gold,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
       borderRadius: BorderRadius.circular(16),
@@ -191,13 +191,13 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         children: const [
           Text(
             'Classic',
-            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(color: AppColors.dicePip, fontSize: 17, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 4),
           Text(
             'Targets 1–120 · Not every puzzle has a solution',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.inkMuted, fontSize: 12, fontWeight: FontWeight.w400),
+            style: TextStyle(color: AppColors.dicePip, fontSize: 12, fontWeight: FontWeight.w400),
           ),
         ],
       ),
@@ -231,7 +231,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
 
   Widget _buildTrainingCard() {
     return TactileButton(
-      variant: TactileButtonVariant.primary,
+      variant: TactileButtonVariant.gold,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
       borderRadius: BorderRadius.circular(16),
@@ -241,13 +241,13 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         children: const [
           Text(
             'Training',
-            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(color: AppColors.dicePip, fontSize: 17, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 4),
           Text(
             'Solvable puzzles by difficulty',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.inkMuted, fontSize: 12, fontWeight: FontWeight.w400),
+            style: TextStyle(color: AppColors.dicePip, fontSize: 12, fontWeight: FontWeight.w400),
           ),
         ],
       ),
