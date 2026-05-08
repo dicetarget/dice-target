@@ -158,7 +158,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
-              color: AppColors.gold,
+              color: AppColors.modeVS,
               letterSpacing: -0.5,
             ),
           ),
