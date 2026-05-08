@@ -126,14 +126,27 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildTitle() {
-    return const Text(
-      'Dice Target',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 54,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
-        color: AppColors.gold,
+    return ShaderMask(
+      shaderCallback: (bounds) => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFE8C96A), // Gold hell
+          Color(0xFFD4AF37), // Champagne Gold
+          Color(0xFFA88A22), // Gold dunkel
+          Color(0xFFD4AF37), // zurück zu Gold
+        ],
+        stops: [0.0, 0.35, 0.65, 1.0],
+      ).createShader(bounds),
+      child: const Text(
+        'Dice Target',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 54,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+          color: Colors.white,
+        ),
       ),
     );
   }

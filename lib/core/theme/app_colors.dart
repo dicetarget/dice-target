@@ -79,4 +79,6 @@ abstract final class AppColors {
   static const Color white           = Color(0xFFFFFFFF);
   static const Color black           = Color(0xFF000000);
   static const Color onAccent        = Color(0xFF000000);
+  static const Color buttonPrimary       = Color(0xFF1A3D35); // Dunkles Teal für Free Play / Duels
+  static const Color buttonPrimaryBorder = Color(0xFF2A5A4A); // Teal border
 }

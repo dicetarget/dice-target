@@ -44,7 +44,7 @@ class _TactileButtonState extends State<TactileButton> {
       case TactileButtonVariant.gold:     return AppColors.gold;
       case TactileButtonVariant.danger:   return AppColors.opSubtract;
       case TactileButtonVariant.muted:    return AppColors.surfaceHigh;
-      case TactileButtonVariant.primary:  return AppColors.surface;
+      case TactileButtonVariant.primary: return AppColors.buttonPrimary;
     }
   }
 
@@ -80,9 +80,11 @@ class _TactileButtonState extends State<TactileButton> {
             color: _isGoldVariant ? _baseColor : _baseColor,
             border: Border.all(
               color: isSelected
-                  ? AppColors.gold.withValues(alpha: 0.8)
-                  : Colors.white.withValues(alpha: 0.08),
-              width: isSelected ? 1.5 : 0.8,
+                  ? AppColors.gold.withValues(alpha: 0.85)
+                  : _isGoldVariant
+                      ? AppColors.goldDark.withValues(alpha: 0.60)
+                      : AppColors.buttonPrimaryBorder.withValues(alpha: 0.80),
+              width: isSelected ? 1.8 : 1.0,
             ),
             boxShadow: isPressed
                 ? [
@@ -93,31 +95,27 @@ class _TactileButtonState extends State<TactileButton> {
                     ),
                   ]
                 : [
-                    // Top-left highlight (Lichtquelle)
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: _isGoldVariant ? 0.18 : 0.07),
+                      color: Colors.white.withValues(alpha: _isGoldVariant ? 0.22 : 0.09),
                       blurRadius: 0,
                       spreadRadius: 0,
-                      offset: const Offset(-1.5, -1.5),
+                      offset: const Offset(-2, -2),
                     ),
-                    // Bottom-right shadow (Tiefe)
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.55),
-                      blurRadius: 6,
-                      offset: const Offset(2, 4),
+                      color: Colors.black.withValues(alpha: 0.65),
+                      blurRadius: 8,
+                      offset: const Offset(3, 5),
                     ),
-                    // Ambient depth
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.30),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
+                      color: Colors.black.withValues(alpha: 0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
                     ),
                     if (isSelected)
                       BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.25),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 0),
+                        color: AppColors.gold.withValues(alpha: 0.30),
+                        blurRadius: 14,
+                        spreadRadius: 2,
                       ),
                   ],
           ),

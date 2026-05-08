@@ -30,6 +30,15 @@ class PracticeOpsRow extends StatelessWidget {
     }
   }
 
+  Color _fgColorFor(UiOp op) {
+    switch (op) {
+      case UiOp.add: return AppColors.opPlusForeground;
+      case UiOp.sub: return AppColors.opMinusForeground;
+      case UiOp.mul: return AppColors.opTimesForeground;
+      case UiOp.div: return AppColors.opDivForeground;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget opButton(UiOp op) {
@@ -50,8 +59,8 @@ class PracticeOpsRow extends StatelessWidget {
             child: Center(
               child: Text(
                 uiOpSymbol(op),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: _fgColorFor(op),
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   height: 1,

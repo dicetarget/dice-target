@@ -27,7 +27,7 @@ class DieFace extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFF0EDE4), Color(0xFFC8C4B8)],
+            colors: [Color(0xFFF5F0E8), Color(0xFFD0CBB8)],
           ),
           border: Border.all(
             color: selected
@@ -36,23 +36,20 @@ class DieFace extends StatelessWidget {
             width: selected ? 1.8 : 0.8,
           ),
           boxShadow: [
-            // Top-left highlight
             BoxShadow(
-              color: Colors.white.withValues(alpha: 0.60),
+              color: Colors.white.withValues(alpha: 0.80),
               blurRadius: 0,
-              offset: const Offset(-1.5, -1.5),
+              offset: const Offset(-2, -2),
             ),
-            // Bottom-right shadow
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.55),
-              blurRadius: 6,
-              offset: const Offset(2.5, 4),
+              color: Colors.black.withValues(alpha: 0.65),
+              blurRadius: 8,
+              offset: const Offset(3, 5),
             ),
-            // Ambient
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.30),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
             // Gold selection glow
             if (selected)
