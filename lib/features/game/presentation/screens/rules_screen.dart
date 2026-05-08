@@ -188,7 +188,7 @@ class _RulesSectionCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               height: 1.55,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: AppColors.inkMuted,
             ),
           ),
