@@ -881,6 +881,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       _selected.clear();
       _hintSuggestedIndices = null;
       _hintSuggestedOp = null;
+      _undoStack.clear();
 
       _dailyTransitionOpacity = 0.0;
       _isDailyTransitionRunning = false;
