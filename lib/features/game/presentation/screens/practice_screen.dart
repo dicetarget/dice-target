@@ -800,7 +800,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     );
 
     _prepareRoundStart(clock: effClock, resetRun: resetRun);
-    _prepareRollingPhase(keepTarget: keepTarget);
+    _prepareRollingPhase(keepTarget: keepTarget, incomingDice: puzzle.dice);
 
     if (_soundEnabled && !_isDailyMode) await sfx.roll();
 
@@ -841,8 +841,11 @@ class _PracticeScreenState extends State<PracticeScreen>
     _cancelRollingControllers();
   }
 
-  void _prepareRollingPhase({required bool keepTarget}) {
+  void _prepareRollingPhase({required bool keepTarget, List<int>? incomingDice}) {
     setState(() {
+      if (incomingDice != null && incomingDice.isNotEmpty) {
+        _initialDice = List<int>.from(incomingDice);
+      }
       _phase = RoundPhase.rolling;
       _gameState = _gameState.copyWith(
         moves: 0,
