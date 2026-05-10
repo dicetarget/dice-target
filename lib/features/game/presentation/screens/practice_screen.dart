@@ -1356,7 +1356,6 @@ class _PracticeScreenState extends State<PracticeScreen>
       if (_isDailyMode) {
         if (solved) {
           _playTargetCelebrate();
-          if (widget.isReplayMode && _soundEnabled) sfx.win();
           if (_dailyPuzzleNumber == _dailyPuzzleCount && !widget.isReplayMode) {
             await widget.dailyController?.syncRunProgress(
               solvedCount: _dailyPuzzleCount,
