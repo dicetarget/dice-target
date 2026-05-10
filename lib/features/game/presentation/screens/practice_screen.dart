@@ -166,7 +166,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   late final AnimationController _confettiCtrl;
 
   final List<_UndoSnapshot> _undoStack = <_UndoSnapshot>[];
-  static const int _maxUndo = 30;
+  static const int _maxUndo = 4;
 
   bool _rollAfterNoSolutionArmed = false;
 
@@ -922,10 +922,6 @@ class _PracticeScreenState extends State<PracticeScreen>
   void _resetDice() {
     if (_busy) return;
 
-    if (_soundEnabled) {
-      sfx.click();
-    }
-
     if (_initialDice.isEmpty || _initialTarget == 0) {
       _goToPreStart();
       return;
@@ -941,10 +937,6 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     _cancelTimeoutTicker();
     _cancelRollingControllers();
-
-    if (_soundEnabled) {
-      await sfx.invalid();
-    }
 
     await Future.delayed(const Duration(milliseconds: 280));
     if (!mounted) return;
@@ -1119,6 +1111,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       _clearPendingOp();
 
       final snapshot = _undoStack.removeLast();
+      _gameRules.moves = snapshot.moves;
       _gameState = _gameState.copyWith(
         dice: snapshot.dice.map((d) => DiceState(value: d.value, maskLabel: d.maskLabel)).toList(),
         moves: snapshot.moves,
@@ -1240,6 +1233,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     setState(() => _finalDiceState = FinalDiceState.fail);
     _shakeCtrl.forward(from: 0);
+    if (_soundEnabled) sfx.invalid();
     await Future.delayed(const Duration(milliseconds: 370));
     if (!mounted) return;
     setState(() => _finalDiceState = FinalDiceState.none);
@@ -1708,7 +1702,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             pendingOp: _selectedOp ?? _hintSuggestedOp,
                             finalDiceState: _finalDiceState,
                             undoEnabled: _canInteractGameplay && _undoStack.isNotEmpty,
-                            resetEnabled: !_isRolling && !_resultDialogOpen,
+                            resetEnabled: !_resultDialogOpen,
                             onResetPuzzle: (!_isRolling && !_resultDialogOpen) ? _resetDice : null,
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
