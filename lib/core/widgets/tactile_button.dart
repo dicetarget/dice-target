@@ -8,6 +8,7 @@ class TactileButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final TactileButtonVariant variant;
   final Color? customColor;
+  final Color? customBorderColor;
   final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? padding;
   final bool selected;
@@ -21,6 +22,7 @@ class TactileButton extends StatefulWidget {
     this.onPressed,
     this.variant = TactileButtonVariant.primary,
     this.customColor,
+    this.customBorderColor,
     this.borderRadius,
     this.padding,
     this.selected = false,
@@ -95,6 +97,8 @@ class _TactileButtonState extends State<TactileButton> {
             border: Border.all(
               color: isSelected
                   ? AppColors.gold.withValues(alpha: 0.85)
+                  : widget.customBorderColor != null
+                  ? widget.customBorderColor!.withValues(alpha: 0.80)
                   : _isGhostVariant
                       ? AppColors.gold.withValues(alpha: 0.45)
                       : _isGoldVariant

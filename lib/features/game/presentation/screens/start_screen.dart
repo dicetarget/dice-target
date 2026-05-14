@@ -171,6 +171,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildFreePlayButton() {
     return TactileButton(
       variant: TactileButtonVariant.primary,
+      customColor: const Color(0xFF1A2E4A),
+      customBorderColor: const Color(0xFF2A4A7A),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
@@ -205,6 +207,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildRushButton() {
     return TactileButton(
       variant: TactileButtonVariant.primary,
+      customColor: const Color(0xFF1A4A2E),
+      customBorderColor: const Color(0xFF2A7A4A),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
@@ -282,6 +286,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildVsButton() {
     return TactileButton(
       variant: TactileButtonVariant.primary,
+      customColor: const Color(0xFF2E1A4A),
+      customBorderColor: const Color(0xFF4A2A7A),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
