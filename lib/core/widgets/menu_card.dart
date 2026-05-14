@@ -61,26 +61,53 @@ class _MenuCardState extends State<MenuCard> {
             stops: widget.gradientStops,
           ),
           border: Border.all(
-            color: widget.borderColor.withValues(alpha: 0.45),
-            width: 1.0,
+            color: widget.borderColor.withValues(alpha: 0.22),
+            width: 0.8,
           ),
           boxShadow: _pressed
-              ? []
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.60),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : [
                   BoxShadow(
-                    color: widget.glowColor.withValues(alpha: 0.15),
-                    blurRadius: 6,
+                    color: widget.glowColor.withValues(alpha: 0.08),
+                    blurRadius: 8,
                     spreadRadius: 0,
-                    offset: const Offset(0, 4),
+                    offset: const Offset(0, 3),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.50),
-                    blurRadius: 16,
+                    color: Colors.black.withValues(alpha: 0.55),
+                    blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
                 ],
         ),
-        child: Padding(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.0),
+                        Colors.white.withValues(alpha: 0.10),
+                        Colors.white.withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           child: Row(
             children: [
@@ -135,6 +162,9 @@ class _MenuCardState extends State<MenuCard> {
                 Icons.chevron_right_rounded,
                 color: widget.borderColor.withValues(alpha: 0.70),
                 size: 20,
+              ),
+            ],
+          ),
               ),
             ],
           ),
