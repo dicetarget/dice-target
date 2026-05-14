@@ -10,6 +10,7 @@ import 'package:dice/features/daily/domain/daily_service.dart';
 import 'package:dice/features/daily/presentation/controllers/daily_controller.dart';
 import 'package:dice/features/daily/presentation/screens/daily_screen.dart';
 import 'package:dice/features/game/presentation/screens/free_play_start_screen.dart';
+import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:flutter/material.dart';
@@ -97,31 +98,47 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
               animation: _slide,
               builder: (context, child) =>
                   Transform.translate(offset: Offset(0, _slide.value), child: child),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Column(
-                    children: [
-                      const Spacer(),
-                      _buildTitle(),
-                      const SizedBox(height: 52),
-                      _buildFreePlayButton(),
-                      const SizedBox(height: 12),
-                      _buildDailyButton(),
-                      const SizedBox(height: 12),
-                      _buildVsButton(),
-                      const Spacer(),
-                      const SizedBox(height: 32),
-                      _buildRulesButton(),
-                      const SizedBox(height: 24),
-                    ],
+              child: CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Spacer(flex: 3),
+                          _buildTitle(),
+                          const SizedBox(height: 40),
+                          _buildButtons(),
+                          const Spacer(flex: 4),
+                          _buildRulesButton(),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildButtons() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildDailyButton(),
+        const SizedBox(height: 14),
+        _buildRushButton(),
+        const SizedBox(height: 14),
+        _buildFreePlayButton(),
+        const SizedBox(height: 14),
+        _buildVsButton(),
+      ],
     );
   }
 
@@ -155,7 +172,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return TactileButton(
       variant: TactileButtonVariant.primary,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
       onPressed: () => Navigator.of(
         context,
@@ -167,16 +184,50 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             'Free Play',
             style: TextStyle(
               color: AppColors.ink,
-              fontSize: 17,
+              fontSize: 19,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 4),
           Text(
-            'Classic · Rush · Training',
+            'Classic · Training',
             style: TextStyle(
               color: AppColors.inkMuted,
-              fontSize: 12,
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRushButton() {
+    return TactileButton(
+      variant: TactileButtonVariant.primary,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+      borderRadius: BorderRadius.circular(16),
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const RushStartScreen()),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Text(
+            'Rush',
+            style: TextStyle(
+              color: AppColors.ink,
+              fontSize: 19,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Solve as many as possible in 90 seconds',
+            style: TextStyle(
+              color: AppColors.inkMuted,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -189,7 +240,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return TactileButton(
       variant: TactileButtonVariant.gold,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
       onPressed: _isOpeningDaily ? null : _openDaily,
       child: _isOpeningDaily
@@ -210,7 +261,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                   'Daily Challenge',
                   style: TextStyle(
                     color: AppColors.dicePip,
-                    fontSize: 17,
+                    fontSize: 19,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -219,7 +270,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
                   '5 puzzles · Fewest moves wins',
                   style: TextStyle(
                     color: AppColors.dicePip,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -232,7 +283,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return TactileButton(
       variant: TactileButtonVariant.primary,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       borderRadius: BorderRadius.circular(16),
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
@@ -243,7 +294,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             'Duels',
             style: TextStyle(
               color: AppColors.ink,
-              fontSize: 17,
+              fontSize: 19,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -252,7 +303,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             'Compete against a friend',
             style: TextStyle(
               color: AppColors.inkMuted,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
           ),
