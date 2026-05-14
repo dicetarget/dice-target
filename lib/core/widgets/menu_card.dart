@@ -51,11 +51,11 @@ class _MenuCardState extends State<MenuCard> {
         curve: Curves.easeOutCubic,
         transform: _pressed
             ? (Matrix4.identity()
-                ..translateByDouble(0.0, 1.5, 0.0, 1.0)
+                ..translateByDouble(0.0, 2.0, 0.0, 1.0)
                 ..scaleByDouble(0.97, 0.97, 1.0, 1.0))
             : Matrix4.identity(),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -64,14 +64,14 @@ class _MenuCardState extends State<MenuCard> {
           ),
           border: Border.all(
             color: widget.borderColor.withValues(
-              alpha: _pressed ? 0.15 : 0.25,
+              alpha: _pressed ? 0.15 : 0.28,
             ),
             width: 0.8,
           ),
           boxShadow: _pressed
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.70),
+                    color: Colors.black.withValues(alpha: 0.75),
                     blurRadius: 6,
                     offset: const Offset(0, 1),
                   ),
@@ -79,22 +79,22 @@ class _MenuCardState extends State<MenuCard> {
               : [
                   BoxShadow(
                     color: widget.glowColor.withValues(alpha: 0.10),
-                    blurRadius: 10,
+                    blurRadius: 12,
                     spreadRadius: 0,
-                    offset: const Offset(0, 4),
+                    offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.60),
-                    blurRadius: 24,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withValues(alpha: 0.65),
+                    blurRadius: 28,
+                    offset: const Offset(0, 12),
                   ),
                 ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(19),
           child: Stack(
             children: [
-              // Top edge highlight — directional light
+              // Top edge highlight
               Positioned(
                 top: 0,
                 left: 0,
@@ -105,7 +105,7 @@ class _MenuCardState extends State<MenuCard> {
                     gradient: LinearGradient(
                       colors: [
                         Colors.white.withValues(alpha: 0.0),
-                        Colors.white.withValues(alpha: _pressed ? 0.04 : 0.12),
+                        Colors.white.withValues(alpha: _pressed ? 0.04 : 0.13),
                         Colors.white.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 0.5, 1.0],
@@ -113,7 +113,7 @@ class _MenuCardState extends State<MenuCard> {
                   ),
                 ),
               ),
-              // Bottom edge shadow — depth
+              // Bottom edge shadow
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -124,7 +124,7 @@ class _MenuCardState extends State<MenuCard> {
                     gradient: LinearGradient(
                       colors: [
                         Colors.black.withValues(alpha: 0.0),
-                        Colors.black.withValues(alpha: 0.35),
+                        Colors.black.withValues(alpha: 0.40),
                         Colors.black.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 0.5, 1.0],
@@ -132,43 +132,43 @@ class _MenuCardState extends State<MenuCard> {
                   ),
                 ),
               ),
-              // Press overlay — tactile darkening
+              // Press overlay
               if (_pressed)
                 Positioned.fill(
                   child: Container(
-                    color: Colors.black.withValues(alpha: 0.12),
+                    color: Colors.black.withValues(alpha: 0.14),
                   ),
                 ),
               // Content
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
                 child: Row(
                   children: [
-                    // Icon container with inner highlight
+                    // Icon container
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            widget.iconBgColor.withValues(alpha: 0.90),
+                            widget.iconBgColor.withValues(alpha: 0.95),
                             widget.iconBgColor,
                             widget.iconBgColor.withValues(alpha: 0.80),
                           ],
                           stops: const [0.0, 0.5, 1.0],
                         ),
                         border: Border.all(
-                          color: widget.borderColor.withValues(alpha: 0.30),
+                          color: widget.borderColor.withValues(alpha: 0.32),
                           width: 0.8,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.40),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            color: Colors.black.withValues(alpha: 0.45),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                           BoxShadow(
                             color: Colors.white.withValues(alpha: 0.04),
@@ -180,10 +180,10 @@ class _MenuCardState extends State<MenuCard> {
                       child: Icon(
                         widget.icon,
                         color: widget.iconColor,
-                        size: 22,
+                        size: 26,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,18 +193,18 @@ class _MenuCardState extends State<MenuCard> {
                             widget.title,
                             style: TextStyle(
                               color: widget.titleColor,
-                              fontSize: 17,
+                              fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
+                              letterSpacing: -0.4,
                               height: 1.1,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             widget.subtitle,
                             style: TextStyle(
                               color: widget.subtitleColor.withValues(alpha: 0.80),
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w500,
                               letterSpacing: 0.1,
                               height: 1.3,
@@ -217,7 +217,7 @@ class _MenuCardState extends State<MenuCard> {
                     Icon(
                       Icons.chevron_right_rounded,
                       color: widget.titleColor.withValues(alpha: 0.35),
-                      size: 20,
+                      size: 22,
                     ),
                   ],
                 ),
