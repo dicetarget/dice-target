@@ -141,7 +141,7 @@ class _MenuCardState extends State<MenuCard> {
                 ),
               // Content
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
                 child: Row(
                   children: [
                     // Icon container with inner highlight
