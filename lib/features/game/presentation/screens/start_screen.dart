@@ -182,7 +182,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       iconBgColor: const Color(0xFF0D3018),
       iconColor: const Color(0xFF66BB6A),
       titleColor: const Color(0xFF81C784),
-      subtitleColor: const Color(0xFF388E3C),
+      subtitleColor: const Color(0xFF2E6B32),
     );
   }
 
@@ -205,7 +205,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       iconBgColor: const Color(0xFF0A1E35),
       iconColor: const Color(0xFF64B5F6),
       titleColor: const Color(0xFF90CAF9),
-      subtitleColor: const Color(0xFF1976D2),
+      subtitleColor: const Color(0xFF1A4A7A),
     );
   }
 
@@ -228,7 +228,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       iconBgColor: const Color(0xFF1E0A30),
       iconColor: const Color(0xFFCE93D8),
       titleColor: const Color(0xFFE1BEE7),
-      subtitleColor: const Color(0xFF8E24AA),
+      subtitleColor: const Color(0xFF5A1A7A),
     );
   }
 

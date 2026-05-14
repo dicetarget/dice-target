@@ -61,15 +61,15 @@ class _MenuCardState extends State<MenuCard> {
             stops: widget.gradientStops,
           ),
           border: Border.all(
-            color: widget.borderColor,
+            color: widget.borderColor.withValues(alpha: 0.45),
             width: 1.0,
           ),
           boxShadow: _pressed
               ? []
               : [
                   BoxShadow(
-                    color: widget.glowColor.withValues(alpha: 0.30),
-                    blurRadius: 12,
+                    color: widget.glowColor.withValues(alpha: 0.15),
+                    blurRadius: 6,
                     spreadRadius: 0,
                     offset: const Offset(0, 4),
                   ),
