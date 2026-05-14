@@ -145,7 +145,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildDailyCard() {
     return MenuCard(
       title: 'Daily Challenge',
-      subtitle: '5 puzzles · Fewest moves wins',
+      subtitle: '5 puzzles · Best score',
       icon: Icons.emoji_events_rounded,
       onTap: _isOpeningDaily ? null : _openDaily,
       gradientColors: const [
@@ -167,7 +167,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildRushCard() {
     return MenuCard(
       title: 'Rush',
-      subtitle: '90 sec · Solve as many as possible',
+      subtitle: 'Solve as many as possible',
       icon: Icons.timer_rounded,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const RushStartScreen()),
