@@ -3,7 +3,6 @@ import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
-import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/daily/data/daily_local_storage.dart';
 import 'package:dice/features/daily/data/daily_repository.dart';
 import 'package:dice/features/daily/domain/daily_service.dart';
@@ -13,6 +12,7 @@ import 'package:dice/features/game/presentation/screens/free_play_start_screen.d
 import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
+import 'package:dice/core/widgets/menu_card.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -131,14 +131,104 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildDailyButton(),
-        const SizedBox(height: 14),
-        _buildRushButton(),
-        const SizedBox(height: 14),
-        _buildFreePlayButton(),
-        const SizedBox(height: 14),
-        _buildVsButton(),
+        _buildDailyCard(),
+        const SizedBox(height: 12),
+        _buildRushCard(),
+        const SizedBox(height: 12),
+        _buildFreePlayCard(),
+        const SizedBox(height: 12),
+        _buildDuelsCard(),
       ],
+    );
+  }
+
+  Widget _buildDailyCard() {
+    return MenuCard(
+      title: 'Daily Challenge',
+      subtitle: '5 puzzles · Fewest moves wins',
+      icon: Icons.emoji_events_rounded,
+      onTap: _isOpeningDaily ? null : _openDaily,
+      gradientColors: const [
+        Color(0xFF2A1F04),
+        Color(0xFF1E1602),
+        Color(0xFF2E2205),
+      ],
+      gradientStops: const [0.0, 0.50, 1.0],
+      glowColor: const Color(0xFFD4AF37),
+      borderColor: const Color(0xFFD4AF37),
+      iconBgColor: const Color(0xFF3A2D08),
+      iconColor: const Color(0xFFE8C96A),
+      titleColor: const Color(0xFFF0D060),
+      subtitleColor: const Color(0xFFB8922A),
+    );
+  }
+
+  Widget _buildRushCard() {
+    return MenuCard(
+      title: 'Rush',
+      subtitle: 'Solve as many as possible in 90 seconds',
+      icon: Icons.timer_rounded,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const RushStartScreen()),
+      ),
+      gradientColors: const [
+        Color(0xFF051A10),
+        Color(0xFF0A2818),
+        Color(0xFF051A10),
+      ],
+      gradientStops: const [0.0, 0.50, 1.0],
+      glowColor: const Color(0xFF4CAF50),
+      borderColor: const Color(0xFF2E7D32),
+      iconBgColor: const Color(0xFF0D3018),
+      iconColor: const Color(0xFF66BB6A),
+      titleColor: const Color(0xFF81C784),
+      subtitleColor: const Color(0xFF388E3C),
+    );
+  }
+
+  Widget _buildFreePlayCard() {
+    return MenuCard(
+      title: 'Free Play',
+      subtitle: 'Classic · Training',
+      icon: Icons.casino_rounded,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const FreePlayStartScreen()),
+      ),
+      gradientColors: const [
+        Color(0xFF051018),
+        Color(0xFF0A1E30),
+        Color(0xFF051018),
+      ],
+      gradientStops: const [0.0, 0.50, 1.0],
+      glowColor: const Color(0xFF1565C0),
+      borderColor: const Color(0xFF1565C0),
+      iconBgColor: const Color(0xFF0A1E35),
+      iconColor: const Color(0xFF64B5F6),
+      titleColor: const Color(0xFF90CAF9),
+      subtitleColor: const Color(0xFF1976D2),
+    );
+  }
+
+  Widget _buildDuelsCard() {
+    return MenuCard(
+      title: 'Duels',
+      subtitle: 'Compete against a friend',
+      icon: Icons.people_rounded,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+      ),
+      gradientColors: const [
+        Color(0xFF120A20),
+        Color(0xFF1E1035),
+        Color(0xFF120A20),
+      ],
+      gradientStops: const [0.0, 0.50, 1.0],
+      glowColor: const Color(0xFF7B1FA2),
+      borderColor: const Color(0xFF7B1FA2),
+      iconBgColor: const Color(0xFF1E0A30),
+      iconColor: const Color(0xFFCE93D8),
+      titleColor: const Color(0xFFE1BEE7),
+      subtitleColor: const Color(0xFF8E24AA),
     );
   }
 
@@ -164,156 +254,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           letterSpacing: -0.5,
           color: Colors.white,
         ),
-      ),
-    );
-  }
-
-  Widget _buildFreePlayButton() {
-    return TactileButton(
-      variant: TactileButtonVariant.primary,
-      customColor: const Color(0xFF1A2E4A),
-      customBorderColor: const Color(0xFF2A4A7A),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: () => Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const FreePlayStartScreen())),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Free Play',
-            style: TextStyle(
-              color: AppColors.ink,
-              fontSize: 19,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Classic · Training',
-            style: TextStyle(
-              color: AppColors.inkMuted,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRushButton() {
-    return TactileButton(
-      variant: TactileButtonVariant.primary,
-      customColor: const Color(0xFF1A4A2E),
-      customBorderColor: const Color(0xFF2A7A4A),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const RushStartScreen()),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Rush',
-            style: TextStyle(
-              color: AppColors.ink,
-              fontSize: 19,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Solve as many as possible in 90 seconds',
-            style: TextStyle(
-              color: AppColors.inkMuted,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyButton() {
-    return TactileButton(
-      variant: TactileButtonVariant.gold,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: _isOpeningDaily ? null : _openDaily,
-      child: _isOpeningDaily
-          ? const SizedBox(
-              height: 38,
-              child: Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.dicePip),
-                ),
-              ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  'Daily Challenge',
-                  style: TextStyle(
-                    color: AppColors.dicePip,
-                    fontSize: 19,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '5 puzzles · Fewest moves wins',
-                  style: TextStyle(
-                    color: AppColors.dicePip,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildVsButton() {
-    return TactileButton(
-      variant: TactileButtonVariant.primary,
-      customColor: const Color(0xFF2E1A4A),
-      customBorderColor: const Color(0xFF4A2A7A),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VsHomeScreen())),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Duels',
-            style: TextStyle(
-              color: AppColors.ink,
-              fontSize: 19,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Compete against a friend',
-            style: TextStyle(
-              color: AppColors.inkMuted,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
       ),
     );
   }
