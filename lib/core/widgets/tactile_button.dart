@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 
-enum TactileButtonVariant { primary, gold, danger, muted }
+enum TactileButtonVariant { primary, gold, danger, muted, ghost }
 
 class TactileButton extends StatefulWidget {
   final Widget child;
@@ -44,11 +44,13 @@ class _TactileButtonState extends State<TactileButton> {
       case TactileButtonVariant.gold:     return AppColors.gold;
       case TactileButtonVariant.danger:   return AppColors.opSubtract;
       case TactileButtonVariant.muted:    return AppColors.surfaceHigh;
+      case TactileButtonVariant.ghost:   return Colors.transparent;
       case TactileButtonVariant.primary: return AppColors.buttonPrimary;
     }
   }
 
   bool get _isGoldVariant => widget.variant == TactileButtonVariant.gold;
+  bool get _isGhostVariant => widget.variant == TactileButtonVariant.ghost;
 
   @override
   Widget build(BuildContext context) {
@@ -77,51 +79,71 @@ class _TactileButtonState extends State<TactileButton> {
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: radius,
-            color: _isGoldVariant ? _baseColor : _baseColor,
+            color: _isGoldVariant ? null : _baseColor,
+            gradient: _isGoldVariant
+                ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFE8C96A), // goldLight
+                      Color(0xFFD4AF37), // gold
+                      Color(0xFFA88A22), // goldDark
+                    ],
+                    stops: [0.0, 0.50, 1.0],
+                  )
+                : null,
             border: Border.all(
               color: isSelected
                   ? AppColors.gold.withValues(alpha: 0.85)
-                  : _isGoldVariant
-                      ? AppColors.goldDark.withValues(alpha: 0.60)
-                      : AppColors.buttonPrimaryBorder.withValues(alpha: 0.80),
+                  : _isGhostVariant
+                      ? AppColors.gold.withValues(alpha: 0.45)
+                      : _isGoldVariant
+                          ? AppColors.goldDark.withValues(alpha: 0.60)
+                          : AppColors.buttonPrimaryBorder.withValues(alpha: 0.80),
               width: isSelected ? 1.8 : 1.0,
             ),
-            boxShadow: isPressed
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.40),
-                      blurRadius: 2,
-                      offset: const Offset(1, 1),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.white.withValues(alpha: _isGoldVariant ? 0.22 : 0.09),
-                      blurRadius: 0,
-                      spreadRadius: 0,
-                      offset: const Offset(-2, -2),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      blurRadius: 8,
-                      offset: const Offset(3, 5),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                    if (isSelected)
-                      BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.30),
-                        blurRadius: 14,
-                        spreadRadius: 2,
-                      ),
-                  ],
+            boxShadow: _isGhostVariant
+                ? []
+                : isPressed
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.40),
+                          blurRadius: 2,
+                          offset: const Offset(1, 1),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.white.withValues(alpha: _isGoldVariant ? 0.22 : 0.09),
+                          blurRadius: 0,
+                          spreadRadius: 0,
+                          offset: const Offset(-2, -2),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.65),
+                          blurRadius: 8,
+                          offset: const Offset(3, 5),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                        if (isSelected)
+                          BoxShadow(
+                            color: AppColors.gold.withValues(alpha: 0.30),
+                            blurRadius: 14,
+                            spreadRadius: 2,
+                          ),
+                      ],
           ),
           child: DefaultTextStyle.merge(
             style: TextStyle(
-              color: _isGoldVariant ? AppColors.dicePip : AppColors.ink,
+              color: _isGhostVariant
+                  ? AppColors.gold
+                  : _isGoldVariant
+                      ? AppColors.dicePip
+                      : AppColors.ink,
               fontWeight: FontWeight.w600,
             ),
             child: Center(child: widget.child),
