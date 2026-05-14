@@ -166,7 +166,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   Widget _buildRushCard() {
     return MenuCard(
       title: 'Rush',
-      subtitle: 'Solve as many as possible in 90 seconds',
+      subtitle: '90 sec · Solve as many as possible',
       icon: Icons.timer_rounded,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const RushStartScreen()),
