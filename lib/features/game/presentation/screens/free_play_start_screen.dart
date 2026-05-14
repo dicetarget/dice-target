@@ -4,7 +4,6 @@ import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
-import 'package:dice/features/rush/presentation/screens/rush_start_screen.dart';
 import 'package:flutter/material.dart';
 
 class FreePlayStartScreen extends StatefulWidget {
@@ -20,12 +19,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
       MaterialPageRoute(
         builder: (_) => const PracticeScreen(initialTrainingMode: false),
       ),
-    );
-  }
-
-  void _openRush() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RushStartScreen()),
     );
   }
 
@@ -127,8 +120,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                       children: [
                         _buildClassicCard(),
                         const SizedBox(height: 12),
-                        _buildRushCard(),
-                        const SizedBox(height: 12),
                         _buildTrainingCard(),
                       ],
                     ),
@@ -198,31 +189,6 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             'Targets 1–120 · Not every puzzle has a solution',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.dicePip, fontSize: 12, fontWeight: FontWeight.w400),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRushCard() {
-    return TactileButton(
-      variant: TactileButtonVariant.primary,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: _openRush,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Rush',
-            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Solve as many targets as possible in 90 seconds',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.inkMuted, fontSize: 12, fontWeight: FontWeight.w400),
           ),
         ],
       ),
