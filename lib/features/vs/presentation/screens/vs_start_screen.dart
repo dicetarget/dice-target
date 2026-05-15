@@ -82,7 +82,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const Spacer(),
         TactileButton(
-          variant: TactileButtonVariant.gold,
+          variant: TactileButtonVariant.purple,
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           borderRadius: BorderRadius.circular(16),
@@ -107,7 +107,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              color: AppColors.dicePip,
+              color: Colors.white,
             ),
           ),
         ),
@@ -153,7 +153,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         ),
         const Spacer(),
         TactileButton(
-          variant: TactileButtonVariant.gold,
+          variant: TactileButtonVariant.purple,
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           borderRadius: BorderRadius.circular(16),
@@ -178,7 +178,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              color: AppColors.dicePip,
+              color: Colors.white,
             ),
           ),
         ),
@@ -208,7 +208,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
           style: const TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: AppColors.gold,
+            color: Color(0xFF9060C8),
             letterSpacing: -0.8,
             height: 1.1,
           ),
@@ -252,16 +252,16 @@ class _VsStartScreenState extends State<VsStartScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.10),
+              color: const Color(0xFF9060C8).withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.gold.withValues(alpha: 0.30), width: 0.5),
+              border: Border.all(color: const Color(0xFF9060C8).withValues(alpha: 0.30), width: 0.5),
             ),
             child: const Text(
               'Beat them to win!',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.gold,
+                color: Color(0xFF9060C8),
               ),
             ),
           ),

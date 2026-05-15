@@ -83,7 +83,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
         title: const Text(
           'Add Friend',
           style: TextStyle(
-            color: AppColors.gold,
+            color: Color(0xFF9060C8),
             fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
@@ -156,7 +156,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: AppColors.gold.withValues(alpha: 0.70),
+                      color: const Color(0xFF9060C8).withValues(alpha: 0.70),
                       width: 1.5,
                     ),
                   ),
@@ -174,11 +174,11 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
               const SizedBox(height: 24),
               if (_loading)
                 const Center(
-                  child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 2.5),
+                  child: CircularProgressIndicator(color: Color(0xFF9060C8), strokeWidth: 2.5),
                 )
               else
                 TactileButton(
-                  variant: TactileButtonVariant.gold,
+                  variant: TactileButtonVariant.purple,
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   borderRadius: BorderRadius.circular(16),
@@ -188,7 +188,7 @@ class _VsFriendAddScreenState extends State<VsFriendAddScreen> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.dicePip,
+                      color: Colors.white,
                     ),
                   ),
                 ),

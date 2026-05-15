@@ -650,7 +650,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         title: const Text(
           'VS',
           style: TextStyle(
-            color: AppColors.gold,
+            color: Color(0xFF9060C8),
             fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
@@ -668,7 +668,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: _remaining.inSeconds > 20
-                          ? const Color(0xFF00FF88)
+                          ? const Color(0xFF7A9E7A)
                           : _remaining.inSeconds > 10
                           ? const Color(0xFFFF9500)
                           : const Color(0xFFFF3B30),
@@ -701,20 +701,19 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     _buildStatusRow(),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.sm),
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
                       target: _target,
                       cardColor: _card,
-                      accentColor: AppColors.gold,
+                      accentColor: const Color(0xFF9060C8),
                       inkColor: _ink,
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: PracticeGameArea(
+                    const SizedBox(height: AppSpacing.xl),
+                    PracticeGameArea(
                         showDice: true,
                         isRolling: false,
                         isPlaying: _isPlaying,
@@ -722,7 +721,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         showMergedResults: true,
                         mergePopKey: _mergePopKey,
                         selectedIndices: _selected,
-                        accentColor: AppColors.gold,
+                        accentColor: const Color(0xFF9060C8),
                         inkColor: _ink,
                         shakeAnimation: _shakeAnim,
                         rollingDiceListenable: _rollingDiceNotifier,
@@ -735,16 +734,14 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         pendingOp: _pendingOp,
                         finalDiceState: _finalDiceState,
                         undoEnabled: canUndo,
-                        resetEnabled: _undoStack.isNotEmpty && _isPlaying,
+                        resetEnabled: _isPlaying,
                         onToggleSelect: _handleToggleSelect,
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
-                        onResetPuzzle: (_undoStack.isNotEmpty && _isPlaying)
-                            ? _resetCurrentPuzzle
-                            : null,
+                        onResetPuzzle: _isPlaying ? _resetCurrentPuzzle : null,
+                        diceTopOffset: 48,
                       ),
-                    ),
-                    SizedBox(height: AppSpacing.lg + bottomInset * 0.5),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -835,7 +832,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.gold,
+                    color: const Color(0xFF9060C8),
                   ),
                 ),
               ),

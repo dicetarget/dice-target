@@ -143,7 +143,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: _iWon ? AppColors.gold : AppColors.ink,
+            color: _iWon ? const Color(0xFF9060C8) : AppColors.ink,
             letterSpacing: -0.8,
             height: 1.1,
           ),
@@ -240,7 +240,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isWinner ? AppColors.gold : AppColors.inkMuted,
+                    color: isWinner ? const Color(0xFF9060C8) : AppColors.inkMuted,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -299,7 +299,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w800,
-          color: isWinner ? AppColors.gold : AppColors.ink,
+          color: isWinner ? const Color(0xFF9060C8) : AppColors.ink,
         ),
       ),
     );

@@ -103,7 +103,7 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.gold,
+                  color: Color(0xFF9060C8),
                   letterSpacing: -0.8,
                   height: 1.1,
                 ),
@@ -153,7 +153,7 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                     borderSide: BorderSide(
                       color: _error != null
                           ? AppColors.failed
-                          : AppColors.gold.withValues(alpha: 0.70),
+                          : const Color(0xFF9060C8).withValues(alpha: 0.70),
                       width: 1.5,
                     ),
                   ),
@@ -177,11 +177,11 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
               const SizedBox(height: 24),
               if (_loading)
                 const Center(
-                  child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 2.5),
+                  child: CircularProgressIndicator(color: Color(0xFF9060C8), strokeWidth: 2.5),
                 )
               else
                 TactileButton(
-                  variant: TactileButtonVariant.gold,
+                  variant: TactileButtonVariant.purple,
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   borderRadius: BorderRadius.circular(16),
@@ -191,7 +191,7 @@ class _VsOnboardingScreenState extends State<VsOnboardingScreen> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.dicePip,
+                      color: Colors.white,
                     ),
                   ),
                 ),
