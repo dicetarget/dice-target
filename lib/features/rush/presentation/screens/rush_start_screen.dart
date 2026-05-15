@@ -183,7 +183,7 @@ class _RushStartScreenState extends State<RushStartScreen>
 
   Widget _buildStartButton() {
     return TactileButton(
-      variant: TactileButtonVariant.gold,
+      variant: TactileButtonVariant.green,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       borderRadius: BorderRadius.circular(16),
@@ -204,7 +204,7 @@ class _RushStartScreenState extends State<RushStartScreen>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.dicePip,
+                color: Colors.white,
                 letterSpacing: -0.3,
               ),
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dice/core/theme/app_colors.dart';
 
-enum TactileButtonVariant { primary, gold, danger, muted, ghost }
+enum TactileButtonVariant { primary, gold, green, danger, muted, ghost }
 
 class TactileButton extends StatefulWidget {
   final Widget child;
@@ -44,6 +44,7 @@ class _TactileButtonState extends State<TactileButton> {
     if (widget.customColor != null) return widget.customColor!;
     switch (widget.variant) {
       case TactileButtonVariant.gold:     return AppColors.gold;
+      case TactileButtonVariant.green:    return const Color(0xFF5A9E6F);
       case TactileButtonVariant.danger:   return AppColors.opSubtract;
       case TactileButtonVariant.muted:    return AppColors.surfaceHigh;
       case TactileButtonVariant.ghost:   return Colors.transparent;
@@ -51,7 +52,7 @@ class _TactileButtonState extends State<TactileButton> {
     }
   }
 
-  bool get _isGoldVariant => widget.variant == TactileButtonVariant.gold;
+  bool get _isGoldVariant => widget.variant == TactileButtonVariant.gold || widget.variant == TactileButtonVariant.green;
   bool get _isGhostVariant => widget.variant == TactileButtonVariant.ghost;
 
   @override
@@ -82,18 +83,29 @@ class _TactileButtonState extends State<TactileButton> {
           decoration: BoxDecoration(
             borderRadius: radius,
             color: _isGoldVariant ? null : _baseColor,
-            gradient: _isGoldVariant
+            gradient: widget.variant == TactileButtonVariant.gold
                 ? const LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Color(0xFFE8C96A), // goldLight
-                      Color(0xFFD4AF37), // gold
-                      Color(0xFFA88A22), // goldDark
+                      Color(0xFFE8C96A),
+                      Color(0xFFD4AF37),
+                      Color(0xFFA88A22),
                     ],
                     stops: [0.0, 0.50, 1.0],
                   )
-                : null,
+                : widget.variant == TactileButtonVariant.green
+                    ? const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF6DB87F),
+                          Color(0xFF5A9E6F),
+                          Color(0xFF3D7A52),
+                        ],
+                        stops: [0.0, 0.50, 1.0],
+                      )
+                    : null,
             border: Border.all(
               color: isSelected
                   ? AppColors.gold.withValues(alpha: 0.85)
@@ -101,9 +113,11 @@ class _TactileButtonState extends State<TactileButton> {
                   ? widget.customBorderColor!.withValues(alpha: 0.80)
                   : _isGhostVariant
                       ? AppColors.gold.withValues(alpha: 0.45)
-                      : _isGoldVariant
+                      : widget.variant == TactileButtonVariant.gold
                           ? AppColors.goldDark.withValues(alpha: 0.60)
-                          : AppColors.buttonPrimaryBorder.withValues(alpha: 0.80),
+                          : widget.variant == TactileButtonVariant.green
+                              ? const Color(0xFF3D7A52).withValues(alpha: 0.60)
+                              : AppColors.buttonPrimaryBorder.withValues(alpha: 0.80),
               width: isSelected ? 1.8 : 1.0,
             ),
             boxShadow: _isGhostVariant
