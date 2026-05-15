@@ -61,7 +61,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
-  static const Color _accent = AppColors.accent;
+  static const Color _accent = Color(0xFF5A9E6F);
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -343,6 +343,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   Future<void> _onFail() async {
     setState(() => _finalDiceState = FinalDiceState.fail);
     _shakeCtrl.forward(from: 0);
+    sfx.invalid();
     await Future.delayed(const Duration(milliseconds: 350));
     if (!mounted) return;
     setState(() => _finalDiceState = FinalDiceState.none);
@@ -350,7 +351,6 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
   }
 
   void _resetCurrentPuzzle() {
-    sfx.invalid();
     setState(() {
       _dice = _originalDice.map((v) => DiceState(value: v)).toList();
       _rollingDiceNotifier.value = List<int>.from(_originalDice);
@@ -444,7 +444,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         title: const Text(
           'Rush',
           style: TextStyle(
-            color: AppColors.gold,
+            color: Color(0xFF5A9E6F),
             fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
@@ -504,7 +504,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.xl),
                     Expanded(
                       child: PracticeGameArea(
                         showDice: true,
@@ -532,7 +532,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                         onApplyOp: _handleApplyOp,
                         onUndo: _undo,
                         onResetPuzzle: _isPlaying ? _resetCurrentPuzzle : null,
-                        diceTopOffset: 16,
+                        diceTopOffset: 48,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -630,8 +630,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.accent,
-                    shadows: const [Shadow(color: AppColors.accent, blurRadius: 14)],
+                    color: const Color(0xFF5A9E6F),
+                    shadows: const [Shadow(color: Color(0xFF5A9E6F), blurRadius: 10)],
                   ),
                 ),
               ),
