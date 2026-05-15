@@ -157,50 +157,25 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildDailyCard() {
-    const accentColor = Color(0xFFE8C96A);
-    return Stack(
-      children: [
-        MenuCard(
-          title: 'Daily Challenge',
-          subtitle: '5 puzzles · Best score',
-          sublabel: "TODAY'S PUZZLE",
-          icon: Icons.emoji_events_rounded,
-          onTap: _isOpeningDaily ? null : _openDaily,
-          gradientColors: const [
-            Color(0xFF211A08),
-            Color(0xFF130F03),
-            Color(0xFF0E0B02),
-            Color(0xFF191408),
-          ],
-          gradientStops: const [0.0, 0.35, 0.65, 1.0],
-          glowColor: const Color(0xFFB8960C),
-          borderColor: const Color(0xFFB8960C),
-          iconBgColor: const Color(0xFF252010),
-          iconColor: const Color(0xFFD4AF37),
-          titleColor: accentColor,
-          subtitleColor: const Color(0xFF8A6E1A),
-        ),
-        Positioned(
-          top: 12, right: 14,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: accentColor.withValues(alpha: 0.28), width: 1),
-            ),
-            child: Text(
-              'NEW',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: accentColor.withValues(alpha: 0.85),
-              ),
-            ),
-          ),
-        ),
+    return MenuCard(
+      title: 'Daily Challenge',
+      subtitle: '5 puzzles · Best score',
+      sublabel: "TODAY'S PUZZLE",
+      icon: Icons.emoji_events_rounded,
+      onTap: _isOpeningDaily ? null : _openDaily,
+      gradientColors: const [
+        Color(0xFF211A08),
+        Color(0xFF130F03),
+        Color(0xFF0E0B02),
+        Color(0xFF191408),
       ],
+      gradientStops: const [0.0, 0.35, 0.65, 1.0],
+      glowColor: const Color(0xFFB8960C),
+      borderColor: const Color(0xFFB8960C),
+      iconBgColor: const Color(0xFF252010),
+      iconColor: const Color(0xFFD4AF37),
+      titleColor: const Color(0xFFE8C96A),
+      subtitleColor: const Color(0xFF8A6E1A),
     );
   }
 
@@ -282,52 +257,27 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildDuelsCard() {
-    const accentColor = Color(0xFFCE93D8);
-    return Stack(
-      children: [
-        MenuCard(
-          title: 'Duels',
-          subtitle: 'Compete against a friend',
-          sublabel: 'CHALLENGE FRIENDS',
-          icon: Icons.people_rounded,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const VsHomeScreen()),
-          ),
-          gradientColors: const [
-            Color(0xFF120A18),
-            Color(0xFF0A0610),
-            Color(0xFF07040C),
-            Color(0xFF0E0A14),
-          ],
-          gradientStops: const [0.0, 0.35, 0.65, 1.0],
-          glowColor: const Color(0xFF4A148C),
-          borderColor: const Color(0xFF6A1B9A),
-          iconBgColor: const Color(0xFF180A25),
-          iconColor: const Color(0xFFAB47BC),
-          titleColor: accentColor,
-          subtitleColor: const Color(0xFF3A1455),
-        ),
-        Positioned(
-          top: 12, right: 14,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: accentColor.withValues(alpha: 0.28), width: 1),
-            ),
-            child: Text(
-              'BETA',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: accentColor.withValues(alpha: 0.85),
-              ),
-            ),
-          ),
-        ),
+    return MenuCard(
+      title: 'Duels',
+      subtitle: 'Compete against a friend',
+      sublabel: 'CHALLENGE FRIENDS',
+      icon: Icons.people_rounded,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+      ),
+      gradientColors: const [
+        Color(0xFF120A18),
+        Color(0xFF0A0610),
+        Color(0xFF07040C),
+        Color(0xFF0E0A14),
       ],
+      gradientStops: const [0.0, 0.35, 0.65, 1.0],
+      glowColor: const Color(0xFF4A148C),
+      borderColor: const Color(0xFF6A1B9A),
+      iconBgColor: const Color(0xFF180A25),
+      iconColor: const Color(0xFFAB47BC),
+      titleColor: const Color(0xFFCE93D8),
+      subtitleColor: const Color(0xFF3A1455),
     );
   }
 
@@ -341,7 +291,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 2.5,
-            color: AppColors.champagneGold.withValues(alpha: 0.65),
+            color: AppColors.champagneGold.withValues(alpha: 0.52),
           ),
         ),
         const SizedBox(height: 8),
@@ -350,12 +300,11 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFFE8C96A),
-              Color(0xFFD4AF37),
-              Color(0xFFA88A22),
-              Color(0xFFD4AF37),
+              Color(0xFFF2E5B8),
+              Color(0xFFCFA84E),
+              Color(0xFF7A5518),
             ],
-            stops: [0.0, 0.35, 0.65, 1.0],
+            stops: [0.0, 0.5, 1.0],
           ).createShader(bounds),
           child: const Text(
             'Dice Target',
@@ -380,19 +329,20 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
       style: OutlinedButton.styleFrom(
         side: BorderSide(
-          color: AppColors.inkMuted.withValues(alpha: 0.10),
+          color: AppColors.inkMuted.withValues(alpha: 0.08),
           width: 1,
         ),
+        backgroundColor: Colors.white.withValues(alpha: 0.018),
         foregroundColor: AppColors.inkMuted,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppColors.radiusButton),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
-      child: const Text(
+      child: Text(
         'How to Play',
         style: TextStyle(
-          color: AppColors.inkMuted,
+          color: AppColors.inkMuted.withValues(alpha: 0.32),
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
@@ -414,13 +364,13 @@ class _StreakIndicator extends StatelessWidget {
         ...List.generate(maxDots, (i) {
           final active = i < currentStreak.clamp(0, maxDots);
           return Container(
-            width: 6, height: 6,
-            margin: const EdgeInsets.symmetric(horizontal: 3),
+            width: 5, height: 5,
+            margin: const EdgeInsets.symmetric(horizontal: 2.5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: active
-                  ? AppColors.champagneGold.withValues(alpha: 0.85)
-                  : AppColors.champagneGold.withValues(alpha: 0.12),
+                  ? AppColors.champagneGold.withValues(alpha: 0.80)
+                  : AppColors.champagneGold.withValues(alpha: 0.10),
             ),
           );
         }),
@@ -431,7 +381,7 @@ class _StreakIndicator extends StatelessWidget {
             fontSize: 11,
             fontWeight: FontWeight.w500,
             letterSpacing: 1.0,
-            color: AppColors.champagneGold.withValues(alpha: 0.6),
+            color: AppColors.champagneGold.withValues(alpha: 0.52),
           ),
         ),
       ],
