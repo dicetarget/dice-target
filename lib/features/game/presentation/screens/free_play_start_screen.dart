@@ -78,7 +78,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+                  color: Colors.white,
                   letterSpacing: -0.2,
                 ),
               ),
@@ -149,7 +149,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
-              color: AppColors.ink,
+              color: Colors.white,
               letterSpacing: -0.5,
             ),
           ),
@@ -172,7 +172,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
 
   Widget _buildClassicCard() {
     return TactileButton(
-      variant: TactileButtonVariant.primary,
+      variant: TactileButtonVariant.blue,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
       borderRadius: BorderRadius.circular(16),
@@ -182,13 +182,13 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         children: const [
           Text(
             'Classic',
-            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 4),
           Text(
             'Targets 1–120 · Not every puzzle has a solution',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.ink, fontSize: 12, fontWeight: FontWeight.w400),
+            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
           ),
         ],
       ),
@@ -197,7 +197,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
 
   Widget _buildTrainingCard() {
     return TactileButton(
-      variant: TactileButtonVariant.primary,
+      variant: TactileButtonVariant.blue,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
       borderRadius: BorderRadius.circular(16),
@@ -207,13 +207,13 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
         children: const [
           Text(
             'Training',
-            style: TextStyle(color: AppColors.ink, fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 4),
           Text(
             'Solvable puzzles by difficulty',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.ink, fontSize: 12, fontWeight: FontWeight.w400),
+            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
           ),
         ],
       ),
@@ -256,7 +256,7 @@ class _DifficultyRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+                  color: Colors.white,
                 ),
               ),
             ),
