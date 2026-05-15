@@ -14,6 +14,7 @@ import 'package:dice/features/game/presentation/screens/rules_screen.dart';
 import 'package:dice/features/vs/presentation/screens/vs_home_screen.dart';
 import 'package:dice/core/widgets/menu_card.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -29,6 +30,8 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
 
   DailyController? _dailyController;
   bool _isOpeningDaily = false;
+  int _streak = 0;
+  int _rushHighscore = 0;
 
   @override
   void initState() {
@@ -40,6 +43,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       end: 0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _streak = prefs.getInt('daily_streak') ?? 0;
+        _rushHighscore = prefs.getInt('rush_highscore') ?? 0;
+      });
+    }
   }
 
   DailyController _createDailyController() {
@@ -143,48 +157,102 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildDailyCard() {
-    return MenuCard(
-      title: 'Daily Challenge',
-      subtitle: '5 puzzles · Best score',
-      icon: Icons.emoji_events_rounded,
-      onTap: _isOpeningDaily ? null : _openDaily,
-      gradientColors: const [
-        Color(0xFF211A08),
-        Color(0xFF130F03),
-        Color(0xFF0E0B02),
-        Color(0xFF191408),
+    const accentColor = Color(0xFFE8C96A);
+    return Stack(
+      children: [
+        MenuCard(
+          title: 'Daily Challenge',
+          subtitle: '5 puzzles · Best score',
+          sublabel: "TODAY'S PUZZLE",
+          icon: Icons.emoji_events_rounded,
+          onTap: _isOpeningDaily ? null : _openDaily,
+          gradientColors: const [
+            Color(0xFF211A08),
+            Color(0xFF130F03),
+            Color(0xFF0E0B02),
+            Color(0xFF191408),
+          ],
+          gradientStops: const [0.0, 0.35, 0.65, 1.0],
+          glowColor: const Color(0xFFB8960C),
+          borderColor: const Color(0xFFB8960C),
+          iconBgColor: const Color(0xFF252010),
+          iconColor: const Color(0xFFD4AF37),
+          titleColor: accentColor,
+          subtitleColor: const Color(0xFF8A6E1A),
+        ),
+        Positioned(
+          top: 12, right: 14,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: accentColor.withValues(alpha: 0.28), width: 1),
+            ),
+            child: Text(
+              'NEW',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+                color: accentColor.withValues(alpha: 0.85),
+              ),
+            ),
+          ),
+        ),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFFB8960C),
-      borderColor: const Color(0xFFB8960C),
-      iconBgColor: const Color(0xFF252010),
-      iconColor: const Color(0xFFD4AF37),
-      titleColor: const Color(0xFFE8C96A),
-      subtitleColor: const Color(0xFF8A6E1A),
     );
   }
 
   Widget _buildRushCard() {
-    return MenuCard(
-      title: 'Rush',
-      subtitle: 'Solve as many as possible',
-      icon: Icons.timer_rounded,
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const RushStartScreen()),
-      ),
-      gradientColors: const [
-        Color(0xFF0C150E),
-        Color(0xFF081008),
-        Color(0xFF060D06),
-        Color(0xFF0A1209),
+    const accentColor = Color(0xFF66BB6A);
+    final hasBadge = _rushHighscore > 0;
+    return Stack(
+      children: [
+        MenuCard(
+          title: 'Rush',
+          subtitle: 'Solve as many as possible',
+          sublabel: '90 SECONDS',
+          icon: Icons.timer_rounded,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const RushStartScreen()),
+          ),
+          gradientColors: const [
+            Color(0xFF0C150E),
+            Color(0xFF081008),
+            Color(0xFF060D06),
+            Color(0xFF0A1209),
+          ],
+          gradientStops: const [0.0, 0.35, 0.65, 1.0],
+          glowColor: const Color(0xFF1B5E20),
+          borderColor: const Color(0xFF2E7D32),
+          iconBgColor: const Color(0xFF0F2010),
+          iconColor: const Color(0xFF4CAF50),
+          titleColor: accentColor,
+          subtitleColor: const Color(0xFF254A28),
+        ),
+        if (hasBadge)
+          Positioned(
+            top: 12, right: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: accentColor.withValues(alpha: 0.28), width: 1),
+              ),
+              child: Text(
+                'BEST: $_rushHighscore',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                  color: accentColor.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+          ),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFF1B5E20),
-      borderColor: const Color(0xFF2E7D32),
-      iconBgColor: const Color(0xFF0F2010),
-      iconColor: const Color(0xFF4CAF50),
-      titleColor: const Color(0xFF66BB6A),
-      subtitleColor: const Color(0xFF254A28),
     );
   }
 
@@ -192,6 +260,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     return MenuCard(
       title: 'Free Play',
       subtitle: 'Classic · Training',
+      sublabel: 'NO PRESSURE',
       icon: Icons.casino_rounded,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const FreePlayStartScreen()),
@@ -213,59 +282,113 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
   }
 
   Widget _buildDuelsCard() {
-    return MenuCard(
-      title: 'Duels',
-      subtitle: 'Compete against a friend',
-      icon: Icons.people_rounded,
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const VsHomeScreen()),
-      ),
-      gradientColors: const [
-        Color(0xFF120A18),
-        Color(0xFF0A0610),
-        Color(0xFF07040C),
-        Color(0xFF0E0A14),
+    const accentColor = Color(0xFFCE93D8);
+    return Stack(
+      children: [
+        MenuCard(
+          title: 'Duels',
+          subtitle: 'Compete against a friend',
+          sublabel: 'CHALLENGE FRIENDS',
+          icon: Icons.people_rounded,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const VsHomeScreen()),
+          ),
+          gradientColors: const [
+            Color(0xFF120A18),
+            Color(0xFF0A0610),
+            Color(0xFF07040C),
+            Color(0xFF0E0A14),
+          ],
+          gradientStops: const [0.0, 0.35, 0.65, 1.0],
+          glowColor: const Color(0xFF4A148C),
+          borderColor: const Color(0xFF6A1B9A),
+          iconBgColor: const Color(0xFF180A25),
+          iconColor: const Color(0xFFAB47BC),
+          titleColor: accentColor,
+          subtitleColor: const Color(0xFF3A1455),
+        ),
+        Positioned(
+          top: 12, right: 14,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: accentColor.withValues(alpha: 0.28), width: 1),
+            ),
+            child: Text(
+              'BETA',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+                color: accentColor.withValues(alpha: 0.85),
+              ),
+            ),
+          ),
+        ),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFF4A148C),
-      borderColor: const Color(0xFF6A1B9A),
-      iconBgColor: const Color(0xFF180A25),
-      iconColor: const Color(0xFFAB47BC),
-      titleColor: const Color(0xFFCE93D8),
-      subtitleColor: const Color(0xFF3A1455),
     );
   }
 
   Widget _buildTitle() {
-    return ShaderMask(
-      shaderCallback: (bounds) => const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFE8C96A), // Gold hell
-          Color(0xFFD4AF37), // Champagne Gold
-          Color(0xFFA88A22), // Gold dunkel
-          Color(0xFFD4AF37), // zurück zu Gold
-        ],
-        stops: [0.0, 0.35, 0.65, 1.0],
-      ).createShader(bounds),
-      child: const Text(
-        'Dice Target',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 54,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-          color: Colors.white,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'MATH PUZZLE',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 2.5,
+            color: AppColors.champagneGold.withValues(alpha: 0.65),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFE8C96A),
+              Color(0xFFD4AF37),
+              Color(0xFFA88A22),
+              Color(0xFFD4AF37),
+            ],
+            stops: [0.0, 0.35, 0.65, 1.0],
+          ).createShader(bounds),
+          child: const Text(
+            'Dice Target',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 54,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        _StreakIndicator(currentStreak: _streak),
+      ],
     );
   }
 
   Widget _buildRulesButton() {
-    return TextButton(
+    return OutlinedButton(
       onPressed: () =>
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(
+          color: AppColors.inkMuted.withValues(alpha: 0.10),
+          width: 1,
+        ),
+        foregroundColor: AppColors.inkMuted,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppColors.radiusButton),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
       child: const Text(
         'How to Play',
         style: TextStyle(
@@ -274,6 +397,44 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           fontWeight: FontWeight.w400,
         ),
       ),
+    );
+  }
+}
+
+class _StreakIndicator extends StatelessWidget {
+  final int currentStreak;
+  const _StreakIndicator({required this.currentStreak});
+
+  @override
+  Widget build(BuildContext context) {
+    const maxDots = 7;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ...List.generate(maxDots, (i) {
+          final active = i < currentStreak.clamp(0, maxDots);
+          return Container(
+            width: 6, height: 6,
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: active
+                  ? AppColors.champagneGold.withValues(alpha: 0.85)
+                  : AppColors.champagneGold.withValues(alpha: 0.12),
+            ),
+          );
+        }),
+        const SizedBox(width: 8),
+        Text(
+          '$currentStreak-Day Streak',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.0,
+            color: AppColors.champagneGold.withValues(alpha: 0.6),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class MenuCard extends StatefulWidget {
   final String title;
   final String subtitle;
+  final String? sublabel;
   final IconData icon;
   final VoidCallback? onTap;
   final List<Color> gradientColors;
@@ -18,6 +19,7 @@ class MenuCard extends StatefulWidget {
     super.key,
     required this.title,
     required this.subtitle,
+    this.sublabel,
     required this.icon,
     this.onTap,
     required this.gradientColors,
@@ -78,7 +80,7 @@ class _MenuCardState extends State<MenuCard> {
                 ]
               : [
                   BoxShadow(
-                    color: widget.glowColor.withValues(alpha: 0.10),
+                    color: widget.glowColor.withValues(alpha: 0.07),
                     blurRadius: 12,
                     spreadRadius: 0,
                     offset: const Offset(0, 5),
@@ -189,6 +191,18 @@ class _MenuCardState extends State<MenuCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (widget.sublabel != null) ...[
+                            Text(
+                              widget.sublabel!,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.8,
+                                color: widget.titleColor.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                          ],
                           Text(
                             widget.title,
                             style: TextStyle(

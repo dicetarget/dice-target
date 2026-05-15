@@ -20,6 +20,7 @@ abstract final class AppColors {
   // ── Accent Gold (10%) ─────────────────────────────────────────
   static const Color gold                = Color(0xFFD4AF37); // Champagne Gold — Logo, Target, CTA
   static const Color goldDark            = Color(0xFFA88A22); // Gold pressed / dark variant
+  static const Color champagneGold       = gold;              // Alias — streak indicator + eyebrow labels
 
   // ── Dice ──────────────────────────────────────────────────────
   static const Color diceIvory           = Color(0xFFF0EAD6); // Würfel-Körper (Elfenbein)
