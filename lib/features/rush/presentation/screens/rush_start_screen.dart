@@ -97,7 +97,7 @@ class _RushStartScreenState extends State<RushStartScreen>
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.gold,
+                  color: Color(0xFF5A9E6F),
                   letterSpacing: -0.5,
                 ),
               ),
@@ -126,7 +126,7 @@ class _RushStartScreenState extends State<RushStartScreen>
           ? const SizedBox(
               height: 120,
               child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.gold),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF5A9E6F)),
               ),
             )
           : Row(
@@ -156,7 +156,7 @@ class _RushStartScreenState extends State<RushStartScreen>
           style: TextStyle(
             fontSize: 72,
             fontWeight: FontWeight.bold,
-            color: hasValue ? AppColors.gold : AppColors.inkFaint,
+            color: hasValue ? const Color(0xFF5A9E6F) : AppColors.inkFaint,
             letterSpacing: -2,
             height: 0.9,
           ),
