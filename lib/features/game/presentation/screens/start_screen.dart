@@ -30,7 +30,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
 
   DailyController? _dailyController;
   bool _isOpeningDaily = false;
-  int _streak = 0;
   int _rushHighscore = 0;
 
   @override
@@ -50,7 +49,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _streak = prefs.getInt('daily_streak') ?? 0;
         _rushHighscore = prefs.getInt('rush_highscore') ?? 0;
       });
     }
@@ -313,8 +311,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        _StreakIndicator(currentStreak: _streak),
       ],
     );
   }
@@ -343,44 +339,6 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           fontWeight: FontWeight.w400,
         ),
       ),
-    );
-  }
-}
-
-class _StreakIndicator extends StatelessWidget {
-  final int currentStreak;
-  const _StreakIndicator({required this.currentStreak});
-
-  @override
-  Widget build(BuildContext context) {
-    const maxDots = 7;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ...List.generate(maxDots, (i) {
-          final active = i < currentStreak.clamp(0, maxDots);
-          return Container(
-            width: 5, height: 5,
-            margin: const EdgeInsets.symmetric(horizontal: 2.5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active
-                  ? AppColors.champagneGold.withValues(alpha: 0.80)
-                  : AppColors.champagneGold.withValues(alpha: 0.10),
-            ),
-          );
-        }),
-        const SizedBox(width: 8),
-        Text(
-          currentStreak > 0 ? '$currentStreak-Day Streak' : 'Start your streak',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1.0,
-            color: AppColors.champagneGold.withValues(alpha: 0.52),
-          ),
-        ),
-      ],
     );
   }
 }
