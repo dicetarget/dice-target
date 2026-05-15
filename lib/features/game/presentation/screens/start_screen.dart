@@ -164,18 +164,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       icon: Icons.emoji_events_rounded,
       onTap: _isOpeningDaily ? null : _openDaily,
       gradientColors: const [
-        Color(0xFF211A08),
-        Color(0xFF130F03),
-        Color(0xFF0E0B02),
-        Color(0xFF191408),
+        Color(0xFF1E1608),
+        Color(0xFF130E04),
+        Color(0xFF0E0A02),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFFB8960C),
+      gradientStops: const [0.0, 0.5, 1.0],
+      glowColor: const Color(0xFFCFA84E),
       borderColor: const Color(0xFFB8960C),
       iconBgColor: const Color(0xFF252010),
       iconColor: const Color(0xFFD4AF37),
       titleColor: const Color(0xFFE8C96A),
-      subtitleColor: const Color(0xFF8A6E1A),
+      subtitleColor: const Color(0xFF9A7C28),
     );
   }
 
@@ -193,18 +192,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
             MaterialPageRoute(builder: (_) => const RushStartScreen()),
           ),
           gradientColors: const [
-            Color(0xFF0C150E),
-            Color(0xFF081008),
-            Color(0xFF060D06),
-            Color(0xFF0A1209),
+            Color(0xFF0A150A),
+            Color(0xFF060E05),
+            Color(0xFF040A03),
           ],
-          gradientStops: const [0.0, 0.35, 0.65, 1.0],
-          glowColor: const Color(0xFF1B5E20),
+          gradientStops: const [0.0, 0.5, 1.0],
+          glowColor: const Color(0xFF4AAA58),
           borderColor: const Color(0xFF2E7D32),
           iconBgColor: const Color(0xFF0F2010),
           iconColor: const Color(0xFF4CAF50),
           titleColor: accentColor,
-          subtitleColor: const Color(0xFF254A28),
+          subtitleColor: const Color(0xFF3D7045),
         ),
         if (hasBadge)
           Positioned(
@@ -241,18 +239,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         MaterialPageRoute(builder: (_) => const FreePlayStartScreen()),
       ),
       gradientColors: const [
-        Color(0xFF0E1420),
-        Color(0xFF080D18),
+        Color(0xFF0A0F1C),
+        Color(0xFF070B15),
         Color(0xFF050810),
-        Color(0xFF0A0F1A),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFF0D47A1),
+      gradientStops: const [0.0, 0.5, 1.0],
+      glowColor: const Color(0xFF5F91EB),
       borderColor: const Color(0xFF1565C0),
       iconBgColor: const Color(0xFF0A1525),
       iconColor: const Color(0xFF2979C4),
       titleColor: const Color(0xFF90CAF9),
-      subtitleColor: const Color(0xFF1A3A5A),
+      subtitleColor: const Color(0xFF2E5A8A),
     );
   }
 
@@ -266,18 +263,17 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
         MaterialPageRoute(builder: (_) => const VsHomeScreen()),
       ),
       gradientColors: const [
-        Color(0xFF120A18),
-        Color(0xFF0A0610),
-        Color(0xFF07040C),
-        Color(0xFF0E0A14),
+        Color(0xFF100A1C),
+        Color(0xFF0A0714),
+        Color(0xFF07050F),
       ],
-      gradientStops: const [0.0, 0.35, 0.65, 1.0],
-      glowColor: const Color(0xFF4A148C),
+      gradientStops: const [0.0, 0.5, 1.0],
+      glowColor: const Color(0xFF9B5FEB),
       borderColor: const Color(0xFF6A1B9A),
       iconBgColor: const Color(0xFF180A25),
       iconColor: const Color(0xFFAB47BC),
       titleColor: const Color(0xFFCE93D8),
-      subtitleColor: const Color(0xFF3A1455),
+      subtitleColor: const Color(0xFF5A2E8A),
     );
   }
 
@@ -304,15 +300,15 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
               Color(0xFFCFA84E),
               Color(0xFF7A5518),
             ],
-            stops: [0.0, 0.5, 1.0],
+            stops: [0.0, 0.48, 1.0],
           ).createShader(bounds),
           child: const Text(
             'Dice Target',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 54,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1.2,
               color: Colors.white,
             ),
           ),
@@ -329,10 +325,10 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RulesScreen())),
       style: OutlinedButton.styleFrom(
         side: BorderSide(
-          color: AppColors.inkMuted.withValues(alpha: 0.08),
+          color: AppColors.inkMuted.withValues(alpha: 0.13),
           width: 1,
         ),
-        backgroundColor: Colors.white.withValues(alpha: 0.018),
+        backgroundColor: Colors.white.withValues(alpha: 0.025),
         foregroundColor: AppColors.inkMuted,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppColors.radiusButton),
@@ -342,7 +338,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       child: Text(
         'How to Play',
         style: TextStyle(
-          color: AppColors.inkMuted.withValues(alpha: 0.32),
+          color: AppColors.inkMuted.withValues(alpha: 0.40),
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
@@ -376,7 +372,7 @@ class _StreakIndicator extends StatelessWidget {
         }),
         const SizedBox(width: 8),
         Text(
-          '$currentStreak-Day Streak',
+          currentStreak > 0 ? '$currentStreak-Day Streak' : 'Start your streak',
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,

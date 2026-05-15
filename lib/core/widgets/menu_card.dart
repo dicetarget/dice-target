@@ -91,7 +91,7 @@ class _MenuCardState extends State<MenuCard> {
                     offset: const Offset(0, 12),
                   ),
                   BoxShadow(
-                    color: widget.glowColor.withValues(alpha: 0.09),
+                    color: widget.glowColor.withValues(alpha: 0.18),
                     blurRadius: 0,
                     spreadRadius: 0,
                     offset: const Offset(0, 1),
