@@ -61,7 +61,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
 
   static const Color _ink = AppColors.ink;
   static const Color _card = AppColors.card;
-  static const Color _accent = Color(0xFF5A9E6F);
+  static const Color _accent = AppColors.modeRush;
 
   // ── Services ──────────────────────────────────────────────────────────────────
   final GameRules _gameRules = GameRules();
@@ -444,7 +444,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
         title: const Text(
           'Rush',
           style: TextStyle(
-            color: Color(0xFF5A9E6F),
+            color: AppColors.modeRush,
             fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
@@ -630,8 +630,8 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFF5A9E6F),
-                    shadows: const [Shadow(color: Color(0xFF5A9E6F), blurRadius: 10)],
+                    color: AppColors.modeRush,
+                    shadows: const [Shadow(color: AppColors.modeRush, blurRadius: 10)],
                   ),
                 ),
               ),
