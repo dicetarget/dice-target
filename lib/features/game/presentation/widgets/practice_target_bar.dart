@@ -56,7 +56,7 @@ class PracticeTargetBar extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 28),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

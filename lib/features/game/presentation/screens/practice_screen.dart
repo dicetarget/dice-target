@@ -229,7 +229,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   int get _dailyPuzzleCount => widget.dailyPuzzleCount ?? 3;
 
   double get _topSectionGap => AppSpacing.sm;
-  double get _targetBottomGap => AppSpacing.md;
+  double get _targetBottomGap => AppSpacing.lg;
   double get _bottomSectionGapAfterButtons => _isDailyMode ? AppSpacing.sm : AppSpacing.md;
   double get _topPadding => _isDailyMode ? AppSpacing.sm : AppSpacing.sm;
 
@@ -1710,7 +1710,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             onToggleSelect: _toggleSelect,
                             onApplyOp: _applyOp,
                             onUndo: _undo,
-                            diceTopOffset: 64,
+                            diceTopOffset: 8,
                           ),
                         const SizedBox(height: 8),
                         if (!_isDailyMode)

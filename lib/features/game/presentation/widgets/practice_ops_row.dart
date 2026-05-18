@@ -54,18 +54,43 @@ class PracticeOpsRow extends StatelessWidget {
             selected: isSelected,
             enabled: enabled,
             onPressed: enabled ? () => onApplyOp(op) : null,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
             borderRadius: BorderRadius.circular(14),
-            child: Center(
-              child: Text(
-                uiOpSymbol(op),
-                style: TextStyle(
-                  color: _fgColorFor(op),
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Subtle top-edge light shimmer
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(13),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  uiOpSymbol(op),
+                  style: TextStyle(
+                    color: _fgColorFor(op),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
