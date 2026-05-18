@@ -30,12 +30,16 @@ class TargetDisplayWidget extends StatelessWidget {
       builder: (context, rollingTarget, child) {
         final targetDisplay = isPreStart ? '—' : (isRolling ? '$rollingTarget' : '$target');
 
-        return PracticeTargetBar(
-          cardColor: cardColor,
-          accentColor: accentColor,
-          inkColor: inkColor,
-          targetText: targetDisplay,
-          celebrateAnimation: celebrateAnimation,
+        return SizedBox(
+          width: double.infinity,
+          height: PracticeTargetBar.cardHeight,
+          child: PracticeTargetBar(
+            cardColor: cardColor,
+            accentColor: accentColor,
+            inkColor: inkColor,
+            targetText: targetDisplay,
+            celebrateAnimation: celebrateAnimation,
+          ),
         );
       },
     );

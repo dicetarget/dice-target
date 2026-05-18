@@ -17,6 +17,8 @@ class PracticeTargetBar extends StatelessWidget {
     required this.celebrateAnimation,
   });
 
+  static const double cardWidth = 168.0;
+  static const double cardHeight = 130.0;
   static const double _radius = 24;
 
   @override
@@ -30,7 +32,8 @@ class PracticeTargetBar extends StatelessWidget {
           scale: scale,
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 232),
+              width: cardWidth,
+              height: cardHeight,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(_radius),
@@ -56,12 +59,12 @@ class PracticeTargetBar extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 30),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'TARGET',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.gold.withValues(alpha: 0.55),
                       fontSize: 11,
@@ -73,9 +76,10 @@ class PracticeTargetBar extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     targetText,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.gold,
-                      fontSize: 60,
+                      fontSize: 66,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -2.0,
                       height: 1.0,
