@@ -156,7 +156,7 @@ class _RushStartScreenState extends State<RushStartScreen>
           style: TextStyle(
             fontSize: 72,
             fontWeight: FontWeight.bold,
-            color: hasValue ? const Color(0xFF5A9E6F) : AppColors.inkFaint,
+            color: hasValue ? AppColors.modeRush : AppColors.inkFaint,
             letterSpacing: -2,
             height: 0.9,
           ),
