@@ -700,7 +700,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 ),
                 child: Column(
                   children: [
-                    _buildStatusRow(),
+                    SizedBox(height: 52, child: _buildStatusRow()),
                     const SizedBox(height: AppSpacing.hero),
                     TargetDisplayWidget(
                       isPreStart: false,
