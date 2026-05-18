@@ -2,7 +2,6 @@
 
 import 'package:dice/core/theme/app_colors.dart';
 import 'package:dice/core/widgets/mode_screen_header.dart';
-import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -109,37 +108,11 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildHeader(),
-              const SizedBox(height: 24),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundCard,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: AppColors.modeFreePlay.withValues(alpha: 0.20),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.modeFreePlay.withValues(alpha: 0.04),
-                        blurRadius: 24,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildClassicCard(),
-                      const SizedBox(height: 12),
-                      _buildTrainingCard(),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+              _buildClassicCard(),
+              const SizedBox(height: 12),
+              _buildTrainingCard(),
+              const Spacer(),
             ],
           ),
         ),
@@ -157,51 +130,193 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   }
 
   Widget _buildClassicCard() {
-    return TactileButton(
-      variant: TactileButtonVariant.blue,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: _openClassic,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Classic',
-            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onTap: _openClassic,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppColors.modeFreePlay.withValues(alpha: 0.30),
+            width: 1.5,
           ),
-          SizedBox(height: 4),
-          Text(
-            'Targets 1–120 · Not every puzzle has a solution',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
-          ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.modeFreePlay.withValues(alpha: 0.08),
+              blurRadius: 20,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.modeFreePlay.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                Icons.casino_rounded,
+                color: AppColors.modeFreePlay,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Classic',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.modeFreePlay,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Solo or pass-and-play with friends',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.inkMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.modeFreePlay.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.modeFreePlay.withValues(alpha: 0.25),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Text(
+                      'Targets 1–120',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.modeFreePlay,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.modeFreePlay.withValues(alpha: 0.50),
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTrainingCard() {
-    return TactileButton(
-      variant: TactileButtonVariant.blue,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      borderRadius: BorderRadius.circular(16),
-      onPressed: _openTraining,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'Training',
-            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onTap: _openTraining,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundCard,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppColors.modeVS.withValues(alpha: 0.30),
+            width: 1.5,
           ),
-          SizedBox(height: 4),
-          Text(
-            'Solvable puzzles by difficulty',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
-          ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.modeVS.withValues(alpha: 0.08),
+              blurRadius: 20,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.modeVS.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                Icons.track_changes_rounded,
+                color: AppColors.modeVS,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Training',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.modeVS,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Practice solvable puzzles by difficulty',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.inkMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.modeVS.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.modeVS.withValues(alpha: 0.25),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Text(
+                      'Easy · Medium · Hard · Expert',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.modeVS,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.modeVS.withValues(alpha: 0.50),
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
