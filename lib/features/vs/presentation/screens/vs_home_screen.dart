@@ -88,7 +88,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w900,
-                                color: AppColors.gold,
+                                color: AppColors.modeVS,
                                 letterSpacing: -1.0,
                                 height: 1.0,
                               ),
@@ -172,10 +172,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.40), width: 1.5),
+        border: Border.all(color: AppColors.modeVS.withValues(alpha: 0.40), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.gold.withValues(alpha: 0.12),
+            color: AppColors.modeVS.withValues(alpha: 0.12),
             blurRadius: 24,
             spreadRadius: 1,
           ),

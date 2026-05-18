@@ -969,7 +969,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: AppColors.modeDaily,
                             letterSpacing: -1.0,
                             height: 1.0,
                           ),
