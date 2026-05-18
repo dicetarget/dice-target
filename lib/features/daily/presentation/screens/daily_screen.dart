@@ -959,7 +959,7 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
                     showSound: true,
                     onSoundToggle: () => setState(() {}),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // Speed: compact, quick entry — TOP
                   // ignore: dead_code
                   if (false) ...[const _DailySpeedCard(), const SizedBox(height: 16)],

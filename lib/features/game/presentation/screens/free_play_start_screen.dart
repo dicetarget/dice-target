@@ -104,28 +104,42 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
       backgroundColor: AppColors.bgDark,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 8),
               _buildHeader(),
-              const SizedBox(height: 8),
+              const SizedBox(height: 24),
               Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildClassicCard(),
-                        const SizedBox(height: 12),
-                        _buildTrainingCard(),
-                      ],
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundCard,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.modeFreePlay.withValues(alpha: 0.20),
+                      width: 1.5,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.modeFreePlay.withValues(alpha: 0.04),
+                        blurRadius: 24,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildClassicCard(),
+                      const SizedBox(height: 12),
+                      _buildTrainingCard(),
+                    ],
                   ),
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

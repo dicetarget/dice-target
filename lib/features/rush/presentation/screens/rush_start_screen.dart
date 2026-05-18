@@ -58,20 +58,49 @@ class _RushStartScreenState extends State<RushStartScreen>
     return Scaffold(
       backgroundColor: AppColors.bgDark,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const Spacer(),
-            _buildStats(),
-            const SizedBox(height: 32),
-            _buildStages(),
-            const Spacer(),
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
-              child: _buildStartButton(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundCard,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.modeRush.withValues(alpha: 0.25),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.modeRush.withValues(alpha: 0.06),
+                        blurRadius: 24,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildStats(),
+                      const SizedBox(height: 24),
+                      _buildStages(),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.only(bottom: 24 + bottomInset),
+                child: _buildStartButton(),
+              ),
+            ],
+          ),
         ),
       ),
     );
