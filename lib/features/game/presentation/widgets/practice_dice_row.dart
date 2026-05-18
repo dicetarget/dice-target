@@ -44,9 +44,9 @@ class PracticeDiceRow extends StatelessWidget {
     required this.onToggleSelect,
   });
 
-  static const double _dieSize = 74.0;
-  static const double _itemSpacing = 9.0;
-  static const double _rowHeight = 108.0;
+  static const double _dieSize = 60.0;
+  static const double _itemSpacing = 7.0;
+  static const double _rowHeight = 90.0;
   static const Color _selectionNeon = AppColors.gold;
 
   @override

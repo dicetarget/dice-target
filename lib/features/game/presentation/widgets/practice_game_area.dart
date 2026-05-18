@@ -66,9 +66,9 @@ class PracticeGameArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: diceTopOffset),
+          const Spacer(),
           if (showDice)
             DiceRowWidget(
               showDice: showDice,
@@ -100,6 +100,7 @@ class PracticeGameArea extends StatelessWidget {
             onUndo: onUndo,
             onResetPuzzle: onResetPuzzle,
           ),
+          const Spacer(),
           const Spacer(),
         ],
       ),

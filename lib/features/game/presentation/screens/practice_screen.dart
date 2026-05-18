@@ -228,8 +228,8 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   int get _dailyPuzzleCount => widget.dailyPuzzleCount ?? 3;
 
-  double get _topSectionGap => AppSpacing.md;
-  double get _targetBottomGap => AppSpacing.lg;
+  double get _topSectionGap => AppSpacing.xl;
+  double get _targetBottomGap => AppSpacing.md;
   double get _bottomSectionGapAfterButtons => _isDailyMode ? AppSpacing.sm : AppSpacing.md;
   double get _topPadding => _isDailyMode ? AppSpacing.sm : AppSpacing.sm;
 
