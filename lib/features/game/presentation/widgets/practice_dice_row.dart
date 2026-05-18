@@ -44,9 +44,9 @@ class PracticeDiceRow extends StatelessWidget {
     required this.onToggleSelect,
   });
 
-  static const double _dieSize = 80.0;
-  static const double _itemSpacing = 16.0;
-  static const double _rowHeight = 172.0;
+  static const double _dieSize = 64.0;
+  static const double _itemSpacing = 8.0;
+  static const double _rowHeight = 96.0;
   static const Color _selectionNeon = AppColors.gold;
 
   @override
@@ -55,22 +55,23 @@ class PracticeDiceRow extends StatelessWidget {
       return SizedBox(
         height: _rowHeight,
         child: Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: _itemSpacing,
-            runSpacing: 12.0,
-            children: List.generate(rollingDice.length, (i) {
-              final idle = !rollingTargetLocked;
-              return SizedBox(
-                width: _dieSize,
-                height: _dieSize,
-                child: AnimatedOpacity(
-                  opacity: idle ? 0.38 : 1,
-                  duration: const Duration(milliseconds: 140),
-                  child: _buildDieShell(child: DieFace(value: rollingDice[i], selected: false)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < rollingDice.length; i++) ...[
+                SizedBox(
+                  width: _dieSize,
+                  height: _dieSize,
+                  child: AnimatedOpacity(
+                    opacity: !rollingTargetLocked ? 0.38 : 1,
+                    duration: const Duration(milliseconds: 140),
+                    child: _buildDieShell(child: DieFace(value: rollingDice[i], selected: false)),
+                  ),
                 ),
-              );
-            }),
+                if (i < rollingDice.length - 1) const SizedBox(width: _itemSpacing),
+              ],
+            ],
           ),
         ),
       );
@@ -169,11 +170,18 @@ class PracticeDiceRow extends StatelessWidget {
     return SizedBox(
       height: _rowHeight,
       child: Center(
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: _itemSpacing,
-          runSpacing: 12.0,
-          children: diceWidgets,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < diceWidgets.length; i++) ...[
+                diceWidgets[i],
+                if (i < diceWidgets.length - 1) const SizedBox(width: _itemSpacing),
+              ],
+            ],
+          ),
         ),
       ),
     );
