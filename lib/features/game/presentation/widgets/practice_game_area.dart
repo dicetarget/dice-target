@@ -59,7 +59,7 @@ class PracticeGameArea extends StatelessWidget {
     required this.onResetPuzzle,
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.diceTopOffset = 32,
-    this.controlsGap = 32,
+    this.controlsGap = 20,
   });
 
   @override
@@ -100,7 +100,6 @@ class PracticeGameArea extends StatelessWidget {
             onUndo: onUndo,
             onResetPuzzle: onResetPuzzle,
           ),
-          const Spacer(),
           const Spacer(),
         ],
       ),

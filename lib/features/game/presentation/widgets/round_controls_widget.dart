@@ -41,7 +41,7 @@ class RoundControlsWidget extends StatelessWidget {
           inkColor: inkColor,
           onApplyOp: onApplyOp,
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 16),
         PracticeSmallActionsRow(
           enabled: undoEnabled,
           accentColor: accentColor,

@@ -30,7 +30,7 @@ class PracticeTargetBar extends StatelessWidget {
           scale: scale,
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 220),
+              constraints: const BoxConstraints(maxWidth: 232),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(_radius),
@@ -56,7 +56,7 @@ class PracticeTargetBar extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 28),
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 30),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -75,7 +75,7 @@ class PracticeTargetBar extends StatelessWidget {
                     targetText,
                     style: TextStyle(
                       color: AppColors.gold,
-                      fontSize: 56,
+                      fontSize: 60,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -2.0,
                       height: 1.0,
