@@ -235,12 +235,12 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
           color: AppColors.backgroundCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.modeVS.withValues(alpha: 0.30),
+            color: AppColors.modeFreePlay.withValues(alpha: 0.30),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.modeVS.withValues(alpha: 0.08),
+              color: AppColors.modeFreePlay.withValues(alpha: 0.08),
               blurRadius: 20,
               spreadRadius: 1,
             ),
@@ -253,12 +253,12 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: AppColors.modeVS.withValues(alpha: 0.12),
+                color: AppColors.modeFreePlay.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 Icons.track_changes_rounded,
-                color: AppColors.modeVS,
+                color: AppColors.modeFreePlay,
                 size: 28,
               ),
             ),
@@ -272,7 +272,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.modeVS,
+                      color: AppColors.modeFreePlay,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -289,10 +289,10 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.modeVS.withValues(alpha: 0.10),
+                      color: AppColors.modeFreePlay.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.modeVS.withValues(alpha: 0.25),
+                        color: AppColors.modeFreePlay.withValues(alpha: 0.25),
                         width: 0.8,
                       ),
                     ),
@@ -301,7 +301,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.modeVS,
+                        color: AppColors.modeFreePlay,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -312,7 +312,7 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
             const SizedBox(width: 12),
             Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.modeVS.withValues(alpha: 0.50),
+              color: AppColors.modeFreePlay.withValues(alpha: 0.50),
               size: 24,
             ),
           ],

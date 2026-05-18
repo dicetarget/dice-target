@@ -40,7 +40,7 @@ abstract final class AppColors {
   static const Color modeDaily           = Color(0xFFD4AF37); // Gold
   static const Color modeRush            = Color(0xFF5A9E6F); // Muted Forest Green
   static const Color modeVS              = Color(0xFF9060C8); // Purple/Violet
-  static const Color modeFreePlay        = Color(0xFFE0E6ED); // Silver
+  static const Color modeFreePlay        = Color(0xFF90CAF9); // Light Blue (Free Play)
 
   // ── Inner Shadow (für TactileButton / BoxDecoration) ──────────
   static const Color innerShadowLight    = Color(0x2EFFFFFF); // rgba(255,255,255,0.18) oben
