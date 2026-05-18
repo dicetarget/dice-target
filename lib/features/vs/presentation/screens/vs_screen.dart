@@ -650,7 +650,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
         title: const Text(
           'VS',
           style: TextStyle(
-            color: Color(0xFF9060C8),
+            color: AppColors.modeVS,
             fontWeight: FontWeight.w800,
             fontSize: 17,
             letterSpacing: -0.2,
@@ -707,7 +707,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       isRolling: false,
                       target: _target,
                       cardColor: _card,
-                      accentColor: const Color(0xFF9060C8),
+                      accentColor: AppColors.modeVS,
                       inkColor: _ink,
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
@@ -721,7 +721,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                         showMergedResults: true,
                         mergePopKey: _mergePopKey,
                         selectedIndices: _selected,
-                        accentColor: const Color(0xFF9060C8),
+                        accentColor: AppColors.modeVS,
                         inkColor: _ink,
                         shakeAnimation: _shakeAnim,
                         rollingDiceListenable: _rollingDiceNotifier,
@@ -832,7 +832,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFF9060C8),
+                    color: AppColors.modeVS,
                   ),
                 ),
               ),
