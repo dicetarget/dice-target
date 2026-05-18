@@ -701,7 +701,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     _buildStatusRow(),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.hero),
                     TargetDisplayWidget(
                       isPreStart: false,
                       isRolling: false,
@@ -712,7 +712,7 @@ class _VsScreenState extends State<VsScreen> with TickerProviderStateMixin {
                       rollingTargetListenable: _rollingTargetNotifier,
                       celebrateAnimation: _celebrateT,
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.md),
                     PracticeGameArea(
                         showDice: true,
                         isRolling: false,
