@@ -8,6 +8,7 @@ import 'package:dice/core/puzzle/game_mode.dart';
 import 'package:dice/core/puzzle/puzzle_coordinator.dart';
 import 'package:dice/core/puzzle/puzzle_generator.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/mode_screen_header.dart';
 import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/rush/data/rush_daily_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_daily_screen.dart';
@@ -950,56 +951,13 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Header ──
                   const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                        color: Colors.white.withValues(alpha: 0.60),
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        padding: EdgeInsets.zero,
-                        enableFeedback: false,
-                      ),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          'Daily',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.modeDaily,
-                            letterSpacing: -1.0,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                          color: Colors.white70,
-                          size: 22,
-                        ),
-                        onPressed: () async {
-                          await sfx.toggle();
-                          setState(() {});
-                        },
-                        enableFeedback: false,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 48),
-                    child: Text(
-                      '5 puzzles · Fewest moves wins',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: DailyScreen._gold.withValues(alpha: 0.55),
-                      ),
-                    ),
+                  ModeScreenHeader(
+                    title: 'Daily',
+                    titleColor: AppColors.modeDaily,
+                    subtitle: '5 puzzles · Fewest moves wins',
+                    showSound: true,
+                    onSoundToggle: () => setState(() {}),
                   ),
                   const SizedBox(height: 20),
                   // Speed: compact, quick entry — TOP

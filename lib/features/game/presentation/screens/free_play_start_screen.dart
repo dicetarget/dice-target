@@ -1,7 +1,7 @@
 // lib/features/game/presentation/screens/free_play_start_screen.dart
 
-import 'package:dice/core/audio/sfx_singleton.dart';
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/mode_screen_header.dart';
 import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/game/presentation/screens/practice_screen.dart';
 import 'package:flutter/material.dart';
@@ -134,39 +134,11 @@ class _FreePlayStartScreenState extends State<FreePlayStartScreen> {
   }
 
   Widget _buildHeader() {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: AppColors.inkMuted,
-          enableFeedback: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        const SizedBox(width: 4),
-        const Expanded(
-          child: Text(
-            'Free Play',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: AppColors.modeFreePlay,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ),
-        IconButton(
-          icon: Icon(
-            sfx.enabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-            color: AppColors.inkMuted,
-            size: 22,
-          ),
-          enableFeedback: false,
-          onPressed: () async {
-            await sfx.toggle();
-            if (mounted) setState(() {});
-          },
-        ),
-      ],
+    return ModeScreenHeader(
+      title: 'Free Play',
+      titleColor: AppColors.modeFreePlay,
+      showSound: true,
+      onSoundToggle: () => setState(() {}),
     );
   }
 

@@ -1,6 +1,7 @@
 // lib/features/rush/presentation/screens/rush_start_screen.dart
 
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/mode_screen_header.dart';
 import 'package:dice/core/widgets/tactile_button.dart';
 import 'package:dice/features/rush/data/rush_highscore_storage.dart';
 import 'package:dice/features/rush/presentation/screens/rush_screen.dart';
@@ -79,40 +80,11 @@ class _RushStartScreenState extends State<RushStartScreen>
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            color: AppColors.inkMuted,
-            onPressed: () => Navigator.of(context).maybePop(),
-            padding: EdgeInsets.zero,
-          ),
-          const SizedBox(width: 8),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Rush',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF5A9E6F),
-                  letterSpacing: -0.5,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                '90 seconds · Solve as many as you can',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.inkMuted,
-                ),
-              ),
-            ],
-          ),
-        ],
+      child: ModeScreenHeader(
+        title: 'Rush',
+        titleColor: AppColors.modeRush,
+        subtitle: '90 seconds · Solve as many as you can',
+        onBack: () => Navigator.of(context).maybePop(),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:dice/core/theme/app_colors.dart';
+import 'package:dice/core/widgets/mode_screen_header.dart';
 import 'package:flutter/material.dart';
 import 'package:dice/features/vs/domain/vs_player.dart';
 import 'package:dice/features/vs/domain/vs_challenge.dart';
@@ -72,50 +73,17 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                              color: AppColors.inkMuted,
-                              enableFeedback: false,
-                              padding: EdgeInsets.zero,
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'VS',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.modeVS,
-                                letterSpacing: -1.0,
-                                height: 1.0,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 48),
-                          child: Text(
-                            'Play against a friend',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.inkMuted,
-                            ),
-                          ),
+                        ModeScreenHeader(
+                          title: 'VS',
+                          titleColor: AppColors.modeVS,
+                          subtitle: 'Play against a friend',
                         ),
                         const SizedBox(height: 4),
                         Padding(
                           padding: const EdgeInsets.only(left: 48),
                           child: Text(
                             '↓ Pull to refresh',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.inkMuted,
-                            ),
+                            style: TextStyle(fontSize: 11, color: AppColors.inkMuted),
                           ),
                         ),
                         const SizedBox(height: 28),
