@@ -73,7 +73,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
               _buildPbCard(),
               const Spacer(),
               TactileButton(
-                variant: TactileButtonVariant.gold,
+                variant: TactileButtonVariant.green,
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 borderRadius: BorderRadius.circular(16),
@@ -83,13 +83,13 @@ class _RushResultScreenState extends State<RushResultScreen> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.dicePip,
+                    color: Colors.white,
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               TactileButton(
-                variant: TactileButtonVariant.primary,
+                variant: TactileButtonVariant.ghost,
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 borderRadius: BorderRadius.circular(16),
@@ -119,7 +119,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: AppColors.inkMuted,
+            color: AppColors.modeRush,
             letterSpacing: 2.0,
           ),
         ),
@@ -147,14 +147,14 @@ class _RushResultScreenState extends State<RushResultScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _isNewBest
-              ? AppColors.gold.withValues(alpha: 0.60)
+              ? AppColors.modeRush.withValues(alpha: 0.60)
               : Colors.white.withValues(alpha: 0.08),
           width: _isNewBest ? 1.8 : 0.8,
         ),
         boxShadow: _isNewBest
             ? [
                 BoxShadow(
-                  color: AppColors.gold.withValues(alpha: 0.18),
+                  color: AppColors.modeRush.withValues(alpha: 0.18),
                   blurRadius: 24,
                   spreadRadius: 1,
                 ),
@@ -168,13 +168,13 @@ class _RushResultScreenState extends State<RushResultScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.12),
+                color: AppColors.modeRush.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.gold.withValues(alpha: 0.40), width: 0.5),
+                border: Border.all(color: AppColors.modeRush.withValues(alpha: 0.40), width: 0.5),
               ),
               child: const Text(
                 '🏆  New Best!',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.gold),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.modeRush),
               ),
             ),
           const Text(
@@ -192,7 +192,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
             style: const TextStyle(
               fontSize: 80,
               fontWeight: FontWeight.w900,
-              color: AppColors.gold,
+              color: AppColors.modeRush,
               letterSpacing: -4,
               height: 0.9,
             ),
@@ -251,7 +251,7 @@ class _RushResultScreenState extends State<RushResultScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.gold,
+                  color: AppColors.modeRush,
                 ),
               ),
             ],

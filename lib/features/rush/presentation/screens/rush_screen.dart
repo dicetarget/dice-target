@@ -533,6 +533,7 @@ class _RushScreenState extends State<RushScreen> with TickerProviderStateMixin {
                       onResetPuzzle: _isPlaying ? _resetCurrentPuzzle : null,
                     ),
                     const SizedBox(height: 8),
+                    const SizedBox(height: 108),
                   ],
                 ),
               ),

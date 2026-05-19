@@ -108,11 +108,11 @@ class _RushStartScreenState extends State<RushStartScreen>
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      padding: const EdgeInsets.only(top: 20),
       child: ModeScreenHeader(
         title: 'Rush',
         titleColor: AppColors.modeRush,
-        subtitle: '90 seconds · Solve as many as you can',
+        subtitle: 'Solve as many as possible',
         onBack: () => Navigator.of(context).maybePop(),
       ),
     );
@@ -130,20 +130,58 @@ class _RushStartScreenState extends State<RushStartScreen>
                 child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF5A9E6F)),
               ),
             )
-          : Row(
+          : Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildStatColumn(allTimeDisplay, 'all-time best'),
-                Container(
-                  width: 1,
-                  height: 80,
-                  margin: const EdgeInsets.symmetric(horizontal: 28),
-                  color: AppColors.inkFaint,
+                _buildTimeBadge(),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildStatColumn(allTimeDisplay, 'all-time best'),
+                    Container(
+                      width: 1,
+                      height: 80,
+                      margin: const EdgeInsets.symmetric(horizontal: 28),
+                      color: AppColors.inkFaint,
+                    ),
+                    _buildStatColumn(todayDisplay, "today's best"),
+                  ],
                 ),
-                _buildStatColumn(todayDisplay, "today's best"),
               ],
             ),
+    );
+  }
+
+  Widget _buildTimeBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: AppColors.modeRush.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.modeRush.withValues(alpha: 0.45),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer_rounded, size: 14, color: AppColors.modeRush.withValues(alpha: 0.85)),
+          const SizedBox(width: 6),
+          Text(
+            '90 SEC',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.modeRush.withValues(alpha: 0.90),
+              letterSpacing: 0.6,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

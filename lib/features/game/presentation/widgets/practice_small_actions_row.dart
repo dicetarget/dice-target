@@ -21,7 +21,7 @@ class PracticeSmallActionsRow extends StatelessWidget {
   });
 
   static const _undoActive = Color(0xFFFFFFFF);
-  static const _undoInactive = Color(0xFF555555);
+  static const _undoInactive = Color(0xFF8A8A8A);
   static const _resetColor = Color(0xFFB85C5C);
   static const _resetColorLt = Color(0xFFFFB3B3);
 
@@ -43,12 +43,12 @@ class PracticeSmallActionsRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: enabled
                         ? _undoActive.withValues(alpha: 0.07)
-                        : Colors.white.withValues(alpha: 0.03),
+                        : Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(AppRadius.medium),
                     border: Border.all(
                       color: enabled
                           ? _undoActive.withValues(alpha: 0.28)
-                          : Colors.white.withValues(alpha: 0.08),
+                          : Colors.white.withValues(alpha: 0.14),
                       width: 0.5,
                     ),
                   ),
@@ -73,11 +73,9 @@ class PracticeSmallActionsRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Visibility(
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                visible: resetEnabled,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 160),
+                opacity: resetEnabled ? 1.0 : 0.35,
                 child: GestureDetector(
                   onTap: resetEnabled ? onResetPuzzle : null,
                   child: AnimatedContainer(

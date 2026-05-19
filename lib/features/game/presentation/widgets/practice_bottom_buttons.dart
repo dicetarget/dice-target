@@ -23,45 +23,63 @@ class PracticeBottomButtons extends StatelessWidget {
 
     return Column(
       children: [
-        TactileButton(
-          variant: TactileButtonVariant.primary,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          borderRadius: BorderRadius.circular(16),
-          enabled: canNoSolution,
-          onPressed: canNoSolution ? onNoSolution : null,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.lightbulb_outline_rounded, size: 18, color: AppColors.gold),
-              SizedBox(width: 8),
-              Text(
-                'Show Solution',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.gold,
-                  letterSpacing: 0.2,
-                  height: 1,
+        // Show Solution — schwach, outlined, kein TactileButton
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 160),
+          opacity: canNoSolution ? 1.0 : 0.35,
+          child: GestureDetector(
+            onTap: canNoSolution ? onNoSolution : null,
+            child: Container(
+              width: double.infinity,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.inkHint.withValues(alpha: 0.30),
+                  width: 0.5,
                 ),
               ),
-            ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.lightbulb_outline_rounded,
+                    size: 14,
+                    color: AppColors.inkHint,
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    'Show Solution',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.inkHint,
+                      height: 1,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
+        // New Game — ghost outlined gold
         TactileButton(
-          variant: TactileButtonVariant.gold,
+          variant: TactileButtonVariant.ghost,
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          borderRadius: BorderRadius.circular(16),
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          borderRadius: BorderRadius.circular(14),
           enabled: canPressBottom,
           onPressed: canPressBottom ? onNewGame : null,
           child: const Text(
             'New Game',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: AppColors.dicePip,
+              color: AppColors.gold,
               letterSpacing: 0.3,
               height: 1,
             ),
@@ -71,4 +89,3 @@ class PracticeBottomButtons extends StatelessWidget {
     );
   }
 }
-

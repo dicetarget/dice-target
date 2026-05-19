@@ -330,7 +330,10 @@ class _DailyScreenState extends State<DailyScreen> with WidgetsBindingObserver {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => _showBestSolutionDialog(result),
+                  onPressed: () {
+                    sfx.solution();
+                    _showBestSolutionDialog(result);
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: DailyScreen._cyan,
                     side: BorderSide(color: DailyScreen._cyan.withValues(alpha: 0.55)),

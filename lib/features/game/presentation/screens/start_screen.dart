@@ -280,7 +280,7 @@ class _StartScreenState extends State<StartScreen> with SingleTickerProviderStat
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'MATH PUZZLE',
+          'TRAIN YOUR BRAIN',
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,

@@ -197,7 +197,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: AppColors.inkMuted,
+            color: AppColors.modeVS,
             letterSpacing: 2.0,
           ),
         ),
@@ -306,7 +306,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
 
   Widget _buildHomeButton() {
     return TactileButton(
-      variant: TactileButtonVariant.primary,
+      variant: TactileButtonVariant.ghost,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       borderRadius: BorderRadius.circular(16),
@@ -315,7 +315,7 @@ class _VsStartScreenState extends State<VsStartScreen> {
         (route) => route.isFirst,
       ),
       child: const Text(
-        'Back to VS',
+        'Back to Duels',
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w600,

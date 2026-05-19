@@ -44,13 +44,39 @@ class PracticeDiceRow extends StatelessWidget {
     required this.onToggleSelect,
   });
 
-  static const double _dieSize = 72.0;
-  static const double _itemSpacing = 7.0;
+  static const double _maxDieSize = 72.0;
+  static const double _minDieSize = 56.0;
   static const double _rowHeight = 104.0;
+  // Breathing space reserved on each side of the dice content.
+  // Must match the SingleChildScrollView padding below.
+  static const double _hPad = 16.0;
   static const Color _selectionNeon = AppColors.gold;
+
+  // Spacing between dice: tighter on narrow screens, roomier on wide.
+  static double _diceSpacing(double maxRowWidth) =>
+      maxRowWidth < 380.0 ? 7.0 : 10.0;
+
+  // Die size that fills the usable width without ever exceeding maxRowWidth.
+  // Formula: available = maxRowWidth - _hPad*2 - spacing*4
+  //          diceSize  = available / 5  (clamped to [min, max])
+  static double _diceSize(double maxRowWidth) {
+    final spacing = _diceSpacing(maxRowWidth);
+    final available = maxRowWidth - _hPad * 2 - spacing * 4;
+    return (available / 5).clamp(_minDieSize, _maxDieSize);
+  }
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dieSize = _diceSize(constraints.maxWidth);
+        final spacing = _diceSpacing(constraints.maxWidth);
+        return _buildRow(dieSize, spacing);
+      },
+    );
+  }
+
+  Widget _buildRow(double dieSize, double spacing) {
     if (isRolling) {
       return SizedBox(
         height: _rowHeight,
@@ -61,15 +87,15 @@ class PracticeDiceRow extends StatelessWidget {
             children: [
               for (int i = 0; i < rollingDice.length; i++) ...[
                 SizedBox(
-                  width: _dieSize,
-                  height: _dieSize,
+                  width: dieSize,
+                  height: dieSize,
                   child: AnimatedOpacity(
                     opacity: !rollingTargetLocked ? 0.38 : 1,
                     duration: const Duration(milliseconds: 140),
                     child: _buildDieShell(child: DieFace(value: rollingDice[i], selected: false)),
                   ),
                 ),
-                if (i < rollingDice.length - 1) const SizedBox(width: _itemSpacing),
+                if (i < rollingDice.length - 1) SizedBox(width: spacing),
               ],
             ],
           ),
@@ -88,13 +114,12 @@ class PracticeDiceRow extends StatelessWidget {
       final showSuccess = isFinalDie && finalDiceState == FinalDiceState.success;
       final showFail = isFinalDie && finalDiceState == FinalDiceState.fail;
 
-      // Nicht-selektierte Würfel zurückdimmen wenn Op aktiv
       final double dieOpacity = (opActive && !selected) ? 0.52 : 1.0;
 
       Widget dieContent({double mergeFlash = 0.0}) {
         Widget shell = SizedBox(
-          width: _dieSize,
-          height: _dieSize,
+          width: dieSize,
+          height: dieSize,
           child: AnimatedSlide(
             duration: const Duration(milliseconds: 160),
             curve: Curves.easeOutCubic,
@@ -172,14 +197,14 @@ class PracticeDiceRow extends StatelessWidget {
       child: Center(
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: _hPad),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               for (int i = 0; i < diceWidgets.length; i++) ...[
                 diceWidgets[i],
-                if (i < diceWidgets.length - 1) const SizedBox(width: _itemSpacing),
+                if (i < diceWidgets.length - 1) SizedBox(width: spacing),
               ],
             ],
           ),

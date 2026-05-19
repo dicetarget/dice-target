@@ -37,15 +37,9 @@ class PracticeTopControlsBar extends StatelessWidget {
   });
 
   static const Color _barBg = AppColors.surface;
-  static const Color _textPrimary = AppColors.ink;
-  static const Color _textSecondary = AppColors.inkMuted;
   static const Color _accent = AppColors.gold;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isDailyMode) return _buildDailyBar();
-    return _buildFreePlayBar();
-  }
+  // dim: für Merged / Random / Puzzle-Label
+  static const Color _dim = AppColors.inkHint;
 
   BoxDecoration get _barDecoration => BoxDecoration(
     color: _barBg,
@@ -60,7 +54,13 @@ class PracticeTopControlsBar extends StatelessWidget {
     ],
   );
 
-  // ── Daily Bar: [Puzzle N/5] [Moves] [empty] ───────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    if (isDailyMode) return _buildDailyBar();
+    return _buildFreePlayBar();
+  }
+
+  // ── Daily Bar ─────────────────────────────────────────────────────────────
   Widget _buildDailyBar() {
     final number = dailyPuzzleNumber ?? 1;
     final total = dailyPuzzleCount ?? 3;
@@ -73,7 +73,7 @@ class PracticeTopControlsBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Links: Puzzle Progress
+          // Links: Puzzle N/total — warm gold family
           SizedBox(
             width: 80,
             child: Column(
@@ -83,19 +83,20 @@ class PracticeTopControlsBar extends StatelessWidget {
                 Text(
                   'Puzzle',
                   style: AppTextStyles.body.copyWith(
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: FontWeight.w600,
-                    color: _textSecondary,
+                    color: _accent.withValues(alpha: 0.50),
+                    letterSpacing: 0.6,
                     height: 1.1,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   '$number / $total',
                   style: AppTextStyles.body.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: _textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: _accent.withValues(alpha: 0.65),
                     height: 1,
                   ),
                 ),
@@ -103,31 +104,79 @@ class PracticeTopControlsBar extends StatelessWidget {
             ),
           ),
 
-          // Mitte: Moves
+          // Mitte: Moves — dominant
           Expanded(
             child: Center(
               child: moves != null
-                  ? Text(
-                      '$moves ${moves == 1 ? 'Move' : 'Moves'}',
-                      style: AppTextStyles.body.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: _accent.withValues(alpha: 0.90),
-                        height: 1,
-                      ),
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$moves',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                            color: _accent,
+                            height: 1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          moves == 1 ? 'MOVE' : 'MOVES',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: _dim.withValues(alpha: 0.70),
+                            letterSpacing: 1.2,
+                            height: 1,
+                          ),
+                        ),
+                      ],
                     )
                   : const SizedBox.shrink(),
             ),
           ),
 
-          // Rechts: leer (Sound ist in AppBar)
-          const SizedBox(width: 80),
+          SizedBox(
+            width: 80,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'MODE',
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      color: _accent.withValues(alpha: 0.50),
+                      letterSpacing: 0.6,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    'ONE RUN',
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: _accent.withValues(alpha: 0.65),
+                      height: 1,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // ── Free Play / Training Bar: [Merged] [Moves] [empty] ───────────────────
+  // ── Free Play / Training Bar ───────────────────────────────────────────────
   Widget _buildFreePlayBar() {
     final moves = freePlayMoves;
 
@@ -138,26 +187,47 @@ class PracticeTopControlsBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Links: Merged Toggle
+          // Links: Merged toggle — warm gold/amber family
           SizedBox(
             width: 80,
             child: GestureDetector(
               onTap: onToggleMerged,
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    showMerged ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                    size: 16,
-                    color: showMerged ? _accent : _textSecondary,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        showMerged
+                            ? Icons.visibility_rounded
+                            : Icons.visibility_off_rounded,
+                        size: 12,
+                        color: _accent.withValues(alpha: 0.50),
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        'Merged',
+                        style: AppTextStyles.body.copyWith(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: _accent.withValues(alpha: 0.50),
+                          letterSpacing: 0.5,
+                          height: 1,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    'Merged',
+                    showMerged ? 'On' : 'Off',
                     style: AppTextStyles.body.copyWith(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: showMerged ? _accent : _textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: showMerged
+                          ? _accent.withValues(alpha: 0.70)
+                          : _accent.withValues(alpha: 0.30),
                       height: 1,
                     ),
                   ),
@@ -166,37 +236,71 @@ class PracticeTopControlsBar extends StatelessWidget {
             ),
           ),
 
-          // Mitte: Moves
+          // Mitte: Moves — dominant gold, MOVES label warm-dim
           Expanded(
             child: Center(
               child: moves != null
-                  ? Text(
-                      '$moves ${moves == 1 ? 'Move' : 'Moves'}',
-                      style: AppTextStyles.body.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: _accent.withValues(alpha: 0.90),
-                        height: 1,
-                      ),
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$moves',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                            color: _accent,
+                            height: 1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          moves == 1 ? 'MOVE' : 'MOVES',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: _accent.withValues(alpha: 0.45),
+                            letterSpacing: 1.2,
+                            height: 1,
+                          ),
+                        ),
+                      ],
                     )
                   : const SizedBox.shrink(),
             ),
           ),
 
-          // Rechts: mode label (Random / difficulty)
+          // Rechts: Random / Difficulty — warm gold/amber family
           SizedBox(
             width: 80,
             child: rightLabel != null
                 ? Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      rightLabel!,
-                      style: AppTextStyles.body.copyWith(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _accent,
-                        height: 1,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Mode',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: _accent.withValues(alpha: 0.50),
+                            letterSpacing: 0.5,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rightLabel!,
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: _accent.withValues(alpha: 0.65),
+                            height: 1,
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : const SizedBox.shrink(),

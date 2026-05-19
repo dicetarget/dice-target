@@ -95,7 +95,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
                 ),
               const Spacer(),
               TactileButton(
-                variant: TactileButtonVariant.primary,
+                variant: TactileButtonVariant.ghost,
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 borderRadius: BorderRadius.circular(16),
@@ -104,7 +104,7 @@ class _VsResultScreenState extends State<VsResultScreen> {
                   (route) => route.isFirst,
                 ),
                 child: const Text(
-                  'Back to VS',
+                  'Back to Duels',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,

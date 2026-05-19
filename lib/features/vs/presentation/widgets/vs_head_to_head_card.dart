@@ -69,7 +69,7 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
       ),
       child: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.gold, strokeWidth: 2),
+              child: CircularProgressIndicator(color: AppColors.modeVS, strokeWidth: 2),
             )
           : _buildContent(),
     );
@@ -86,7 +86,7 @@ class _VsHeadToHeadCardState extends State<VsHeadToHeadCard> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: AppColors.gold,
+            color: AppColors.modeVS,
             letterSpacing: 0.4,
           ),
         ),

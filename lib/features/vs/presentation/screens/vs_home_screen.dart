@@ -62,9 +62,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: AppColors.bgDark,
         child: SafeArea(
           child: _loading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+              ? const Center(child: CircularProgressIndicator(color: AppColors.modeVS))
               : RefreshIndicator(
-                  color: AppColors.gold,
+                  color: AppColors.modeVS,
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -98,7 +98,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                         _buildSectionHeader(
                           'Friends',
                           trailing: IconButton(
-                            icon: const Icon(Icons.person_add, size: 22, color: AppColors.gold),
+                            icon: const Icon(Icons.person_add, size: 22, color: AppColors.modeVS),
                             enableFeedback: false,
                             onPressed: () async {
                               await Navigator.of(context).push(
@@ -170,7 +170,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.goldLight,
+                    color: AppColors.modeVS,
                     letterSpacing: 1.0,
                     height: 1.1,
                   ),
@@ -331,9 +331,9 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: AppColors.gold.withValues(alpha: 0.15),
+          color: AppColors.modeVS.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.gold.withValues(alpha: 0.50), width: 1.0),
+          border: Border.all(color: AppColors.modeVS.withValues(alpha: 0.50), width: 1.0),
         ),
         child: Text(
           label,
@@ -341,7 +341,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: AppColors.gold,
+            color: AppColors.modeVS,
           ),
         ),
       ),
@@ -474,7 +474,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         border: Border.all(
           color: c.isCompleted
               ? Colors.white.withValues(alpha: 0.12)
-              : AppColors.gold.withValues(alpha: 0.30),
+              : AppColors.modeVS.withValues(alpha: 0.30),
           width: 1.0,
         ),
       ),
@@ -501,7 +501,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                     fontWeight: FontWeight.w600,
                     color: c.isCompleted
                         ? AppColors.inkMuted
-                        : AppColors.gold.withValues(alpha: 0.70),
+                        : AppColors.modeVS.withValues(alpha: 0.70),
                   ),
                 ),
               ],
@@ -660,10 +660,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.15),
+                  color: AppColors.modeVS.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.50),
+                    color: AppColors.modeVS.withValues(alpha: 0.50),
                     width: 1.0,
                   ),
                 ),
@@ -672,7 +672,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.gold,
+                    color: AppColors.modeVS,
                   ),
                 ),
               ),
@@ -708,10 +708,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.15),
+              color: AppColors.modeVS.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.50),
+                color: AppColors.modeVS.withValues(alpha: 0.50),
                 width: 1.0,
               ),
             ),
@@ -720,7 +720,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: AppColors.gold,
+                color: AppColors.modeVS,
               ),
             ),
           ),
@@ -877,7 +877,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppColors.gold.withValues(alpha: 0.25),
+          color: AppColors.modeVS.withValues(alpha: 0.25),
           width: 0.5,
         ),
       ),
@@ -934,10 +934,10 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.15),
+                color: AppColors.modeVS.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.50),
+                  color: AppColors.modeVS.withValues(alpha: 0.50),
                   width: 1.0,
                 ),
               ),
@@ -946,7 +946,7 @@ class _VsHomeScreenState extends State<VsHomeScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.gold,
+                  color: AppColors.modeVS,
                 ),
               ),
             ),

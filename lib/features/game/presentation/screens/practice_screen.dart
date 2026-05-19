@@ -1224,7 +1224,8 @@ class _PracticeScreenState extends State<PracticeScreen>
     if (solved) {
       setState(() => _finalDiceState = FinalDiceState.success);
       final isLastDailyPuzzle = _isDailyMode && _dailyPuzzleNumber == _dailyPuzzleCount;
-      if (_soundEnabled && !isLastDailyPuzzle) sfx.win();
+      // Replay (Train Again): always play win — dailyComplete is suppressed for replay anyway.
+      if (_soundEnabled && (!isLastDailyPuzzle || widget.isReplayMode)) sfx.win();
       await Future.delayed(const Duration(milliseconds: 320));
       if (!mounted) return;
       setState(() => _finalDiceState = FinalDiceState.none);
@@ -1606,6 +1607,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                     style: AppTextStyles.appBarTitle.copyWith(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
+                      color: AppColors.gold,
                     ),
                   ),
             centerTitle: true,
